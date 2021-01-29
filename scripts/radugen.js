@@ -1,11 +1,20 @@
-console.log("Hello World! This code runs immediately when the file is loaded.");
 CONFIG.debug.hooks = true;
-Hooks.on("init", function () {
-    console.log("This code runs once the Foundry VTT software begins it's initialization workflow.");
-});
+const radugen = {
+    name: "Radugen",
+    compendium: {}
+};
 
+Hooks.on("init", function () { });
 Hooks.on("ready", function () {
-    console.log("This code runs once core initialization is ready and game data is available.");
+    radugen.compendium.scene = game.packs.find(p => {
+        return p.metadata.label === radugen.name
+    });
+
+    if (radugen.compendium.scene == null) {
+        let pack = Compendium.create({ entity: "Scene", label: radugen.name }).then(function () {
+            radugen.compendium.scene = pack;
+        });
+    }
 });
 
 const dungeon_names = ["Vault", "Catacombs", "Dungeon", "Palace", "Eternal"];
@@ -31,20 +40,14 @@ Hooks.on("chatMessage", function (_, message) {
         name: `The ${getRndFromArr(dungeon_names)} of ${getRndFromArr(curiosities)}`
     });
 
-    const pack = Compendium.create({ entity: "Scene", label: "Radugen" }).then(function () {
-        pack.importEntity(rdg_scene);
 
-
-
-    })
-    
+    radugen.compendium.scene.importEntity(rdg_scene);
 
     game.scenes.entities[id] = rdg_scene;
     rdg_scene.activate().then(function () {
-       
+
     });
 
-    console.log("You typed /radugen congrats!")
     return false;
 });
 
