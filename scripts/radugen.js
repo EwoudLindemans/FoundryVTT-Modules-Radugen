@@ -21,6 +21,8 @@ Hooks.on("chatMessage", function (_, message) {
     const rdg_scene = new radugen.customScene();
     radugen.compendium.scene.importEntity(rdg_scene);
 
+
+
     return false;
 });
 
