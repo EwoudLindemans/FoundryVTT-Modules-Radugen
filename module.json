@@ -1,15 +1,12 @@
 {
-    "name": "Radugen",
-    "title": "Random dungeon generator",
-    "description": "Outputs all temporary effects to chat at the start of a token's turn, and allows them to be disabled, examined, or deleted from the chat card.",
-    "author": "Ewoud Lindemans/Stefan Wouters-Yaowanasap",
-    "version": "0.0.1",
-    "minimumCoreVersion": "0.7.8",
-    "compatibleCoreVersion": "0.7.8",
-    "esmodules": [],
-    "styles": [],
-    "languages": [],
-    "url": "",
-    "manifest": "",
-    "download": ""
+  "name": "Radugen",
+  "title": "Random dungeon generator",
+  "description": "You want a random dungeon, you got one!.",
+  "author": "Ewoud Lindemans/Stefan Wouters-Yaowanasap",
+  "version": "0.0.1",
+  "minimumCoreVersion": "0.7.8",
+  "compatibleCoreVersion": "0.7.8",
+  "scripts": [
+    "scripts/radugen.js"
+  ]
 }
