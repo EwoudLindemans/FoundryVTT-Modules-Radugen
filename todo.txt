@@ -1,0 +1,21 @@
+Dungeon generator:
+- Rooms
+- Hallways
+- Different generation methods?
+
+Rendering:
+- Render module
+- Size selection (64/128/256)?
+
+Assets:
+- Floor tiles
+- Walls
+
+^^^^^^^^ Minimum_Viable_Product ^^^^^^^^
+
+
+Foundry VTT integration:
+- Scene
+- Walls
+- Lights
+- Notes (room description)

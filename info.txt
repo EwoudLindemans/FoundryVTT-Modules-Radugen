@@ -1,0 +1,2 @@
+Foundry VTT Api Documentation:
+https://foundryvtt.com/api/
