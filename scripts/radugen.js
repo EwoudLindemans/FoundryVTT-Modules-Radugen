@@ -23,7 +23,7 @@ Hooks.on("chatMessage", function (_, message) {
         case 'generate':
             let width = 16, height = 16;
             if (command.length >= 3){
-                if (command[2].indexOf('x') > 1){
+                if (command[2].indexOf('x') > 0){
                     width = parseInt(command[2].split('x')[0]);
                     height = parseInt(command[2].split('x')[1]);
                 } else {

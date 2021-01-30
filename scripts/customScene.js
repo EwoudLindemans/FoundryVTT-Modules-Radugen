@@ -14,6 +14,7 @@ radugen.customScene = class extends Scene {
         let size = 256;
 
         super({
+            _id: radugen.helper.uuidv4(),
             name: `The ${radugen.helper.getRndFromArr(dungeon_names)} of ${radugen.helper.getRndFromArr(curiosities)}`,
             shiftX: 0,
             shiftY: 0,
@@ -22,9 +23,8 @@ radugen.customScene = class extends Scene {
             grid: size,
             padding: 0,
             tiles: [],
-            img: img,
+            img: img
         });
-        this._id = radugen.helper.uuidv4();
     }
 
     uploadFile(file) {
