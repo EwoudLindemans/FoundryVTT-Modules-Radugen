@@ -8,6 +8,7 @@
   "compatibleCoreVersion": "0.7.8",
   "scripts": [
     "scripts/helper.js",
+    "scripts/generators/names.js",
     "scripts/customScene.js",
     "scripts/radugen.js"
   ]

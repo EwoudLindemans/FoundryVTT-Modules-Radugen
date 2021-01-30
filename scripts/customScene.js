@@ -6,13 +6,11 @@ radugen.customScene = class extends Scene {
      * @param {number} height
      * @param {number} tileSize of 64 128 192 256 ...
      */   
-    constructor(width, height, tileSize, img) {
-        const dungeon_names = ["Vault", "Catacombs", "Dungeon", "Palace", "Eternal", "Repository", "Lair", "Crypt", "Caves", "Maze"];
-        const curiosities = ["Endless Suffering", "Agony Burrows", "Dream Cells", "Mystic", "Back Itches", "Paper Cuts", "Random Bugs", "Calories", "Disappointments", "Lurking Dangers", "Eery Silence"];
+    constructor(width, height, tileSize) {
         const id = radugen.helper.uuidv4();
         super({
             _id: id,
-            name: `The ${radugen.helper.getRndFromArr(dungeon_names)} of ${radugen.helper.getRndFromArr(curiosities)}`,
+            name: radugen.generators.names.dungeonName(),
             shiftX: 0,
             shiftY: 0,
             width: width * tileSize,
