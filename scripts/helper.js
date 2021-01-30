@@ -14,5 +14,29 @@ radugen.helper = {
      */
     getRndFromNum: (num) => {
         return radugen.helper.getRndFromArr([...Array(num).keys()]) + 1;
+    },
+    minMax: class {
+        /**
+         * @param {number} min
+         * @param {number} max
+         */
+        constructor(min, max){
+            this._min = min;
+            this._max = max;
+        }
+
+        /**
+         * @type {number}
+         */
+        get min(){
+            return this._min;
+        }
+
+        /**
+         * @type {number}
+         */
+        get max(){
+            return this._max;
+        }
     }
 };
