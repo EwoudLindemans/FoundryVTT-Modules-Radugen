@@ -14,7 +14,6 @@ radugen.customScene = class extends Scene {
         let size = 256;
 
         super({
-            _id: radugen.helper.uuidv4(),
             name: `The ${radugen.helper.getRndFromArr(dungeon_names)} of ${radugen.helper.getRndFromArr(curiosities)}`,
             shiftX: 0,
             shiftY: 0,
@@ -25,6 +24,20 @@ radugen.customScene = class extends Scene {
             tiles: [],
             img: img,
         });
+        this._id = radugen.helper.uuidv4();
+    }
+
+    uploadFile(file) {
+        var filePicker = new FilePicker({
+            uploadURL: '/Radugen/Scene'
+        });
+
+        filePicker.upload(
+            `/Radugen/Scene/${this._id}.jpg`,
+            path,
+            file,
+            options
+        );
     }
 
     static getImage(imageloaded) {
@@ -35,7 +48,7 @@ radugen.customScene = class extends Scene {
         vancas.width = grid[0] * size;
         vancas.height = grid[1] * size;
 
-        
+
 
         let ctx = vancas.getContext("2d");
         ctx.fillStyle = "black";
@@ -49,7 +62,7 @@ radugen.customScene = class extends Scene {
                     //Get random image
                     var img = new Image();
                     img.onload = function () {
-                        
+
 
                         //Rotate
                         var r = radugen.helper.getRndFromNum(4)
@@ -67,6 +80,13 @@ radugen.customScene = class extends Scene {
                         console.log(imgcount);
                         console.log(x * size, y * size);
                         if (imgcount == grid[0] * grid[1]) {
+
+                          
+
+
+                            //ctx.fillStyle = `rgba(${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},0.5)`;
+                            //ctx.fillRect(0, 0, vancas.width, vancas.height);
+
                             imageloaded.bind(vancas.toDataURL())();
                         }
                     };
