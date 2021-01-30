@@ -49,7 +49,20 @@ radugen.customScene = class extends Scene {
                     //Get random image
                     var img = new Image();
                     img.onload = function () {
+                        
+
+                        //Rotate
+                        var r = radugen.helper.getRndFromNum(4)
+
+                        ctx.translate((x * size) + size / 2, (y * size) + size / 2);
+                        ctx.rotate((Math.PI / 2) * r);
+                        ctx.translate(-(x * size) - size / 2, -(y * size) - size / 2);
+
                         ctx.drawImage(img, x * size, y * size, size, size);
+
+                        //Reset transform
+                        ctx.setTransform(1, 0, 0, 1, 0, 0)
+
                         imgcount++;
                         console.log(imgcount);
                         console.log(x * size, y * size);
