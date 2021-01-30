@@ -1,42 +1,76 @@
 window.radugen = window.radugen || {};
 radugen.renderer = radugen.renderer || {};
 radugen.renderer.Image = class {
-    constructor(map, tileSize) {
+    constructor(map, tileResolution) {
         this._map = map;
-        this._width = map.length;
-        this._height = map[0].length
-        this._tileSize = tileSize;
+        this._gridWidth = map.length;
+        this._gridHeight = map[0].length
+
+        this._imageWidth = this._gridWidth * tileResolution;
+        this._imageHeight = this._gridHeight * tileResolution;
+
+        this._tileResolution = tileResolution;
     }
 
-    loadThemeFiles(theme) {
+    getDirectoryContents(src) {
+        return FilePicker.browse("data", src);
+    }
+
+    getPatternDirectoryContents() {
+        return this.getDirectoryContents('modules/Radugen/patterns/');
+    }
+
+    getThemeFileDirectoryContents(theme) {
         const promises = [];
         for (var key in theme) {
             if (theme.hasOwnProperty(key)) {
-                promises.push(FilePicker.browse("data", `modules/Radugen/themes/${theme[key]}/${key}/`),)
+                promises.push(this.getDirectoryContents(`modules/Radugen/themes/${theme[key]}/${key}/`));
             }
         }
 
         return Promise.all(promises);
     }
 
-    render(tileSize) {
+    createCanvas() {
+        const canvas = document.createElement('canvas');
+        canvas.width = this._imageWidth;
+        canvas.height = this._imageHeight;
+        
+        return canvas;
+    }
+
+    render() {
         var self = this;
         return new Promise(function (resolve, reject) {
-            const canvas = document.createElement('canvas');
-            canvas.width = self._width * tileSize;
-            canvas.height = self._height * tileSize;
-            const ctx = canvas.getContext("2d");
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            self.loadThemeFiles({
-                floor: "wood",
+
+            //Background
+            const baseCanvas = self.createCanvas();
+            const baseCnx = baseCanvas.getContext("2d");
+            baseCnx.fillStyle = "black";
+            baseCnx.fillRect(0, 0, self._imageWidth, self._imageHeight);
+
+            //Floor
+            self.getThemeFileDirectoryContents({
+                floor: "rough",
                 walls: "rough"
-            }).then(function (themeFiles) {
-                
-                self.renderFloorTiles(ctx, themeFiles[0]).then(function () {
-                    canvas.toBlob(function (imageBlob) {
-                        resolve(imageBlob);
-                    }, "image/webp", 0.80);
+            }).then(function ([floorFiles, wallFiles]) {
+                const floorCanvas = self.createCanvas();
+                const floorCtx = floorCanvas.getContext("2d");
+
+                self.renderFloorTiles(floorCtx, floorFiles).then(function () {
+
+                    //Now we can draw a texture
+                    self.getPatternDirectoryContents().then(function (patterns) {
+                        self.loadImage(radugen.helper.getRndFromArr(patterns.files)).then(function (img) {
+                            self.patternizeContext(floorCtx, img, 0.8);
+
+                            baseCnx.drawImage(floorCanvas, 0, 0);
+
+                            baseCanvas.toBlob(function (imageBlob) {
+                                resolve(imageBlob);
+                            }, "image/webp", 0.80);
+                        });
+                    });
                 });
             });
         });
@@ -46,23 +80,29 @@ radugen.renderer.Image = class {
     renderFloorTiles(ctx, themeFiles) {
         let self = this;
         let promises = [];
-        for (let x = 0; x < this._width; x++) {
-            for (let y = 0; y < this._height; y++) {
-                ((x, y) => {
-                    if (this._map[x][y] == 0) {
-                        promises.push(
-                            this.loadImage(radugen.helper.getRndFromArr(themeFiles.files)).then(function (img) {
-                                self.flipContextRandom(ctx, x, y);
-                                self.rotateContextRandom(ctx);
-                                ctx.drawImage(img, 0, 0, self._tileSize, self._tileSize);
-                                self.resetContext(ctx);
-                            })
-                        )
-                    };
-                })(x, y);
+
+        this.iterateMap(function (x, y) {
+            if (self._map[x][y] == 0) {
+                promises.push(
+                    self.loadImage(radugen.helper.getRndFromArr(themeFiles.files)).then(function (img) {
+                        self.flipContextRandom(ctx, x, y);
+                        self.rotateContextRandom(ctx);
+                        ctx.drawImage(img, 0, 0, self._tileResolution, self._tileResolution);
+                        self.resetContext(ctx);
+                    })
+                )
+            };
+        })
+
+        return Promise.all(promises);
+    }
+
+    iterateMap(callback) {
+        for (let x = 0; x < this._gridWidth; x++) {
+            for (let y = 0; y < this._gridHeight; y++) {
+                callback(x, y);
             }
         }
-        return Promise.all(promises);
     }
 
     loadImage(src) {
@@ -75,21 +115,34 @@ radugen.renderer.Image = class {
         });
     }
 
+
+
     resetContext(ctx) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     rotateContextRandom(ctx) {
-        ctx.translate(this._tileSize / 2, this._tileSize / 2);
+        ctx.translate(this._tileResolution / 2, this._tileResolution / 2);
         ctx.rotate((Math.PI / 2) * radugen.helper.getRndFromNum(4)); // rotate tile
-        ctx.translate(-this._tileSize / 2, -this._tileSize / 2);
+        ctx.translate(-this._tileResolution / 2, -this._tileResolution / 2);
     }
 
     flipContextRandom(ctx, x, y) {
         if (radugen.helper.getRndFromNum(2) == 1) {
-            ctx.transform(-1, 0, 0, 1, (x + 1) * this._tileSize, y * this._tileSize); // flip and move tile
+            ctx.transform(-1, 0, 0, 1, (x + 1) * this._tileResolution, y * this._tileResolution); // flip and move tile
         } else {
-            ctx.translate(x * this._tileSize, y * this._tileSize); // move tile
+            ctx.translate(x * this._tileResolution, y * this._tileResolution); // move tile
         }
+    }
+
+    patternizeContext(ctx, texture, opacity) {
+        let pattern = ctx.createPattern(texture, "repeat");
+        
+        ctx.fillStyle = pattern;
+        ctx.globalAlpha = opacity;
+
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillRect(0, 0, this._imageWidth, this._imageHeight);
+        ctx.restore();
     }
 };
