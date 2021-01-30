@@ -25,6 +25,53 @@ radugen.customScene = class extends Scene {
             tiles: [],
             img: img
         });
+
+        //    {
+        //    _id: id,
+        //    name: `The ${getRndFromArr(dungeon_names)} of ${getRndFromArr(curiosities)}`,
+        //    "flags": {
+        //        "exportSource": {
+        //            "world": "dev",
+        //            "system": "dnd5e",
+        //            "coreVersion": "0.7.9",
+        //            "systemVersion": "1.2.4"
+        //        }
+        //    },
+        //    "description": "",
+        //    "navigation": true,
+        //    "navOrder": 100001,
+        //    "active": true,
+        //    "initial": null,
+        //    "backgroundColor": "#999999",
+        //    "tiles": [],
+        //    "gridType": 1,
+        //    "grid": 100,
+        //    "shiftX": 0,
+        //    "shiftY": 0,
+        //    "gridColor": "#000000",
+        //    "gridAlpha": 0.2,
+        //    "gridDistance": 5,
+        //    "gridUnits": "ft",
+        //    "tokens": [],
+        //    "walls": [],
+        //    "tokenVision": true,
+        //    "fogExploration": true,
+        //    "lights": [],
+        //    "globalLight": false,
+        //    "globalLightThreshold": null,
+        //    "darkness": 0,
+        //    "sounds": [],
+        //    "templates": [],
+        //    "notes": [],
+        //    "drawings": [],
+        //    "size": null,
+        //    "navName": "",
+        //    "img": "",
+        //    "hasGlobalThreshold": false,
+        //    "journal": "",
+        //    "playlist": "",
+        //    "weather": ""
+        //}
     }
 
     uploadFile(file) {
