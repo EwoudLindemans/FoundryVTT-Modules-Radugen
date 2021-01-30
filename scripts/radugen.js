@@ -21,11 +21,22 @@ Hooks.on("chatMessage", function (_, message) {
 
     switch (command[1]) {
         case 'generate':
-            const [width, height, tileSize] = radugen.customScene.generateCommand(command.length < 3 ? [] : command[2].split(/[\\*x., ]/).map(n => parseInt(n)));
+            const [width, height, tileSize] = radugen.RadugenScene.generateCommand(command.length < 3 ? [] : command[2].split(/[\\*x., ]/).map(n => parseInt(n)));
 
-            const rdg_scene = new radugen.customScene(width, height, tileSize);
-            rdg_scene.getImage(width, height, tileSize);
+            const scene = new radugen.RadugenScene(width, height, tileSize);
 
+            const gridGenerator = new radugen.generators.Grid(width, height);
+            const grid = gridGenerator.generate();
+
+            const imageRenderer = new radugen.renderer.Image(grid, tileSize);
+            imageRenderer.render(tileSize).then(function (blob) {
+                //Upload file
+                let file = new File([blob], `${scene._id}.webp`);
+                FilePicker.upload("data", `modules/Radugen/uploads/scenes/`, file).then(function () {
+                    //Save scene to compedium
+                    radugen.compendium.scene.importEntity(scene);
+                });
+            });
             
 
             break;
