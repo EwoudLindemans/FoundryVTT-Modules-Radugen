@@ -16,18 +16,33 @@ Hooks.on("ready", function () {
 });
 
 Hooks.on("chatMessage", function (_, message) {
-    if (message.indexOf('/radugen') != 0) return;
+    const command = message.split(' ');
+    if (command[0] != '/radugen') return;
 
+    switch (command[1]) {
+        case 'generate':
+            let width = 12, height = 8;
+            if (command.length >= 3){
+                if (command[2].indexOf('x') > 0){
+                    width = parseInt(command[2].split('x')[0]);
+                    height = parseInt(command[2].split('x')[1]);
+                } else {
+                    width = parseInt(command[2]);
+                    height = parseInt(command[2]);
+                }
+                //TODO: Handle errors
+            }
 
-    radugen.customScene.getImage(function () {
-        const rdg_scene = new radugen.customScene(this);
-        radugen.compendium.scene.importEntity(rdg_scene);
-    })
-
-    
-
-
-
+            radugen.customScene.getImage(function () {
+                const rdg_scene = new radugen.customScene(width, height, this);
+                radugen.compendium.scene.importEntity(rdg_scene);
+            }, width, height);
+            break;
+        default:
+            // report error
+            console.error(`Unknown command ${command[1]}`);
+            return false;
+    }
     return false;
 });
 
