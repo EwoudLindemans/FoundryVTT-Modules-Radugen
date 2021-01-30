@@ -7,8 +7,8 @@ radugen.customScene = class extends Scene {
      * @param {number} tilesize of 64 128 192 256 ...
      */
     constructor(width, height, img) {
-        const dungeon_names = ["Vault", "Catacombs", "Dungeon", "Palace", "Eternal", "Repository", "Lair"];
-        const curiosities = ["Endless Suffering", "Agony Burrows", "Dream Cells", "Mystic", "Back Itches", "Paper Cuts", "Random Bugs", "Calories"];
+        const dungeon_names = ["Vault", "Catacombs", "Dungeon", "Palace", "Eternal", "Repository", "Lair", "Crypt", "Caves", "Maze"];
+        const curiosities = ["Endless Suffering", "Agony Burrows", "Dream Cells", "Mystic", "Back Itches", "Paper Cuts", "Random Bugs", "Calories", "Disappointments", "Lurking Dangers", "Eery Silence"];
 
         let grid = [width, height];
         let size = 256;
