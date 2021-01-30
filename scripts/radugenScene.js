@@ -1,5 +1,5 @@
 window.radugen = window.radugen || {};
-radugen.customScene = class extends Scene {
+radugen.RadugenScene = class extends Scene {
     /**
      * Generate a new random dungeon scene.
      * @param {number} width
@@ -38,8 +38,8 @@ radugen.customScene = class extends Scene {
      */
     static get tileSizeRange(){
         return new radugen.helper.minMax(
-            radugen.customScene.tileSizeMultiple * 1, // 64
-            radugen.customScene.tileSizeMultiple * 4, // 256
+            radugen.radugenScene.tileSizeMultiple * 1, // 64
+            radugen.radugenScene.tileSizeMultiple * 4, // 256
         );
     }
 
@@ -71,7 +71,7 @@ radugen.customScene = class extends Scene {
         const warnings = [];
         let width = 12, height = 8, tileSize = 256;
         if (args.length >= 2 && !isNaN(args[2])) {
-            const [minSize, maxSize, multiple] = [radugen.customScene.tileSizeRange.min, radugen.customScene.tileSizeRange.max, radugen.customScene.tileSizeMultiple];
+            const [minSize, maxSize, multiple] = [radugen.RadugenScene.tileSizeRange.min, radugen.RadugenScene.tileSizeRange.max, radugen.RadugenScene.tileSizeMultiple];
             if (args[2] < minSize) {
                 warnings.push(`Tilesize ${args[2]} is below minimum value. Using minimal value instead: ${minSize}`);
                 tileSize = minSize;
@@ -87,7 +87,7 @@ radugen.customScene = class extends Scene {
                 warnings.push(`Tilesize ${tileSize} is not a multiple of ${multiple}. Using ${tileSize} instead.`);
             }
         }
-        const [minSize, maxSize] = [radugen.customScene.gridSizeRange.min, radugen.customScene.gridSizeRange.max];
+        const [minSize, maxSize] = [radugen.RadugenScene.gridSizeRange.min, radugen.RadugenScene.gridSizeRange.max];
         if (args.length >= 1 && !isNaN(args[1])) {
             if (args[0] < minSize) {
                 warnings.push(`Grid width ${args[0]} is below minimum value. Using minimal value instead: ${minSize}`);
@@ -124,73 +124,6 @@ radugen.customScene = class extends Scene {
         warnings.forEach(x => console.warn(x));
 
         return [width, height, tileSize];
-    }
-
-    uploadFile(blob) {
-        let file = new File([blob], `${this._id}.webp`);
-        let self = this;
-        FilePicker.upload(
-            "data",
-            `modules/Radugen/uploads/scenes/`,
-            file
-        ).then(function () {
-            radugen.compendium.scene.importEntity(self);
-        });
-    }
-
-    getImage(width, height, tileSize) {
-        let self = this;
-        let grid = [width, height];
-
-        const canvas = document.createElement('canvas');
-        canvas.width = grid[0] * tileSize;
-        canvas.height = grid[1] * tileSize;
-
-        const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
- 
-        let imgcount = 0;
-        for (let x = 0; x < grid[0]; x++) {
-            for (let y = 0; y < grid[1]; y++) {
-                ((x, y) => {
-                    //Get random image
-                    const img = new Image();
-                    img.onload = function () {
-                        if (radugen.helper.getRndFromNum(2) == 1) {
-                            ctx.transform(-1, 0, 0, 1, (x + 1) * tileSize, y * tileSize); // flip and move tile
-                        } else {
-                            ctx.translate(x * tileSize, y * tileSize); // move tile
-                        }
-                        ctx.translate(tileSize / 2, tileSize / 2);
-                        ctx.rotate((Math.PI / 2) * radugen.helper.getRndFromNum(4)); // rotate tile
-                        ctx.translate(-tileSize / 2, -tileSize / 2);
-
-                        ctx.drawImage(img, 0, 0, tileSize, tileSize);
-
-                        //Reset transform
-                        ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-                        imgcount++;
-                        if (imgcount == grid[0] * grid[1]) {
-
-                            canvas.toBlob(function (imageBlob) {
-                                self.uploadFile(imageBlob);
-                            }, "image/webp", 0.80);
-
-
-                            //ctx.fillStyle = `rgba(${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},0.5)`;
-                            //ctx.fillRect(0, 0, vancas.width, vancas.height);
-                            
-                            //imageloaded.bind(this, canvas.toDataURL())();
-                        }
-                    };
-                    img.src = `/modules/Radugen/tiles/rough_${radugen.helper.getRndFromNum(16)}.png`;
-                })(x, y);
-            }
-        }
-
-        
     }
 
     /**
