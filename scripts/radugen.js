@@ -18,8 +18,13 @@ Hooks.on("ready", function () {
 Hooks.on("chatMessage", function (_, message) {
     if (message.indexOf('/radugen') != 0) return;
 
-    const rdg_scene = new radugen.customScene();
-    radugen.compendium.scene.importEntity(rdg_scene);
+
+    radugen.customScene.getImage(function () {
+        const rdg_scene = new radugen.customScene(this);
+        radugen.compendium.scene.importEntity(rdg_scene);
+    })
+
+    
 
 
 

@@ -8,5 +8,11 @@ radugen.helper = {
     },
     getRndFromArr: (arr) => {
         return arr[Math.floor(Math.random() * arr.length)];
+    },
+    /**
+     * Because we can
+     */
+    getRndFromNum: (num) => {
+        return radugen.helper.getRndFromArr([...Array(num).keys()]) + 1;
     }
 };
