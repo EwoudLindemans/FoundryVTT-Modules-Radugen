@@ -109,17 +109,19 @@ radugen.customScene = class extends Scene {
                     //Get random image
                     const img = new Image();
                     img.onload = function () {
-                        //Rotate
-                        let r = radugen.helper.getRndFromNum(4)
+                        if (radugen.helper.getRndFromNum(2) == 1) {
+                            ctx.transform(-1, 0, 0, 1, (x + 1) * size, y * size); // flip and move tile
+                        } else {
+                            ctx.translate(x * size, y * size); // move tile
+                        }
+                        ctx.translate(size / 2, size / 2);
+                        ctx.rotate((Math.PI / 2) * radugen.helper.getRndFromNum(4)); // rotate tile
+                        ctx.translate(-size / 2, -size / 2);
 
-                        ctx.translate((x * size) + size / 2, (y * size) + size / 2);
-                        ctx.rotate((Math.PI / 2) * r);
-                        ctx.translate(-(x * size) - size / 2, -(y * size) - size / 2);
-
-                        ctx.drawImage(img, x * size, y * size, size, size);
+                        ctx.drawImage(img, 0, 0, size, size);
 
                         //Reset transform
-                        ctx.setTransform(1, 0, 0, 1, 0, 0)
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
 
                         imgcount++;
                         if (imgcount == grid[0] * grid[1]) {
