@@ -23,10 +23,11 @@ Hooks.on("chatMessage", function (_, message) {
         case 'generate':
             const [width, height, tileSize] = radugen.customScene.generateCommand(command.length < 3 ? [] : command[2].split(/[\\*x., ]/).map(n => parseInt(n)));
 
-            radugen.customScene.getImage(function () {
-                const rdg_scene = new radugen.customScene(width, height, tileSize, this);
-                radugen.compendium.scene.importEntity(rdg_scene);
-            }, width, height, tileSize);
+            const rdg_scene = new radugen.customScene(width, height, tileSize);
+            rdg_scene.getImage(width, height, tileSize);
+
+            
+
             break;
         default:
             // report error
