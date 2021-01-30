@@ -29,7 +29,7 @@ Hooks.on("chatMessage", function (_, message) {
             const grid = gridGenerator.generate();
 
             const imageRenderer = new radugen.renderer.Image(grid, tileSize);
-            imageRenderer.render(tileSize).then(function (blob) {
+            imageRenderer.render().then(function (blob) {
                 //Upload file
                 let file = new File([blob], `${scene._id}.webp`);
                 FilePicker.upload("data", `modules/Radugen/uploads/scenes/`, file).then(function () {
