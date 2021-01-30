@@ -9,12 +9,13 @@ radugen.customScene = class extends Scene {
     constructor(width, height, img) {
         const dungeon_names = ["Vault", "Catacombs", "Dungeon", "Palace", "Eternal", "Repository", "Lair"];
         const curiosities = ["Endless Suffering", "Agony Burrows", "Dream Cells", "Mystic", "Back Itches", "Paper Cuts", "Random Bugs", "Calories"];
+        const id = radugen.helper.uuidv4();
 
         let grid = [width, height];
         let size = 256;
 
         super({
-            _id: radugen.helper.uuidv4(),
+            _id: id,
             name: `The ${radugen.helper.getRndFromArr(dungeon_names)} of ${radugen.helper.getRndFromArr(curiosities)}`,
             shiftX: 0,
             shiftY: 0,
@@ -23,7 +24,7 @@ radugen.customScene = class extends Scene {
             grid: size,
             padding: 0,
             tiles: [],
-            img: img
+            img: `modules/Radugen/uploads/scenes/${id}.webp`
         });
 
         //    {
@@ -74,33 +75,30 @@ radugen.customScene = class extends Scene {
         //}
     }
 
-    uploadFile(file) {
-        var filePicker = new FilePicker({
-            uploadURL: '/Radugen/Scene'
+    uploadFile(blob) {
+        let file = new File([blob], `${this._id}.webp`);
+        let self = this;
+        FilePicker.upload(
+            "data",
+            `modules/Radugen/uploads/scenes/`,
+            file
+        ).then(function () {
+            radugen.compendium.scene.importEntity(self);
         });
-
-        filePicker.upload(
-            `/Radugen/Scene/${this._id}.jpg`,
-            path,
-            file,
-            options
-        );
-
-        this._width = width;
-        this._height = height;
     }
 
-    static getImage(imageloaded, width, height) {
+    getImage(width, height) {
+        let self = this;
         let grid = [width, height];
         let size = 256;
 
-        const vancas = document.createElement('canvas');
-        vancas.width = grid[0] * size;
-        vancas.height = grid[1] * size;
+        const canvas = document.createElement('canvas');
+        canvas.width = grid[0] * size;
+        canvas.height = grid[1] * size;
 
-        const ctx = vancas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, vancas.width, vancas.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
  
         let imgcount = 0;
         for (let x = 0; x < grid[0]; x++) {
@@ -126,13 +124,15 @@ radugen.customScene = class extends Scene {
                         imgcount++;
                         if (imgcount == grid[0] * grid[1]) {
 
-                          
+                            canvas.toBlob(function (imageBlob) {
+                                self.uploadFile(imageBlob);
+                            }, "image/webp", 0.80);
 
 
                             //ctx.fillStyle = `rgba(${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},0.5)`;
                             //ctx.fillRect(0, 0, vancas.width, vancas.height);
-
-                            imageloaded.bind(vancas.toDataURL())();
+                            
+                            //imageloaded.bind(this, canvas.toDataURL())();
                         }
                     };
                     img.src = `/modules/Radugen/tiles/rough_${radugen.helper.getRndFromNum(16)}.png`;

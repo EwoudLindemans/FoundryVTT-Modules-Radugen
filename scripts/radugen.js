@@ -33,10 +33,11 @@ Hooks.on("chatMessage", function (_, message) {
                 //TODO: Handle errors
             }
 
-            radugen.customScene.getImage(function () {
-                const rdg_scene = new radugen.customScene(width, height, this);
-                radugen.compendium.scene.importEntity(rdg_scene);
-            }, width, height);
+            const rdg_scene = new radugen.customScene(width, height, this);
+            rdg_scene.getImage(width, height);
+
+            
+
             break;
         default:
             // report error
