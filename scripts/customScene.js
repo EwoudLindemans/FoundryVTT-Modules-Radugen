@@ -5,10 +5,11 @@ radugen.customScene = class extends Scene {
      * @param {number} width
      * @param {number} height
      * @param {number} tileSize of 64 128 192 256 ...
-     */
-    constructor(width, height, tileSize, img) {
+     */   
+    constructor(width, height, tileSize) {
+        const id = radugen.helper.uuidv4();
         super({
-            _id: radugen.helper.uuidv4(),
+            _id: id,
             name: radugen.generators.names.dungeonName(),
             shiftX: 0,
             shiftY: 0,
@@ -17,7 +18,7 @@ radugen.customScene = class extends Scene {
             grid: tileSize,
             padding: 0,
             tiles: [],
-            img: img,
+            img: `modules/Radugen/uploads/scenes/${id}.webp`
         });
 
         this._width = width;
@@ -125,16 +126,29 @@ radugen.customScene = class extends Scene {
         return [width, height, tileSize];
     }
 
-    static getImage(imageloaded, width, height, tileSize) {
+    uploadFile(blob) {
+        let file = new File([blob], `${this._id}.webp`);
+        let self = this;
+        FilePicker.upload(
+            "data",
+            `modules/Radugen/uploads/scenes/`,
+            file
+        ).then(function () {
+            radugen.compendium.scene.importEntity(self);
+        });
+    }
+
+    getImage(width, height, tileSize) {
+        let self = this;
         let grid = [width, height];
 
-        const vancas = document.createElement('canvas');
-        vancas.width = grid[0] * tileSize;
-        vancas.height = grid[1] * tileSize;
+        const canvas = document.createElement('canvas');
+        canvas.width = grid[0] * tileSize;
+        canvas.height = grid[1] * tileSize;
 
-        const ctx = vancas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, vancas.width, vancas.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
  
         let imgcount = 0;
         for (let x = 0; x < grid[0]; x++) {
@@ -159,7 +173,16 @@ radugen.customScene = class extends Scene {
 
                         imgcount++;
                         if (imgcount == grid[0] * grid[1]) {
-                            imageloaded.bind(vancas.toDataURL())();
+
+                            canvas.toBlob(function (imageBlob) {
+                                self.uploadFile(imageBlob);
+                            }, "image/webp", 0.80);
+
+
+                            //ctx.fillStyle = `rgba(${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},${radugen.helper.getRndFromNum(255)},0.5)`;
+                            //ctx.fillRect(0, 0, vancas.width, vancas.height);
+                            
+                            //imageloaded.bind(this, canvas.toDataURL())();
                         }
                     };
                     img.src = `/modules/Radugen/tiles/rough_${radugen.helper.getRndFromNum(16)}.png`;
