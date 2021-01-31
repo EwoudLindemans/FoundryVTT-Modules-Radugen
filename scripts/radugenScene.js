@@ -5,8 +5,8 @@ radugen.RadugenScene = class extends Scene {
      * @param {number} width
      * @param {number} height
      * @param {number} tileSize of 64 128 192 256 ...
-     */   
-    constructor(width, height, tileSize) {
+     */
+    constructor(width, height, tileSize, walls) {
         const id = radugen.helper.uuidv4();
         super({
             _id: id,
@@ -18,6 +18,13 @@ radugen.RadugenScene = class extends Scene {
             grid: tileSize,
             padding: 0,
             tiles: [],
+
+            //CONST.WALL_DOOR_TYPES.{NONE: 0, DOOR: 1, SECRET: 2}
+            //CONST.WALL_DOOR_STATES.{CLOSED: 0, OPEN: 1, LOCKED: 2}
+            //CONST.WALL_MOVEMENT_TYPES.{NONE: 0, NORMAL: 1}
+            //CONST.WALL_DIRECTIONS.{BOTH: 0, LEFT: 1, RIGHT: 2}
+            //CONST.WALL_SENSE_TYPES.{NONE: 0, NORMAL: 1, LIMITED: 2}
+            walls: walls,
             img: `modules/Radugen/uploads/scenes/${id}.webp`
         });
 
@@ -29,14 +36,14 @@ radugen.RadugenScene = class extends Scene {
     /**
      * @type {number}
      */
-    static get tileSizeMultiple(){
+    static get tileSizeMultiple() {
         return 64;
     }
 
     /**
      * @type {radugen.helper.minMax}
      */
-    static get tileSizeRange(){
+    static get tileSizeRange() {
         return new radugen.helper.minMax(
             radugen.RadugenScene.tileSizeMultiple * 1, // 64
             radugen.RadugenScene.tileSizeMultiple * 4, // 256
@@ -46,7 +53,7 @@ radugen.RadugenScene = class extends Scene {
     /**
      * @type {radugen.helper.minMax}
      */
-    static get gridSizeRange(){
+    static get gridSizeRange() {
         return new radugen.helper.minMax(
             4,
             64
@@ -56,7 +63,7 @@ radugen.RadugenScene = class extends Scene {
     /**
      * @type {number}
      */
-    static get gridSizeMax(){
+    static get gridSizeMax() {
         return 4;
     }
 
@@ -64,10 +71,10 @@ radugen.RadugenScene = class extends Scene {
      * @params {number[]} args
      * @returns {number[]}
      */
-    static generateCommand(...args){
+    static generateCommand(...args) {
         if (!Array.isArray(args)) args = [args];
         if (args.length == 1 && Array.isArray(args[0])) args = args[0];
-        
+
         const warnings = [];
         let width = 12, height = 8, tileSize = 256;
         if (args.length >= 2 && !isNaN(args[2])) {
@@ -81,7 +88,7 @@ radugen.RadugenScene = class extends Scene {
             } else {
                 tileSize = args[2];
             }
-            
+
             if (tileSize % multiple != 0) {
                 tileSize = Math.max(minSize, tileSize - (tileSize % multiple));
                 warnings.push(`Tilesize ${tileSize} is not a multiple of ${multiple}. Using ${tileSize} instead.`);
@@ -129,21 +136,21 @@ radugen.RadugenScene = class extends Scene {
     /**
      * @type {number}
      */
-    get width(){
+    get width() {
         return this._width;
     }
 
     /**
      * @type {number}
      */
-    get height(){
+    get height() {
         return this._height;
     }
 
     /**
      * @type {number}
      */
-    get tileSize(){
+    get tileSize() {
         return this._tileSize;
     }
 };

@@ -82,7 +82,7 @@ radugen.renderer.Image = class {
         let promises = [];
 
         this.iterateMap(function (x, y) {
-            if (self._map[x][y] == 0) {
+            if (self._map[x][y] == 1) {
                 promises.push(
                     self.loadImage(radugen.helper.getRndFromArr(themeFiles.files)).then(function (img) {
                         self.flipContextRandom(ctx, x, y);
