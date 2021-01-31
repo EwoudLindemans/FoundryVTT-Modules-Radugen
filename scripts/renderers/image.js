@@ -17,14 +17,14 @@ radugen.renderer.Image = class {
     }
 
     getPatternDirectoryContents() {
-        return this.getDirectoryContents('modules/Radugen/patterns/');
+        return this.getDirectoryContents('modules/Radugen/assets/patterns/');
     }
 
     getThemeFileDirectoryContents(theme) {
         const promises = [];
         for (var key in theme) {
             if (theme.hasOwnProperty(key)) {
-                promises.push(this.getDirectoryContents(`modules/Radugen/themes/${theme[key]}/${key}/`));
+                promises.push(this.getDirectoryContents(`modules/Radugen/assets/themes/${theme[key]}/${key}/`));
             }
         }
 
