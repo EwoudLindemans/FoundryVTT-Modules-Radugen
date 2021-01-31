@@ -1,22 +1,76 @@
 window.radugen = window.radugen || {};
 radugen.generators = radugen.generators || {};
 
-radugen.generators.simpleDungeonGenerator = class {
+// Define the dungeon generator algorithms
+radugen.generators.dungeonGenerator = Object.freeze({
+    None: -1,
+    Quirks: 0
+});
+
+// Dictionary for all dungeon generator class implementations
+const RDG_generators = {};
+
+radugen.generators.dungeon = class {
+    /**
+     * @param {number} width
+     * @param {number} height
+     */
     constructor(width, height) {
-        this.map = [];
-        this.width = width;
-        this.height = height;
-        this.rooms = [];
+        this._map = [];
+        this._width = width;
+        this._height = height;
+        this._rooms = [];
+    }
+
+    /**
+     * @param {radugen.generators.dungeonGenerator} dungeonType
+     * @param {number} width
+     * @param {number} height
+     * @returns {radugen.generators.dungeon}
+     */
+    static generate(dungeonType, width, height){
+        const generatorClass = (dungeonType in RDG_generators) ? RDG_generators[dungeonType] : radugen.generators.dungeon;
+        const generator = new generatorClass(width, height);
+        generator.generate();
+        return generator;
+    }
+
+    /**
+     * @type {number}
+     */
+    get width(){
+        return this._width;
+    }
+
+    /**
+     * @type {number}
+     */
+    get height(){
+        return this._height;
     }
 
     createEmptyMap() {
-        this.map = [];
+        this._map = [];
         for (var x = 0; x < this.width; x++) {
-            this.map[x] = [];
+            this._map[x] = [];
             for (var y = 0; y < this.height; y++) {
-                this.map[x][y] = 0;
+                this._map[x][y] = 0;
             }
         }
+    }
+
+    generate() {
+        this.createEmptyMap();
+    }
+};
+
+RDG_generators[radugen.generators.dungeonGenerator.Quirks] = class extends radugen.generators.dungeon {
+    /**
+     * @param {number} width
+     * @param {number} height
+     */
+    constructor(width, height) {
+        super(width, height);
     }
 
     getRandom(low, high) {
@@ -45,13 +99,13 @@ radugen.generators.simpleDungeonGenerator = class {
             room.w--;
             room.h--;
 
-            this.rooms.push(room);
+            this._rooms.push(room);
         }
 
         this.squashRooms();
 
         for (i = 0; i < room_count; i++) {
-            var roomA = this.rooms[i];
+            var roomA = this._rooms[i];
             var roomB = this.findClosestRoom(roomA);
 
             let pointA = {
@@ -72,25 +126,25 @@ radugen.generators.simpleDungeonGenerator = class {
                     else pointB.y++;
                 }
 
-                this.map[pointB.x][pointB.y] = 1;
+                this._map[pointB.x][pointB.y] = 1;
             }
         }
 
         for (i = 0; i < room_count; i++) {
-            var room = this.rooms[i];
+            var room = this._rooms[i];
             for (var x = room.x; x < room.x + room.w; x++) {
                 for (var y = room.y; y < room.y + room.h; y++) {
-                    this.map[x][y] = 1;
+                    this._map[x][y] = 1;
                 }
             }
         }
 
         for (var x = 0; x < this.width; x++) {
             for (var y = 0; y < this.height; y++) {
-                if (this.map[x][y] == 1) {
+                if (this._map[x][y] == 1) {
                     for (var xx = x - 1; xx <= x + 1; xx++) {
                         for (var yy = y - 1; yy <= y + 1; yy++) {
-                            if (this.map[xx][yy] == 0) this.map[xx][yy] = 2;
+                            if (this._map[xx][yy] == 0) this._map[xx][yy] = 2;
                         }
                     }
                 }
@@ -105,8 +159,8 @@ radugen.generators.simpleDungeonGenerator = class {
         };
         var closest = null;
         var closest_distance = 1000;
-        for (var i = 0; i < this.rooms.length; i++) {
-            var check = this.rooms[i];
+        for (var i = 0; i < this._rooms.length; i++) {
+            var check = this._rooms[i];
             if (check == room) continue;
             var check_mid = {
                 x: check.x + (check.w / 2),
@@ -123,8 +177,8 @@ radugen.generators.simpleDungeonGenerator = class {
 
     squashRooms() {
         for (var i = 0; i < 10; i++) {
-            for (var j = 0; j < this.rooms.length; j++) {
-                var room = this.rooms[j];
+            for (var j = 0; j < this._rooms.length; j++) {
+                var room = this._rooms[j];
                 while (true) {
                     var old_position = {
                         x: room.x,
@@ -144,9 +198,9 @@ radugen.generators.simpleDungeonGenerator = class {
     }
 
     doesCollide(room, ignore) {
-        for (var i = 0; i < this.rooms.length; i++) {
+        for (var i = 0; i < this._rooms.length; i++) {
             if (i == ignore) continue;
-            var check = this.rooms[i];
+            var check = this._rooms[i];
             if (!((room.x + room.w < check.x) || (room.x > check.x + check.w) || (room.y + room.h < check.y) || (room.y > check.y + check.h))) return true;
         }
 
