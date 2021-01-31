@@ -34,14 +34,13 @@ Hooks.on("chatMessage", function (_, message) {
 
             const imageRenderer = new radugen.renderer.Image(dungeonMap, tileSize);
             imageRenderer.render().then(function (blob) {
-                //Upload file
                 let file = new File([blob], `${scene._id}.webp`);
                 FilePicker.upload("data", `modules/Radugen/uploads/scenes/`, file).then(function () {
                     //Save scene to compedium
                     radugen.compendium.scene.importEntity(scene);
                 });
             });
-            
+
 
             break;
         default:

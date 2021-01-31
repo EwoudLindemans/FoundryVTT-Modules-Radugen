@@ -51,7 +51,7 @@ radugen.renderer.Image = class {
 
             //Floor
             self.getThemeFileDirectoryContents({
-                floor: "rough",
+                floor: "cross",
                 walls: "rough"
             }).then(function ([floorFiles, wallFiles]) {
                 const floorCanvas = self.createCanvas();
