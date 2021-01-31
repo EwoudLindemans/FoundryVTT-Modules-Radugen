@@ -23,12 +23,16 @@ Hooks.on("chatMessage", function (_, message) {
         case 'generate':
             const [width, height, tileSize] = radugen.RadugenScene.generateCommand(command.length < 3 ? [] : command[2].split(/[\\*x., ]/).map(n => parseInt(n)));
 
-            const scene = new radugen.RadugenScene(width, height, tileSize);
+            const dungeonGenerator = radugen.generators.dungeon.generate(radugen.generators.dungeonGenerator.Static, width, height)
+            const dungeonMap = dungeonGenerator.generate();
 
-            const gridGenerator = new radugen.generators.Grid(width, height);
-            const grid = gridGenerator.generate();
+            const wallRenderer = new radugen.renderer.Walls(dungeonMap, tileSize);
+            const walls = wallRenderer.render();
 
-            const imageRenderer = new radugen.renderer.Image(grid, tileSize);
+
+            const scene = new radugen.RadugenScene(width, height, tileSize, walls);
+
+            const imageRenderer = new radugen.renderer.Image(dungeonMap, tileSize);
             imageRenderer.render().then(function (blob) {
                 //Upload file
                 let file = new File([blob], `${scene._id}.webp`);
