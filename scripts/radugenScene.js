@@ -38,8 +38,8 @@ radugen.RadugenScene = class extends Scene {
      */
     static get tileSizeRange(){
         return new radugen.helper.minMax(
-            radugen.radugenScene.tileSizeMultiple * 1, // 64
-            radugen.radugenScene.tileSizeMultiple * 4, // 256
+            radugen.RadugenScene.tileSizeMultiple * 1, // 64
+            radugen.RadugenScene.tileSizeMultiple * 4, // 256
         );
     }
 

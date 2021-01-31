@@ -10,6 +10,7 @@
     "scripts/helper.js",
     "scripts/generators/names.js",
     "scripts/generators/dungeon.js",
+    "scripts/generators/dungeons/quirks.js",
     "scripts/generators/grid.js",
     "scripts/renderers/image.js",
     "scripts/radugenScene.js",
