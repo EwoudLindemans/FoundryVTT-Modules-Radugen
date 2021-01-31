@@ -1,7 +1,8 @@
 window.radugen = window.radugen || {};
 radugen.generators = radugen.generators || {};
+radugen.generators.dungeons = radugen.generators.dungeons || {};
 
-radugen.generators.Grid = class {
+radugen.generators.dungeons[radugen.generators.dungeonGenerator.Grid] = class extends radugen.generators.dungeon {
     constructor(width, height) {
         this._width = width;
         this._height = height;
