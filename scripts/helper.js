@@ -38,5 +38,29 @@ radugen.helper = {
         get max(){
             return this._max;
         }
+    },
+    size: class {
+        /**
+         * @param {number} width
+         * @param {number} height
+         */
+        constructor(width, height){
+            this._width = width;
+            this._height = height;
+        }
+
+        /**
+         * @type {number}
+         */
+        get width(){
+            return this._width;
+        }
+
+        /**
+         * @type {number}
+         */
+        get height(){
+            return this._height;
+        }
     }
 };
