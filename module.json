@@ -8,6 +8,7 @@
   "compatibleCoreVersion": "0.7.8",
   "scripts": [
     "scripts/helper.js",
+    "scripts/settings.js",
     "scripts/generators/names.js",
     "scripts/generators/dungeon.js",
     "scripts/generators/dungeons/genV1.js",
