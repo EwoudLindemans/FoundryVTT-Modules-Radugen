@@ -13,6 +13,8 @@ Hooks.on("ready", function () {
             radugen.compendium.scene = pack;
         });
     }
+
+    radugen.settings.register();
 });
 
 // Add extra button to foundrys settings menu
