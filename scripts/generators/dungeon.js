@@ -5,7 +5,6 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 // Define the dungeon generator algorithms
 radugen.generators.dungeonGenerator = Object.freeze({
     None: -1,
-    Quirks: 0,
     Static: 1,
     Grid: 2,
     GenV1: 3,

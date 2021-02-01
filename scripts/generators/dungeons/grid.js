@@ -7,8 +7,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Grid] = class ex
      * @param {radugen.generators.dungeonSize} dungeonSize
      */
     constructor(dungeonSize) {
-        this._width = 24;
-        this._height = 16;
+        super(24, 16, 'Grid');
     }
 
     createGrid() {
