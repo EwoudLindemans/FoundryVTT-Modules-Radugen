@@ -38,7 +38,7 @@ radugen.generators.dungeon = class {
 
     /**
      * @param {radugen.generators.dungeonGenerator} dungeonType
-     * @param {radugen.helper.size} dungeonSize
+     * @param {radugen.generators.dungeonSize} dungeonSize
      * @returns {radugen.generators.dungeon}
      */
     static generate(dungeonType, dungeonSize){
