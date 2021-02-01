@@ -42,40 +42,59 @@ radugen.renderer.Image = class {
     render() {
         var self = this;
         return new Promise(function (resolve, reject) {
-
-            //Background
             const baseCanvas = self.createCanvas();
-            const baseCnx = baseCanvas.getContext("2d");
-            baseCnx.fillStyle = "black";
-            baseCnx.fillRect(0, 0, self._imageWidth, self._imageHeight);
+            const baseCtx = baseCanvas.getContext("2d");
+            
+            const floorCanvas = self.createCanvas();
+            const floorCtx = floorCanvas.getContext("2d");
 
-            //Floor
+            baseCtx.save();
+            floorCtx.save();
+
             self.getThemeFileDirectoryContents({
-                floor: "rough",
-                walls: "rough"
-            }).then(function ([floorFiles, wallFiles]) {
-                const floorCanvas = self.createCanvas();
-                const floorCtx = floorCanvas.getContext("2d");
-
-                self.renderFloorTiles(floorCtx, floorFiles).then(function () {
-
-                    //Now we can draw a texture
-                    self.getPatternDirectoryContents().then(function (patterns) {
-                        self.loadImage(radugen.helper.getRndFromArr(patterns.files)).then(function (img) {
-                            self.patternizeContext(floorCtx, img, 0.8);
-
-                            baseCnx.drawImage(floorCanvas, 0, 0);
-
-                            baseCanvas.toBlob(function (imageBlob) {
-                                resolve(imageBlob);
-                            }, "image/webp", 0.80);
-                        });
-                    });
+                floor: "cobble",
+            }).then(function ([background]) {
+                //Background
+                baseCtx.fillStyle = "black";
+                baseCtx.fillRect(0, 0, self._imageWidth, self._imageHeight);
+                return self.loadImage(radugen.helper.getRndFromArr(background.files)).then(function (img) {
+                    self.patternizeContext(baseCtx, img, 0.1);
+                    self.renderFloorTilesBg(baseCtx);
+                    self.resetContext(baseCtx);
                 });
+            }).then(function () {
+                //Floor
+                return self.getThemeFileDirectoryContents({
+                    floor: "rough",
+                    walls: "rough"
+                }).then(function ([floorFiles, wallFiles]) {
+                    return self.renderFloorTiles(floorCtx, floorFiles)
+                }).then(function () {
+                    return self.getPatternDirectoryContents()
+                }).then(function (patterns) {
+                    return self.loadImage(radugen.helper.getRndFromArr(patterns.files))
+                }).then(function (img) {
+                    self.patternizeContext(floorCtx, img, 0.8); 
+                });
+            }).finally(function () {
+                //Whatever happens, merge the contexts we do have
+                baseCtx.drawImage(floorCanvas, 0, 0);
+                baseCanvas.toBlob(function (imageBlob) {
+                    resolve(imageBlob);
+                }, "image/webp", 0.80);
             });
         });
     }
 
+    renderFloorTilesBg(ctx) {
+        let self = this;
+        this.iterateMap(function (x, y) {
+            if (self._map[x][y] == 1) {
+                ctx.fillStyle = "black";
+                ctx.fillRect(x * self._tileResolution, y * self._tileResolution, self._tileResolution, self._tileResolution);
+            };
+        })
+    }
 
     renderFloorTiles(ctx, themeFiles) {
         let self = this;
@@ -119,6 +138,7 @@ radugen.renderer.Image = class {
 
     resetContext(ctx) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.restore();
     }
 
     rotateContextRandom(ctx) {
@@ -135,6 +155,13 @@ radugen.renderer.Image = class {
         }
     }
 
+    /**
+     * @param {string} expression see https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
+     */
+    filterContext(ctx, expression) {
+        ctx.filter = expression;
+    }
+
     patternizeContext(ctx, texture, opacity) {
         let pattern = ctx.createPattern(texture, "repeat");
         
@@ -144,5 +171,9 @@ radugen.renderer.Image = class {
         ctx.globalCompositeOperation = 'source-atop';
         ctx.fillRect(0, 0, this._imageWidth, this._imageHeight);
         ctx.restore();
+    }
+
+    hueContextRandom(ctx) {
+
     }
 };
