@@ -15,6 +15,7 @@
     "scripts/generators/grid.js",
     "scripts/renderers/image.js",
     "scripts/renderers/walls.js",
+    "scripts/renderers/tilemap.js",
     "scripts/radugenScene.js",
     "scripts/radugen.js"
   ]

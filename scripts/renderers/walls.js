@@ -207,7 +207,7 @@ radugen.renderer.Walls = class {
                         }
                     }
                 }
-            };
+            }
         })
 
         return walls;
