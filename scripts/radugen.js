@@ -30,13 +30,22 @@ Hooks.on("renderSidebarTab", (app, html) => {
     `);
 
     html.on("click", 'button[data-fatex="templates"]', () => {
-        let selectionListHtml = '<select name="dungeonGenerator" style="width: 90%">';
+        let dungeonSizeListHtml = '<select name="dungeonSize" style="width: 90%">';
+        for (let key of Object.keys(radugen.generators.dungeonSize)){
+            if (radugen.generators.dungeonSize[key] == radugen.generators.dungeonSize.Custom) continue;
+            dungeonSizeListHtml += `
+<option value="${radugen.generators.dungeonSize[key]}">${key}</option>`;
+        }
+        dungeonSizeListHtml += `
+</select>`;
+
+        let dungeonGeneratorListHtml = '<select name="dungeonGenerator" style="width: 90%">';
         for (let key of Object.keys(radugen.generators.dungeonGenerator)){
             if (radugen.generators.dungeonGenerator[key] == radugen.generators.dungeonGenerator.None) continue;
-            selectionListHtml += `
+            dungeonGeneratorListHtml += `
 <option value="${radugen.generators.dungeonGenerator[key]}">${key}</option>`;
         }
-        selectionListHtml += `
+        dungeonGeneratorListHtml += `
 </select>`;
 
         const d = new Dialog({
@@ -44,13 +53,11 @@ Hooks.on("renderSidebarTab", (app, html) => {
             content: `<p>Scene options:</p>
 <form class="radugen-generate-scene">
 <label>Dungeon Generator
-${selectionListHtml}
-<option value="0">Quirks</option>
-<option value="1" selected="selected">Static</option>
-</select>
+${dungeonGeneratorListHtml}
 </label>
-<label>Width <input type="text" name="width" value="20" style="width: 90%"></label>
-<label>Height <input type="text" name="height" value="20" style="width: 90%"></label>
+<label>Dungeon Size
+${dungeonSizeListHtml}
+</label>
 <label>TileSize <input type="text" name="tileSize" value="128" style="width: 90%" /> px</label>
 </form>
 <br />`,
@@ -64,16 +71,16 @@ ${selectionListHtml}
                             settings[element.name] = element.value;
                         }
                         
-                        const [width, height, tileSize] = [settings.width, settings.height, settings.tileSize].map(x => parseInt(x));
+                        const tileSize = parseInt(settings.tileSize);
 
-                        const dungeonGenerator = radugen.generators.dungeon.generate(settings.dungeonGenerator, width, height)
+                        const dungeonGenerator = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize)
                         const dungeonMap = dungeonGenerator.generate();
 
                         const wallRenderer = new radugen.renderer.Walls(dungeonMap, tileSize);
                         const walls = wallRenderer.render();
 
 
-                        const scene = new radugen.RadugenScene(width, height, tileSize, walls);
+                        const scene = new radugen.RadugenScene(dungeonGenerator.width, dungeonGenerator.height, tileSize, walls);
 
                         const imageRenderer = new radugen.renderer.Image(dungeonMap, tileSize);
                         imageRenderer.render().then(function (blob) {

@@ -22,7 +22,7 @@ radugen.renderer.Image = class {
 
     getThemeFileDirectoryContents(theme) {
         const promises = [];
-        for (var key in theme) {
+        for (let key in theme) {
             if (theme.hasOwnProperty(key)) {
                 promises.push(this.getDirectoryContents(`modules/Radugen/assets/themes/${theme[key]}/${key}/`));
             }
@@ -40,46 +40,45 @@ radugen.renderer.Image = class {
     }
 
     render() {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            const baseCanvas = self.createCanvas();
+        return new Promise((resolve, reject) => {
+            const baseCanvas = this.createCanvas();
             const baseCtx = baseCanvas.getContext("2d");
             
-            const floorCanvas = self.createCanvas();
+            const floorCanvas = this.createCanvas();
             const floorCtx = floorCanvas.getContext("2d");
 
             baseCtx.save();
             floorCtx.save();
 
-            self.getThemeFileDirectoryContents({
+            this.getThemeFileDirectoryContents({
                 floor: "cobble",
-            }).then(function ([background]) {
+            }).then(([background]) => {
                 //Background
                 baseCtx.fillStyle = "black";
-                baseCtx.fillRect(0, 0, self._imageWidth, self._imageHeight);
-                return self.loadImage(radugen.helper.getRndFromArr(background.files)).then(function (img) {
-                    self.patternizeContext(baseCtx, img, 0.1);
-                    self.renderFloorTilesBg(baseCtx);
-                    self.resetContext(baseCtx);
+                baseCtx.fillRect(0, 0, this._imageWidth, this._imageHeight);
+                return this.loadImage(radugen.helper.getRndFromArr(background.files)).then(img => {
+                    this.patternizeContext(baseCtx, img, 0.1);
+                    this.renderFloorTilesBg(baseCtx);
+                    this.resetContext(baseCtx);
                 });
-            }).then(function () {
+            }).then(() => {
                 //Floor
-                return self.getThemeFileDirectoryContents({
+                return this.getThemeFileDirectoryContents({
                     floor: "rough",
                     walls: "rough"
-                }).then(function ([floorFiles, wallFiles]) {
-                    return self.renderFloorTiles(floorCtx, floorFiles)
-                }).then(function () {
-                    return self.getPatternDirectoryContents()
-                }).then(function (patterns) {
-                    return self.loadImage(radugen.helper.getRndFromArr(patterns.files))
-                }).then(function (img) {
-                    self.patternizeContext(floorCtx, img, 0.8); 
+                }).then(([floorFiles, wallFiles]) => {
+                    return this.renderFloorTiles(floorCtx, floorFiles)
+                }).then(() => {
+                    return this.getPatternDirectoryContents()
+                }).then((patterns) => {
+                    return this.loadImage(radugen.helper.getRndFromArr(patterns.files))
+                }).then((img) => {
+                    this.patternizeContext(floorCtx, img, 0.8); 
                 });
-            }).finally(function () {
+            }).finally(() => {
                 //Whatever happens, merge the contexts we do have
                 baseCtx.drawImage(floorCanvas, 0, 0);
-                baseCanvas.toBlob(function (imageBlob) {
+                baseCanvas.toBlob(imageBlob => {
                     resolve(imageBlob);
                 }, "image/webp", 0.80);
             });
@@ -87,27 +86,25 @@ radugen.renderer.Image = class {
     }
 
     renderFloorTilesBg(ctx) {
-        let self = this;
-        this.iterateMap(function (x, y) {
-            if (self._map[x][y] == 1) {
+        this.iterateMap((x, y) => {
+            if (this._map[y][x] == 1) {
                 ctx.fillStyle = "black";
-                ctx.fillRect(x * self._tileResolution, y * self._tileResolution, self._tileResolution, self._tileResolution);
+                ctx.fillRect(x * this._tileResolution, y * this._tileResolution, this._tileResolution, this._tileResolution);
             };
         })
     }
 
     renderFloorTiles(ctx, themeFiles) {
-        let self = this;
         let promises = [];
 
-        this.iterateMap(function (x, y) {
-            if (self._map[x][y] == 1) {
+        this.iterateMap((x, y) => {
+            if (this._map[y][x] == 1) {
                 promises.push(
-                    self.loadImage(radugen.helper.getRndFromArr(themeFiles.files)).then(function (img) {
-                        self.flipContextRandom(ctx, x, y);
-                        self.rotateContextRandom(ctx);
-                        ctx.drawImage(img, 0, 0, self._tileResolution, self._tileResolution);
-                        self.resetContext(ctx);
+                    this.loadImage(radugen.helper.getRndFromArr(themeFiles.files)).then(img => {
+                        this.flipContextRandom(ctx, x, y);
+                        this.rotateContextRandom(ctx);
+                        ctx.drawImage(img, 0, 0, this._tileResolution, this._tileResolution);
+                        this.resetContext(ctx);
                     })
                 )
             };

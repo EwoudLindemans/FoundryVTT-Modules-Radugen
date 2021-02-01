@@ -4,11 +4,10 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 radugen.generators.dungeons[radugen.generators.dungeonGenerator.Static] = class extends radugen.generators.dungeon {
     /**
-     * @param {number} width
-     * @param {number} height
+     * @param {radugen.generators.dungeonSize} dungeonSize
      */
-    constructor(width, height) {
-        super(width, height, 'Static');
+    constructor(dungeonSize) {
+        super(20, 20, 'Static');
     }
 
 

@@ -4,11 +4,10 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 radugen.generators.dungeons[radugen.generators.dungeonGenerator.Quirks] = class extends radugen.generators.dungeon {
     /**
-     * @param {number} width
-     * @param {number} height
+     * @param {radugen.generators.dungeonSize} dungeonSize
      */
-    constructor(width, height) {
-        super(width, height, 'Quirks');
+    constructor(dungeonSize) {
+        super(16, 12, 'Quirks');
     }
 
     getRandom(low, high) {
@@ -70,19 +69,19 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Quirks] = class 
 
         for (i = 0; i < room_count; i++) {
             var room = this._rooms[i];
-            for (var x = room.x; x < room.x + room.w; x++) {
-                for (var y = room.y; y < room.y + room.h; y++) {
-                    this._map[x][y] = 1;
+            for (let x = room.x; x < room.x + room.w; x++) {
+                for (let y = room.y; y < room.y + room.h; y++) {
+                    this._map[y][x] = 1;
                 }
             }
         }
 
         for (var x = 0; x < this.width; x++) {
             for (var y = 0; y < this.height; y++) {
-                if (this._map[x][y] == 1) {
+                if (this._map[y][x] == 1) {
                     for (var xx = x - 1; xx <= x + 1; xx++) {
                         for (var yy = y - 1; yy <= y + 1; yy++) {
-                            if (this._map[xx][yy] == 0) this._map[xx][yy] = 2;
+                            if (this._map[yy][xx] == 0) this._map[yy][xx] = 2;
                         }
                     }
                 }

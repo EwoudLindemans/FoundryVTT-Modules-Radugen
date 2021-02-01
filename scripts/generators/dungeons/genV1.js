@@ -2,7 +2,7 @@ window.radugen = window.radugen || {};
 radugen.generators = radugen.generators || {};
 radugen.generators.dungeons = radugen.generators.dungeons || {};
 
-radugen.generators.dungeons[radugen.generators.dungeonGenerator.Grid] = class extends radugen.generators.dungeon {
+radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV1] = class extends radugen.generators.dungeon {
     /**
      * @param {radugen.generators.dungeonSize} dungeonSize
      */
@@ -19,7 +19,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Grid] = class ex
                 grid[y][x] = 0;
             }
         }
-        return grid
+        return grid;
     }
 
     generate() {

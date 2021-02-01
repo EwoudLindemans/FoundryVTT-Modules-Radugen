@@ -104,10 +104,9 @@ radugen.renderer.Walls = class {
     //CONST.WALL_DIRECTIONS.{BOTH: 0, LEFT: 1, RIGHT: 2}
     //CONST.WALL_SENSE_TYPES.{NONE: 0, NORMAL: 1, LIMITED: 2}
     renderWalls(ctx, themeFiles) {
-        var self = this;
         const walls = [];
-        this.iterateMap(function (x, y) {
-            if (self._map[x][y] == 0) {
+        this.iterateMap((x, y) => {
+            if (this._map[y][x] == 0) {
                 let drawTop = false;
                 let drawLeft = false;
                 let drawRight = false;
@@ -116,7 +115,7 @@ radugen.renderer.Walls = class {
 
                 //check top
                 if (y != 0) {
-                    if (self._map[x][y - 1] != 0) {
+                    if (this._map[y - 1][x] != 0) {
                         drawTop = true;
                         drawCount++;
                     }
@@ -124,86 +123,86 @@ radugen.renderer.Walls = class {
 
                 //check left
                 if (x != 0) {
-                    if (self._map[x - 1][y] != 0) {
+                    if (this._map[y][x - 1] != 0) {
                         drawLeft = true;
                         drawCount++;
                     }
                 }
                
                 //check right
-                if (x != self._gridWidth - 1) {
-                    if (self._map[x + 1][y] != 0) {
+                if (x != this._gridWidth - 1) {
+                    if (this._map[y][x + 1] != 0) {
                         drawRight = true;
                         drawCount++;
                     }
                 }
 
                 //check bottom
-                if (y != self._gridHeight - 1) {
-                    if (self._map[x][y + 1] != 0) {
+                if (y != this._gridHeight - 1) {
+                    if (this._map[y + 1][x] != 0) {
                         drawBottom = true;
                         drawCount++;
                     }
                 }
 
                 if (drawTop) {
-                    walls.push(self.getInvisibleWall(x, y, 'top'));
+                    walls.push(this.getInvisibleWall(x, y, 'top'));
                 }
                 if (drawLeft) {
-                    walls.push(self.getInvisibleWall(x, y, 'left'));
+                    walls.push(this.getInvisibleWall(x, y, 'left'));
                 }
                 if (drawRight) {
-                    walls.push(self.getInvisibleWall(x, y, 'right'));
+                    walls.push(this.getInvisibleWall(x, y, 'right'));
                 }
                 if (drawBottom) {
-                    walls.push(self.getInvisibleWall(x, y, 'bottom'));
+                    walls.push(this.getInvisibleWall(x, y, 'bottom'));
                 }
 
                 if (drawCount == 1) {
                     if (drawTop) {
-                        walls.push(self.getWall(x, y, 'bottom'));
+                        walls.push(this.getWall(x, y, 'bottom'));
                     }
                     if (drawLeft) {
-                        walls.push(self.getWall(x, y, 'right'));
+                        walls.push(this.getWall(x, y, 'right'));
                     }
                     if (drawRight) {
-                        walls.push(self.getWall(x, y, 'left'));
+                        walls.push(this.getWall(x, y, 'left'));
                     }
                     if (drawBottom) {
-                        walls.push(self.getWall(x, y, 'top'));
+                        walls.push(this.getWall(x, y, 'top'));
                     }
                 }
 
                 if (drawCount == 0) {
                     //check top left
                     if (y != 0 && x != 0) {
-                        if (self._map[x - 1][y - 1] != 0) {
-                            walls.push(self.getWall(x, y, 'right'));
-                            walls.push(self.getWall(x, y, 'bottom'));
+                        if (this._map[y - 1][x - 1] != 0) {
+                            walls.push(this.getWall(x, y, 'right'));
+                            walls.push(this.getWall(x, y, 'bottom'));
                         }
                     }
 
                     //check top right
-                    if (y != 0 && x != self._gridWidth - 1) {
-                        if (self._map[x + 1][y - 1] != 0) {
-                            walls.push(self.getWall(x, y, 'left'));
-                            walls.push(self.getWall(x, y, 'bottom'));
+                    if (y != 0 && x != this._gridWidth - 1) {
+                        if (this._map[y - 1][x + 1] != 0) {
+                            walls.push(this.getWall(x, y, 'left'));
+                            walls.push(this.getWall(x, y, 'bottom'));
                         }
                     }
 
                     //check bottom left
-                    if (y != self._gridHeight - 1 && x != 0) {
-                        if (self._map[x - 1][y + 1] != 0) {
-                            walls.push(self.getWall(x, y, 'right'));
-                            walls.push(self.getWall(x, y, 'top'));
+                    if (y != this._gridHeight - 1 && x != 0) {
+                        if (this._map[y + 1][x - 1] != 0) {
+                            walls.push(this.getWall(x, y, 'right'));
+                            walls.push(this.getWall(x, y, 'top'));
                         }
                     }
 
                     //check bottom right
-                    if (y != self._gridHeight - 1 && x != self._gridWidth - 1) {
-                        if (self._map[x + 1][y + 1] != 0) {
-                            walls.push(self.getWall(x, y, 'left'));
-                            walls.push(self.getWall(x, y, 'top'));
+                    if (y != this._gridHeight - 1 && x != this._gridWidth - 1) {
+                        if (this._map[y + 1][x + 1] != 0) {
+                            walls.push(this.getWall(x, y, 'left'));
+                            walls.push(this.getWall(x, y, 'top'));
                         }
                     }
                 }
