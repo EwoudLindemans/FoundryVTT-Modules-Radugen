@@ -28,32 +28,31 @@ radugen.renderer.Tilemap = class {
     }
 
     render() {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            const baseCanvas = self.createCanvas();
+        return new Promise((resolve, reject) => {
+            const baseCanvas = this.createCanvas();
             const baseCtx = baseCanvas.getContext("2d");
             baseCtx.imageSmoothingEnabled = false;
             
             //Load tilemap
-            self.getTilemapDirectoryContents("zelda").then(function (tileMapFiles) {
+            this.getTilemapDirectoryContents("zelda").then(tileMapFiles => {
 
-                var json = tileMapFiles.files.find(p => {
+                const json = tileMapFiles.files.find(p => {
                     return p.indexOf('definition.json') != -1
                 });
 
-                var tilemap = tileMapFiles.files.find(p => {
+                const tilemap = tileMapFiles.files.find(p => {
                     return p.indexOf('tilemap') != -1
                 });
 
-                $.getJSON(json, function (data) {
-                    self.loadImage(tilemap).then(function (image) {
-                        self.renderTileMap(baseCtx, data, image);
-                        baseCanvas.toBlob(function (imageBlob) {
+                $.getJSON(json, data => {
+                    this.loadImage(tilemap).then(image => {
+                        this.renderTileMap(baseCtx, data, image);
+                        baseCanvas.toBlob(imageBlob => {
                             resolve(imageBlob);
                         }, "image/webp", 0.80);
-                    })
+                    });
                 });
-            }).finally(function () {
+            }).finally(() => {
                 //Whatever happens, merge the contexts we do have
                 
             });
@@ -62,14 +61,13 @@ radugen.renderer.Tilemap = class {
 
     renderTileMap(ctx, definition, tileMap) {
         console.log(definition, tileMap);
-        let self = this;
 
-        this.iterateMap(function (x, y) {
-            if (self._map[x][y] == 1) {
-                self.drawMapPart(ctx, definition, tileMap, 'floor', x, y);
+        this.iterateMap((x, y) => {
+            if (this._map[y][x] == 1) {
+                this.drawMapPart(ctx, definition, tileMap, 'floor', x, y);
             };
 
-            if (self._map[x][y] == 0) {
+            if (this._map[y][x] == 0) {
                 let drawTop = false;
                 let drawLeft = false;
                 let drawRight = false;
@@ -78,7 +76,7 @@ radugen.renderer.Tilemap = class {
 
                 //check top
                 if (y != 0) {
-                    if (self._map[x][y - 1] != 0) {
+                    if (this._map[y - 1][x] != 0) {
                         drawTop = true;
                         drawCount++;
                     }
@@ -86,23 +84,23 @@ radugen.renderer.Tilemap = class {
 
                 //check left
                 if (x != 0) {
-                    if (self._map[x - 1][y] != 0) {
+                    if (this._map[y][x - 1] != 0) {
                         drawLeft = true;
                         drawCount++;
                     }
                 }
 
                 //check right
-                if (x != self._gridWidth - 1) {
-                    if (self._map[x + 1][y] != 0) {
+                if (x != this._gridWidth - 1) {
+                    if (this._map[y][x + 1] != 0) {
                         drawRight = true;
                         drawCount++;
                     }
                 }
 
                 //check bottom
-                if (y != self._gridHeight - 1) {
-                    if (self._map[x][y + 1] != 0) {
+                if (y != this._gridHeight - 1) {
+                    if (this._map[y + 1][x] != 0) {
                         drawBottom = true;
                         drawCount++;
                     }
@@ -110,16 +108,16 @@ radugen.renderer.Tilemap = class {
 
                 if (drawCount == 1) {
                     if (drawTop) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_bottom', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_bottom', x, y);
                     }
                     if (drawLeft) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_right', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_right', x, y);
                     }
                     if (drawRight) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_left', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_left', x, y);
                     }
                     if (drawBottom) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_top', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_top', x, y);
                     }
                 }
 
@@ -128,29 +126,29 @@ radugen.renderer.Tilemap = class {
                 if (drawCount == 0) {
                     //check top left
                     if (y != 0 && x != 0) {
-                        if (self._map[x - 1][y - 1] != 0) {
-                            self.drawMapPart(ctx, definition, tileMap, 'wall_bottomright_out', x, y);
+                        if (this._map[y - 1][x - 1] != 0) {
+                            this.drawMapPart(ctx, definition, tileMap, 'wall_bottomright_out', x, y);
                         }
                     }
 
                     //check top right
-                    if (y != 0 && x != self._gridWidth - 1) {
-                        if (self._map[x + 1][y - 1] != 0) {
-                            self.drawMapPart(ctx, definition, tileMap, 'wall_bottomleft_out', x, y);
+                    if (y != 0 && x != this._gridWidth - 1) {
+                        if (this._map[y - 1][x + 1] != 0) {
+                            this.drawMapPart(ctx, definition, tileMap, 'wall_bottomleft_out', x, y);
                         }
                     }
 
                     //check bottom left
-                    if (y != self._gridHeight - 1 && x != 0) {
-                        if (self._map[x - 1][y + 1] != 0) {
-                            self.drawMapPart(ctx, definition, tileMap, 'wall_topright_out', x, y);
+                    if (y != this._gridHeight - 1 && x != 0) {
+                        if (this._map[y + 1][x - 1] != 0) {
+                            this.drawMapPart(ctx, definition, tileMap, 'wall_topright_out', x, y);
                         }
                     }
 
                     //check bottom right
-                    if (y != self._gridHeight - 1 && x != self._gridWidth - 1) {
-                        if (self._map[x + 1][y + 1] != 0) {
-                            self.drawMapPart(ctx, definition, tileMap, 'wall_topleft_out', x, y);
+                    if (y != this._gridHeight - 1 && x != this._gridWidth - 1) {
+                        if (this._map[y + 1][x + 1] != 0) {
+                            this.drawMapPart(ctx, definition, tileMap, 'wall_topleft_out', x, y);
                         }
                     }
                 }
@@ -160,16 +158,16 @@ radugen.renderer.Tilemap = class {
                 if (drawCount == 2) {
                     console.log(drawCount);
                     if (drawTop && drawLeft) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_topleft_in', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_topleft_in', x, y);
                     }
                     if (drawTop && drawRight) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_topright_in', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_topright_in', x, y);
                     }
                     if (drawBottom && drawLeft) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_bottomleft_in', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_bottomleft_in', x, y);
                     }
                     if (drawBottom && drawRight) {
-                        self.drawMapPart(ctx, definition, tileMap, 'wall_bottomright_in', x, y);
+                        this.drawMapPart(ctx, definition, tileMap, 'wall_bottomright_in', x, y);
                     }
                 }
             }
@@ -211,18 +209,12 @@ radugen.renderer.Tilemap = class {
     }
 
     loadImage(src) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = function () {
                 resolve(img);
             };
             img.src = src
         });
-    }
-
-
-    resetContext(ctx) {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.restore();
     }
 };

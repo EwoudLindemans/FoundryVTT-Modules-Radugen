@@ -3,17 +3,19 @@ radugen.generators = radugen.generators || {};
 radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 radugen.generators.dungeons[radugen.generators.dungeonGenerator.Grid] = class extends radugen.generators.dungeon {
-    constructor(width, height) {
-        this._width = width;
-        this._height = height;
+    /**
+     * @param {radugen.generators.dungeonSize} dungeonSize
+     */
+    constructor(dungeonSize) {
+        super(24, 16, 'Grid');
     }
 
     createGrid() {
         let grid = [];
-        for (var x = 0; x < this._width; x++) {
+        for (let x = 0; x < this._width; x++) {
             grid[x] = [];
-            for (var y = 0; y < this._height; y++) {
-                grid[x][y] = 0;
+            for (let y = 0; y < this._height; y++) {
+                grid[y][x] = 0;
             }
         }
         return grid
