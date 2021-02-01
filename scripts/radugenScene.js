@@ -16,14 +16,12 @@ radugen.RadugenScene = class extends Scene {
             width: width * tileSize,
             height: height * tileSize,
             grid: tileSize,
+            backgroundColor: '#000000',
             padding: 0,
             tiles: [],
-
-            //CONST.WALL_DOOR_TYPES.{NONE: 0, DOOR: 1, SECRET: 2}
-            //CONST.WALL_DOOR_STATES.{CLOSED: 0, OPEN: 1, LOCKED: 2}
-            //CONST.WALL_MOVEMENT_TYPES.{NONE: 0, NORMAL: 1}
-            //CONST.WALL_DIRECTIONS.{BOTH: 0, LEFT: 1, RIGHT: 2}
-            //CONST.WALL_SENSE_TYPES.{NONE: 0, NORMAL: 1, LIMITED: 2}
+            gridAlpha: 0,
+            tokenVision: true,
+            fogExploration: false,
             walls: walls,
             img: `modules/Radugen/uploads/scenes/${id}.webp`
         });

@@ -1,0 +1,19 @@
+{
+  "size": 32,
+  "wall_topleft_out": [ 0, 0 ],
+  "wall_top": [ 1, 0 ],
+  "wall_topright_out": [ 2, 0 ],
+
+  "wall_left": [ 0, 1 ],
+  "floor": [ 1, 1 ],
+  "wall_right": [ 2, 1 ],
+
+  "wall_bottomleft_out": [ 0, 2 ],
+  "wall_bottom": [ 1, 2 ],
+  "wall_bottomright_out": [ 2, 2 ],
+
+  "wall_topleft_in": [ 3, 0 ],
+  "wall_topright_in": [ 4, 0 ],
+  "wall_bottomleft_in": [ 3, 1 ],
+  "wall_bottomright_in": [ 4, 1 ]
+}
