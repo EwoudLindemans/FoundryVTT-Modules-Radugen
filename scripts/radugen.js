@@ -2,89 +2,135 @@ window.radugen = window.radugen || {};
 radugen.name = "Radugen";
 radugen.compendium = {};
 
-Hooks.on("init", function () { });
-Hooks.on("ready", function () {
-    radugen.compendium.scene = game.packs.find(p => {
-        return p.metadata.label === radugen.name
-    });
+class RadugenInit {
+    constructor() {
+        this.hookInit();
+        this.hookReady();
+        this.hookSceneDirectory();
+        this.hookSideBarTab();
+    }
 
-    if (radugen.compendium.scene == null) {
-        let pack = Compendium.create({ entity: "Scene", label: radugen.name }).then(function () {
-            radugen.compendium.scene = pack;
+    hookInit() {
+        Hooks.on("init", () => { });
+    }
+    hookReady() {
+        Hooks.on("ready", () => {
+            radugen.compendium.scene = game.packs.find(p => {
+                return p.metadata.label === radugen.name
+            });
+
+            if (radugen.compendium.scene == null) {
+                let pack = Compendium.create({ entity: "Scene", label: radugen.name }).then(function () {
+                    radugen.compendium.scene = pack;
+                });
+            }
+
+            radugen.settings.register();
+        });
+    }
+    hookSceneDirectory() {
+        Hooks.on('renderSceneDirectory', (app, html, data) => {
+            const importButton = $('<button class="radugen-generate" style="min-width: 96%;"><i class="fas fa-hat-wizard"></i> Generate Dungeon</button>');
+
+            html.find('.radugen-generate').remove();
+            html.find('.directory-footer').append(importButton);
+
+            // Handle button clicks
+            importButton.click(ev => {
+                ev.preventDefault();
+                this.createRadugenDialog();
+            });
+        });
+    }
+    hookSideBarTab() {
+        // Add extra button to foundrys settings menu
+        Hooks.on("renderSidebarTab", (app, html) => {
+            if (!(app instanceof Settings) || !game.user.isGM) {
+                return;
+            }
+
+            const configureButton = html.find('button[data-action="configure"]');
+            configureButton.before(`
+                <button data-fatex="templates">
+                    <i class="fas fa-hat-wizard"></i> Radugen: Generate Scene
+                </button>
+            `);
+
+            html.on("click", 'button[data-fatex="templates"]', () => {
+                this.createRadugenDialog();
+            });
         });
     }
 
-    radugen.settings.register();
-});
-
-// Add extra button to foundrys settings menu
-Hooks.on("renderSidebarTab", (app, html) => {
-    if (!(app instanceof Settings) || !game.user.isGM) {
-        return;
+    createRadugenDialogHtml() {
+        return `
+        <p>Scene options:</p>
+            <form class="radugen-generate-scene">
+                <label>Dungeon Generator
+                    ${this.createSelect('dungeonGenerator', radugen.generators.dungeonGenerator, function (keyvalue) {
+                        return keyvalue == radugen.generators.dungeonGenerator.None ? true : false;
+                    })}
+                </label>
+                <label>Dungeon Size
+                    ${this.createSelect('dungeonSize', radugen.generators.dungeonSize, function (keyvalue) {
+                        return keyvalue == radugen.generators.dungeonSize.Custom ? true : false;
+                    })}
+                </label>
+            </form>
+        <br />`;
     }
 
-    const configureButton = html.find('button[data-action="configure"]');
-
-    configureButton.before(`
-        <button data-fatex="templates">
-            <i class="fas fa-hat-wizard"></i> Radugen: Generate Scene
-        </button>
-    `);
-
-    html.on("click", 'button[data-fatex="templates"]', () => {
-        let dungeonSizeListHtml = '<select name="dungeonSize" style="width: 90%">';
-        for (let key of Object.keys(radugen.generators.dungeonSize)){
-            if (radugen.generators.dungeonSize[key] == radugen.generators.dungeonSize.Custom) continue;
-            dungeonSizeListHtml += `
-<option value="${radugen.generators.dungeonSize[key]}">${key}</option>`;
+    createSelect(name, heynum, filter) {
+        let select = `<select name="${name}" style="width: 90%">`
+        for (let key of Object.keys(heynum)) {
+            if (filter(heynum[key])) { continue; }
+            select += `<option value="${heynum[key]}">${key}</option>`;
         }
-        dungeonSizeListHtml += `
-</select>`;
+        return select + '</select>';
+    }
 
-        let dungeonGeneratorListHtml = '<select name="dungeonGenerator" style="width: 90%">';
-        for (let key of Object.keys(radugen.generators.dungeonGenerator)){
-            if (radugen.generators.dungeonGenerator[key] == radugen.generators.dungeonGenerator.None) continue;
-            dungeonGeneratorListHtml += `
-<option value="${radugen.generators.dungeonGenerator[key]}">${key}</option>`;
+    getRadugenDialogOptions(dialog) {
+        const settings = {};
+        for (let element of [...document.querySelectorAll(`#app-${dialog.appId} form.radugen-generate-scene label>*`)]) {
+            settings[element.name] = element.value;
         }
-        dungeonGeneratorListHtml += `
-</select>`;
+        return settings;
+    }
 
-        const d = new Dialog({
+    createRadugenDialog() {
+        const dialog = new Dialog({
             title: "Radugen Generate Scene",
-            content: `<p>Scene options:</p>
-<form class="radugen-generate-scene">
-<label>Dungeon Generator
-${dungeonGeneratorListHtml}
-</label>
-<label>Dungeon Size
-${dungeonSizeListHtml}
-</label>
-<label>TileSize <input type="text" name="tileSize" value="128" style="width: 90%" /> px</label>
-</form>
-<br />`,
+            content: this.createRadugenDialogHtml(),
             buttons: {
                 generate: {
                     icon: '<i class="fas fa-check"></i>',
                     label: "Generate!",
                     callback: () => {
-                        const settings = {};
-                        for (let element of [...document.querySelectorAll(`#app-${d.appId} form.radugen-generate-scene label>*`)]) {
-                            settings[element.name] = element.value;
+                        const settings = this.getRadugenDialogOptions(dialog);
+
+                        switch (game.settings.get("radugen", "tileResolution")) {
+                            case 'small':
+                                settings.resolution = 64;
+                            case 'medium':
+                                settings.resolution = 128
+                            case 'large':
+                                settings.resolution = 256
+                            default:
                         }
-                        
-                        const tileSize = parseInt(settings.tileSize);
+
+                        settings.wallMode = game.settings.get("radugen", "wallMode");
 
                         const dungeonGenerator = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize)
                         const dungeonMap = dungeonGenerator.generate();
 
-                        const wallRenderer = new radugen.renderer.Walls(dungeonMap, tileSize);
-                        const walls = wallRenderer.render();
+                        let walls = [];
+                        if (settings.wallMode != 'none') {
+                            walls = new radugen.renderer.Walls(dungeonMap, settings.resolution, settings.wallMode).render();
+                        }
 
+                        const scene = new radugen.RadugenScene(dungeonGenerator.width, dungeonGenerator.height, settings.resolution, walls);
 
-                        const scene = new radugen.RadugenScene(dungeonGenerator.width, dungeonGenerator.height, tileSize, walls);
-
-                        const imageRenderer = new radugen.renderer.Image(dungeonMap, tileSize);
+                        const imageRenderer = new radugen.renderer.Image(dungeonMap, settings.resolution);
                         imageRenderer.render().then(function (blob) {
                             //Upload file
                             let file = new File([blob], `${scene._id}.webp`);
@@ -107,8 +153,8 @@ ${dungeonSizeListHtml}
             close: html => {
             }
         });
-        d.render(true);
-           
-        return CONFIG.FateX.applications.templateSettings.render(true);
-    });
-});
+        dialog.render(true);
+    }
+}
+
+radugen.init = new RadugenInit();
