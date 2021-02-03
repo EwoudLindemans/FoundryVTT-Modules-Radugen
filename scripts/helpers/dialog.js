@@ -4,43 +4,33 @@ radugen.helpers = {};
 radugen.helpers.RadugenDialog = new class {
     constructor() { }
 
-    html() {
-        //return renderTemplate(`$modules/radugen/templates/dialog.html`, {
-        //    selects: [
-        //        this.createSelect('dungeonGenerator', radugen.generators.dungeonGenerator, function (keyvalue) {
-        //            return keyvalue == radugen.generators.dungeonGenerator.None ? true : false;
-        //        }),
-        //        this.createSelect('dungeonGenerator', radugen.generators.dungeonGenerator, function (keyvalue) {
-        //            return keyvalue == radugen.generators.dungeonGenerator.None ? true : false;
-        //        })
-        //    ]
 
-        //});
-
-        return `
-        <p>Scene options:</p>
-            <form class="radugen-generate-scene">
-                <label>Dungeon Generator
-                    ${this.createSelect('dungeonGenerator', radugen.generators.dungeonGenerator, function (keyvalue) {
-            return keyvalue == radugen.generators.dungeonGenerator.None ? true : false;
-        })}
-                </label>
-                <label>Dungeon Size
-                    ${this.createSelect('dungeonSize', radugen.generators.dungeonSize, function (keyvalue) {
-            return keyvalue == radugen.generators.dungeonSize.Custom ? true : false;
-        })}
-                </label>
-            </form>
-        <br />`;
+    getKeyValueFromObject(heynum) {
+        let returnArr = [];
+        for (let key of Object.keys(heynum)) {
+            returnArr.push({
+                key: key,
+                value: heynum[key]
+            });
+        }
+        return returnArr;
     }
 
-    createSelect(name, heynum, filter) {
-        let select = `<select name="${name}" style="width: 90%">`
-        for (let key of Object.keys(heynum)) {
-            if (filter(heynum[key])) { continue; }
-            select += `<option value="${heynum[key]}">${key}</option>`;
-        }
-        return select + '</select>';
+    html() {
+        return renderTemplate(`modules/radugen/templates/dialog.html`, {
+            fields: [
+                {
+                    label: 'Dungeon Generator',
+                    name: 'dungeonGenerator',
+                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator)
+                },
+                {
+                    label: 'Dungeon Size',
+                    name: 'dungeonSize',
+                    select: this.getKeyValueFromObject(radugen.generators.dungeonSize)
+                }
+            ]
+        });
     }
 
     getRadugenDialogOptions(dialog) {
@@ -51,34 +41,35 @@ radugen.helpers.RadugenDialog = new class {
         return settings;
     }
 
-    create() {
-        let promise = new Promise((resolve, reject) => {
-            const dialog = new Dialog({
-                title: "Radugen Generate Scene",
-                content: this.html(),
-                buttons: {
-                    generate: {
-                        icon: '<i class="fas fa-check"></i>',
-                        label: "Generate!",
-                        callback: () => {
-                            const settings = this.getRadugenDialogOptions(dialog);
-                            resolve(settings);
+    create(html) {
+        return this.html().then((html) => {
+            new Promise((resolve, reject) => {
+                const dialog = new Dialog({
+                    title: "Radugen Generate Scene",
+                    content: html,
+                    buttons: {
+                        generate: {
+                            icon: '<i class="fas fa-check"></i>',
+                            label: "Generate!",
+                            callback: () => {
+                                const settings = this.getRadugenDialogOptions(dialog);
+                                resolve(settings);
+                            }
+                        },
+                        cancel: {
+                            icon: '<i class="fas fa-times"></i>',
+                            label: "Cancel",
+                            callback: () => {
+                                reject("cancel");
+                            }
                         }
                     },
-                    cancel: {
-                        icon: '<i class="fas fa-times"></i>',
-                        label: "Cancel",
-                        callback: () => {
-                            reject("cancel");
-                        }
-                    }
-                },
-                default: "cancel",
-                render: html => {},
-                close: html => {}
+                    default: "cancel",
+                    render: html => { },
+                    close: html => { }
+                });
+                dialog.render(true);
             });
-            dialog.render(true);
         });
-        return promise;
     }
 }

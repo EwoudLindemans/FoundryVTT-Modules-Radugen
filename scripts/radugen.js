@@ -67,8 +67,8 @@ class RadugenInit {
     createRadugenDialog() {
         radugen.helpers.RadugenDialog.create().then((settings) => {
             this.createScene(settings);
-        }, function () {
-            console.log('The operation was cancelled');
+        }, function (ex) {
+            console.log(ex, 'The operation was cancelled');
         });
     }
 
