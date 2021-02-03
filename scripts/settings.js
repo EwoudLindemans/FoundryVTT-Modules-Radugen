@@ -1,24 +1,32 @@
 window.radugen = window.radugen || {};
-window.radugen.settings = class  {
-    static register() { 
 
-        //game.settings.registerMenu("ddb-importer", 'setupMenu', {
-        //    name: "ddb-importer.setup.name",
-        //    label: "ddb-importer.setup.name",
-        //    hint: "ddb-importer.setup.hint",
-        //    icon: 'fas fa-wrench',
-        //    type: DDBSetup,
-        //    restricted: true
-        //});
 
+window.radugen.settings = class extends FormApplication {
+    constructor(entity, options) {
+        super(entity, options);
+    }
+
+    static register() {
         //game.settings.registerMenu("radugen", 'setupMenu', {
         //    name: "Radugen",
         //    label: "random dungeon generator",
         //    hint: "radugen.setup.hint",
         //    icon: 'fas fa-wrench',
-        //    type: window.radugen.settingsForm,
+        //    type: window.radugen.settings,
         //    restricted: true
         //});
+
+        game.settings.register("radugen", "dungeonUploadPath", {
+            name: "Scene upload path",
+            hint: "This is where we will store the generated dungeons",
+            scope: "client",     // This specifies a client-stored setting
+            config: true,        // This specifies that the setting appears in the configuration view
+            type: String,
+            default: "medium",        // The default value for the setting
+            onChange: value => { // A callback function which triggers when the setting is changed
+                game.settings.set("radugen", "dungeonUploadPath", value);
+            }
+        });
 
         game.settings.register("radugen", "tileResolution", {
             name: "Tile Resolution",
@@ -54,7 +62,7 @@ window.radugen.settings = class  {
             }
         });
     }
-};
+}
 
 
 
