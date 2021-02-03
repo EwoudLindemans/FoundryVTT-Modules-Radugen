@@ -14,6 +14,7 @@
     "scripts/generators/dungeons/genV1.js",
     "scripts/generators/dungeons/grid.js",
     "scripts/generators/dungeons/static.js",
+    "scripts/helpers/dialog.js",
     "scripts/renderers/image.js",
     "scripts/renderers/walls.js",
     "scripts/renderers/tilemap.js",
