@@ -1,9 +1,8 @@
 window.radugen = window.radugen || {};
 radugen.helpers = {};
 
-radugen.helpers.RadugenDialog = new class {
+radugen.helpers.Dialog = new class {
     constructor() { }
-
 
     getKeyValueFromObject(heynum) {
         let returnArr = [];
@@ -16,8 +15,14 @@ radugen.helpers.RadugenDialog = new class {
         return returnArr;
     }
 
-    html() {
-        return renderTemplate(`modules/radugen/templates/dialog.html`, {
+    getFormFields(html) {
+        const form = html[0].querySelector("form");
+        const fd = new FormDataExtended(form);
+        return fd.toObject();
+    }
+
+    async createDungeonGenerationDialog() {
+        const html = await renderTemplate(`modules/radugen/templates/dialog.html`, {
             fields: [
                 {
                     label: 'Dungeon Generator',
@@ -31,45 +36,14 @@ radugen.helpers.RadugenDialog = new class {
                 }
             ]
         });
-    }
 
-    getRadugenDialogOptions(dialog) {
-        const settings = {};
-        for (let element of [...document.querySelectorAll(`#app-${dialog.appId} form.radugen-generate-scene label>*`)]) {
-            settings[element.name] = element.value;
-        }
-        return settings;
-    }
-
-    create(html) {
-        return this.html().then((html) => {
-            new Promise((resolve, reject) => {
-                const dialog = new Dialog({
-                    title: "Radugen Generate Scene",
-                    content: html,
-                    buttons: {
-                        generate: {
-                            icon: '<i class="fas fa-check"></i>',
-                            label: "Generate!",
-                            callback: () => {
-                                const settings = this.getRadugenDialogOptions(dialog);
-                                resolve(settings);
-                            }
-                        },
-                        cancel: {
-                            icon: '<i class="fas fa-times"></i>',
-                            label: "Cancel",
-                            callback: () => {
-                                reject("cancel");
-                            }
-                        }
-                    },
-                    default: "cancel",
-                    render: html => { },
-                    close: html => { }
-                });
-                dialog.render(true);
-            });
+        return await Dialog.prompt({
+            title: "Radugen Generate Scene",
+            content: html,
+            label: 'Generate',
+            callback: html => {
+                return this.getFormFields(html);
+            }
         });
     }
 }

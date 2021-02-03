@@ -64,15 +64,12 @@ class RadugenInit {
         });
     }
 
-    createRadugenDialog() {
-        radugen.helpers.RadugenDialog.create().then((settings) => {
-            this.createScene(settings);
-        }, function (ex) {
-            console.log(ex, 'The operation was cancelled');
-        });
+    async createRadugenDialog() {
+        let settings = await radugen.helpers.Dialog.createDungeonGenerationDialog();
+        this.createScene(settings);
     }
 
-    createScene(settings) {
+    async createScene(settings) {
         switch (game.settings.get("radugen", "tileResolution")) {
             case 'small':
                 settings.resolution = 64;
@@ -96,14 +93,15 @@ class RadugenInit {
         const scene = new radugen.RadugenScene(dungeonGenerator.width, dungeonGenerator.height, settings.resolution, walls);
 
         const imageRenderer = new radugen.renderer.Image(dungeonMap, settings.resolution);
-        imageRenderer.render().then(function (blob) {
+        const blob = await imageRenderer.render();
+
             //Upload file
-            let file = new File([blob], `${scene._id}.webp`);
-            FilePicker.upload("data", `modules/Radugen/uploads/scenes/`, file).then(function () {
-                //Save scene to compedium
-                radugen.compendium.scene.importEntity(scene);
-            });
-        });
+        let file = new File([blob], `${scene._id}.webp`);
+
+        let upload = await FilePicker.upload("data", `modules/Radugen/uploads/scenes/`, file);
+
+        //Save scene
+        radugen.compendium.scene.importEntity(scene);
     }
 }
 
