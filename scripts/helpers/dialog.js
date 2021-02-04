@@ -27,7 +27,7 @@ radugen.helpers.Dialog = new class {
                 {
                     label: 'Dungeon Generator',
                     name: 'dungeonGenerator',
-                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator).filter(x => x.value != radugen.generators.dungeonGenerator.None)
+                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator)
                 },
                 {
                     label: 'Dungeon Size',

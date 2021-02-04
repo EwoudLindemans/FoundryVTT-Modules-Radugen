@@ -73,12 +73,16 @@ class RadugenInit {
         switch (game.settings.get("radugen", "tileResolution")) {
             case 'small':
                 settings.resolution = 64;
+                break;
             case 'medium':
                 settings.resolution = 128;
+                break;
             case 'large':
                 settings.resolution = 192;
+                break;
             case 'huge':
                 settings.resolution = 256;
+                break;
             default:
         }
 
