@@ -15,7 +15,7 @@ const RDG_NameGenerators = class {
             "Chamber", "Territory", "Cells", "Rooms", "Labyrinth",
             "Grotto", "Passage", "Cemetery", "Garden", "Graveyard",
             "Necropolis", "City", "Fields", "Nursery", "Terrace",
-            "Shelter", "Pit", "Tower"
+            "Shelter", "Pit", "Tower", "Den"
         ];
         this._curiosities = [
             "Bugs", "Interventions", "Monsters", "Dragons", "Creatures",
@@ -26,7 +26,8 @@ const RDG_NameGenerators = class {
             "Swarms", "Blokkades", "Gravity", "Tremors", "Sounds", "Dreams",
             "Sorrows", "Distress", "Torment", "Torture", "Pain", "Misery",
             "Itches", "Silence", "Grief", "Coins", "Rewards", "Treasures",
-            "Curiosities", "Spikes", "Obelisk", "Statues", "Altar", "Cauldron"
+            "Curiosities", "Spikes", "Obelisk", "Statues", "Altar", "Cauldron",
+            "Transformations"
         ]
     }
 

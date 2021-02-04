@@ -3,7 +3,7 @@ radugen.renderer = radugen.renderer || {};
 radugen.renderer.Tilemap = class {
     constructor(map, tileResolution) {
         this._map = map;
-        this._gridHeight = map.length
+        this._gridHeight = map.length;
         this._gridWidth = map[0].length;
 
         this._imageWidth = this._gridWidth * tileResolution;

@@ -1,0 +1,12 @@
+<p>Scene options:</p>
+<form class="radugen-generate-scene">
+    {{#each fields}}
+    <label>{{label}}</label>
+    <select name="{{name}}" style="width: 90%">
+        {{#each select}}
+        <option value="{{value}}">{{key}}</option>
+        {{/each}}
+    </select>
+    {{/each}}
+</form>
+<br />
