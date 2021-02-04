@@ -37,7 +37,8 @@ window.radugen.settings = class extends FormApplication {
             choices: {           // If choices are defined, the resulting setting will be a select menu
                 small: "64x64",
                 medium: "128x128",
-                large: "256x256",
+                large: "192x192",
+                huge: "256x256",
             },
             default: "medium",        // The default value for the setting
             onChange: value => { // A callback function which triggers when the setting is changed

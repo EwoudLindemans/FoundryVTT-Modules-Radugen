@@ -62,5 +62,83 @@ radugen.helper = {
         get height(){
             return this._height;
         }
+    },
+    rect: class {
+        /**
+         * @param {number} left
+         * @param {number} top
+         * @param {number} width
+         * @param {number} height
+         */
+        constructor(left, top, width, height) {
+            this._left = left;
+            this._top = top;
+            this._width = width;
+            this._height = height;
+        }
+
+        /**
+         * @type {number}
+         */
+        get left() {
+            return this._left;
+        }
+
+        /**
+         * @type {number}
+         */
+        get top() {
+            return this._top;
+        }
+
+        /**
+         * @type {number}
+         */
+        get width() {
+            return this._width;
+        }
+
+        /**
+         * @type {number}
+         */
+        get height() {
+            return this._height;
+        }
+
+        /**
+         * @type {number}
+         */
+        get x1() {
+            return this._left;
+        }
+
+        /**
+         * @type {number}
+         */
+        get x2() {
+            return this._left + this._width;
+        }
+
+        /**
+         * @type {number}
+         */
+        get y1() {
+            return this._top;
+        }
+
+        /**
+         * @type {number}
+         */
+        get y2() {
+            return this._top + this._height;
+        }
+
+        expand(border) {
+            return new radugen.helper.rect(this._left - border, this._top - border, this._width + (border * 2), this._height + (border * 2));
+        }
+
+        intersects(rect) {
+            return !(this.x1 > rect.x2 || this.x2 < rect.x1 || this.y1 > rect.y2 || this.y2 < rect.y1);
+        }
     }
 };

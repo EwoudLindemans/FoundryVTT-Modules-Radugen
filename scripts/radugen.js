@@ -74,9 +74,11 @@ class RadugenInit {
             case 'small':
                 settings.resolution = 64;
             case 'medium':
-                settings.resolution = 128
+                settings.resolution = 128;
             case 'large':
-                settings.resolution = 256
+                settings.resolution = 192;
+            case 'huge':
+                settings.resolution = 256;
             default:
         }
 

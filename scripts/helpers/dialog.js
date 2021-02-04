@@ -22,12 +22,12 @@ radugen.helpers.Dialog = new class {
     }
 
     async createDungeonGenerationDialog() {
-        const html = await renderTemplate(`modules/radugen/templates/dialog.html`, {
+        const html = await renderTemplate(`modules/Radugen/templates/dialog.html`, {
             fields: [
                 {
                     label: 'Dungeon Generator',
                     name: 'dungeonGenerator',
-                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator)
+                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator).filter(x => x.value != radugen.generators.dungeonGenerator.None)
                 },
                 {
                     label: 'Dungeon Size',
