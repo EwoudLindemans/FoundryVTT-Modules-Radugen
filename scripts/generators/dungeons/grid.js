@@ -7,18 +7,19 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Grid] = class ex
      * @param {radugen.generators.dungeonSize} dungeonSize
      */
     constructor(dungeonSize) {
-        super(24, 16, 'Grid');
+        super('Grid');
     }
 
     createGrid() {
-        let grid = [];
-        for (let x = 0; x < this._width; x++) {
+        const grid = [];
+        const [width, height] = [24, 16];
+        for (let x = 0; x < width; x++) {
             grid[x] = [];
-            for (let y = 0; y < this._height; y++) {
+            for (let y = 0; y < height; y++) {
                 grid[y][x] = 0;
             }
         }
-        return grid
+        return grid;
     }
 
     generate() {

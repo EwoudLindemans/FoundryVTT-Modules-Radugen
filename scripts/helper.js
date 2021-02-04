@@ -94,6 +94,20 @@ radugen.helper = {
         /**
          * @type {number}
          */
+        get right() {
+            return this.x2;
+        }
+
+        /**
+         * @type {number}
+         */
+        get bottom() {
+            return this.y2;
+        }
+
+        /**
+         * @type {number}
+         */
         get width() {
             return this._width;
         }
