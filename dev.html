@@ -10,9 +10,11 @@
 <script type="text/javascript" src="./scripts/generators/dungeons/static.js"></script>
 <script type="text/javascript">
 function fillSelect(id, dictionary) {
+    const storageValue = localStorage.getItem(`radugen-${id}`);
     let html = '';
     for (let key of Object.keys(dictionary)) {
-        html += `<option value="${dictionary[key]}">${key}</option>`;
+        const selected = (storageValue === dictionary[key].toString());
+        html += `<option value="${dictionary[key]}"${selected ? ' selected' : ''}>${key}</option>`;
     }
     document.getElementById(id).innerHTML = html;
 }
@@ -26,11 +28,12 @@ document.addEventListener("DOMContentLoaded",()=>{
     fillSelect('dungeon-size', radugen.generators.dungeonSize);
 
     document.getElementById('dungeon-generate').addEventListener('click', () => {
-        const dungeon = radugen.generators.dungeon.generate(
-            getSelect('dungeon-generator'),
-            getSelect('dungeon-size')
-        );
+        const [generator, size] = [getSelect('dungeon-generator'), getSelect('dungeon-size')];
+        
+        localStorage.setItem('radugen-dungeon-generator', generator);
+        localStorage.setItem('radugen-dungeon-size', size);
 
+        const dungeon = radugen.generators.dungeon.generate(generator, size);
         const tileSize = 8;
         const canvas = document.getElementById('output-canvas');
         canvas.width = dungeon.width * tileSize;
