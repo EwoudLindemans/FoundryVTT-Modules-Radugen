@@ -7,17 +7,22 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV1] = class e
      * @param {radugen.generators.dungeonSize} dungeonSize
      */
     constructor(dungeonSize) {
-        const roomCount = (() => {
-            switch (parseInt(dungeonSize)) {
-                case radugen.generators.dungeonSize.Tiny: return 3;
-                case radugen.generators.dungeonSize.Small: return 5;
-                case radugen.generators.dungeonSize.Medium: return 7;
-                case radugen.generators.dungeonSize.Large: return 9;
-                case radugen.generators.dungeonSize.Huge: return 11;
-                case radugen.generators.dungeonSize.Gargantuan: return 14;
-            }
-        })();
+        super('genV1');
+    }
 
+    get roomCount(){
+        switch (parseInt(this.size)) {
+            case radugen.generators.dungeonSize.Tiny: return 3;
+            case radugen.generators.dungeonSize.Small: return 5;
+            case radugen.generators.dungeonSize.Medium: return 7;
+            case radugen.generators.dungeonSize.Large: return 9;
+            case radugen.generators.dungeonSize.Huge: return 11;
+            case radugen.generators.dungeonSize.Gargantuan: return 14;
+        }
+    };
+
+    generate() {
+        const roomCount = this.roomCount;
         const directions = Object.freeze({ North: 1, West: 2, South: 3, East: 4 });
         const [rnd, rect] = [radugen.helper.getRndFromNum, radugen.helper.rect];
         const roomSizes = [
@@ -180,28 +185,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV1] = class e
             }
         }
 
-        super('genV1');
-
         this._map = grid;
-    }
-
-    static get dungeonRoomCount(){
-        if (this._dungeonRoomCount == null) {
-            switch (this.dungeonSize) {
-                case radugen.generators.dungeonSize.Tiny:
-                    return 2;
-                case radugen.generators.dungeonSize.Small:
-                    return 4;
-                case radugen.generators.dungeonSize.Medium:
-                    return 6;
-                default:
-                    return 8;
-            }
-        }
-        return this._dungeonRoomCount;
-    }
-
-    generate() {
         return this._map;
     }
 };

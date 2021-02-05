@@ -15,7 +15,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Static] = class 
         let r = 1;
         let h = 1;
 
-        return [
+        this._map = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, r, r, r, r, 0, 0, 0, 0, 0, 0, 0, 0, 0, r, r, r, 0, 0],
@@ -37,5 +37,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Static] = class 
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ];
+
+        return this._map;
     }
 };
