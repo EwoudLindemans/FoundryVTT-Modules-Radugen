@@ -77,7 +77,7 @@ radugen.renderer.Image = class {
 
                     //Color overwrite's patter at the moment, we need to fix this someway.
                     const rnd = radugen.helper.getRndFromNum;
-                    this.gradientContext(floorCtx, [rnd(255), rnd(255), rnd(255), 1], [rnd(255), rnd(255), rnd(255), 1])
+                    this.gradientContext(floorCtx, [rnd(255), rnd(255), rnd(255), rnd(100) / 100], [rnd(255), rnd(255), rnd(255),  rnd(100) / 100])
                 });
             }).finally(() => {
                 //Whatever happens, merge the contexts we do have
