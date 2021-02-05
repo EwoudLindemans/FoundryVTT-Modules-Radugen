@@ -74,9 +74,14 @@ radugen.renderer.Image = class {
                     return this.loadImage(radugen.helper.getRndFromArr(patterns.files))
                 }).then((img) => {
                     this.patternizeContext(floorCtx, img, 0.8); 
+
+                    //Color overwrite's patter at the moment, we need to fix this someway.
+                    const rnd = radugen.helper.getRndFromNum;
+                    this.gradientContext(floorCtx, [rnd(255), rnd(255), rnd(255), 1], [rnd(255), rnd(255), rnd(255), 1])
                 });
             }).finally(() => {
                 //Whatever happens, merge the contexts we do have
+                
                 baseCtx.drawImage(floorCanvas, 0, 0);
                 baseCanvas.toBlob(imageBlob => {
                     resolve(imageBlob);
@@ -156,6 +161,7 @@ radugen.renderer.Image = class {
      * @param {string} expression see https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
      */
     filterContext(ctx, expression) {
+        throw Error("This is only available in css");
         ctx.filter = expression;
     }
 
@@ -170,7 +176,28 @@ radugen.renderer.Image = class {
         ctx.restore();
     }
 
-    hueContextRandom(ctx) {
+    hueContext(ctx, rgba){
+        let [r,g,b,a] = rgba;
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+        ctx.fillRect(0, 0,  this._imageWidth, this._imageHeight);
+    }
 
+    gradientContext(ctx, rgbaStart, rgbaEnd){
+        let [r, g, b, a] = rgbaStart;
+        const rnd = radugen.helper.getRndFromNum
+
+        let directionXStart = rnd(this._imageWidth);
+        let directionXEnd = this._imageWidth - directionXStart;
+
+        let directionYStart = rnd(this._imageHeight);
+        let directionYEnd = this._imageHeight - directionYStart;
+
+        let gradient = ctx.createLinearGradient(directionXStart, directionYStart, directionXEnd, directionYEnd);
+        gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${a})`);
+
+        [r, g, b, a] = rgbaEnd;
+        gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, ${a})`);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, this._imageWidth, this._imageHeight);
     }
 };
