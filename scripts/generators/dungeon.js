@@ -38,12 +38,32 @@ radugen.generators.dungeon = class {
     static generate(dungeonType, dungeonSize){
         const generatorClass = (dungeonType in radugen.generators.dungeons) ? radugen.generators.dungeons[dungeonType] : radugen.generators.dungeon;
         const generator = new generatorClass(dungeonSize);
+        generator._type = dungeonType;
+        generator._size = dungeonSize;
         generator.generate();
         return generator;
     }
 
+    /**
+     * Whether the dungeon is valid, probably.
+     * @type {boolean}
+     */
     get valid(){
         return this._width > 0 && this._height > 0;
+    }
+
+    /**
+     * @type {radugen.generators.dungeonGenerator}
+     */
+    get type(){
+        return this._type;
+    }
+
+    /**
+     * @type {radugen.generators.dungeonSize}
+     */
+    get size(){
+        return this._size;
     }
 
     /**
