@@ -13,16 +13,17 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Grid] = class ex
     createGrid() {
         const grid = [];
         const [width, height] = [24, 16];
-        for (let x = 0; x < width; x++) {
-            grid[x] = [];
-            for (let y = 0; y < height; y++) {
-                grid[y][x] = 0;
+        for (let y = 0; y < height; y++) {
+            grid[y] = [];
+            for (let x = 0; x < width; x++) {
+                grid[y][x] = 1;
             }
         }
         return grid;
     }
 
     generate() {
-        return this.createGrid();
+        this._map = this.createGrid();
+        return this._map;
     }
 };
