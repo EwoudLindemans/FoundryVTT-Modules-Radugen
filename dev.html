@@ -14,8 +14,10 @@
     <script type="text/javascript" src="./scripts/generators/dungeons/rooms/patterns/cross.js"></script>
     <script type="text/javascript" src="./scripts/generators/dungeons/genV1.js"></script>
     <script type="text/javascript" src="./scripts/generators/dungeons/genV2.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/genV3.js"></script>
     <script type="text/javascript" src="./scripts/generators/dungeons/grid.js"></script>
     <script type="text/javascript" src="./scripts/generators/dungeons/static.js"></script>
+    <script type="text/javascript" src="./scripts/generators/names.js"></script>
     <script type="text/javascript">
         function fillSelect(id, dictionary) {
             const storageValue = localStorage.getItem(`radugen-${id}`);
@@ -36,6 +38,12 @@
             fillSelect('dungeon-size', radugen.generators.dungeonSize);
 
             document.getElementById('dungeon-generate').addEventListener('click', () => {
+                const canvas = document.getElementById('output-canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                document.getElementById('dungeon-name').innerHTML = 'Loading...';
+
                 const [generator, size] = [getSelect('dungeon-generator'), getSelect('dungeon-size')];
 
                 localStorage.setItem('radugen-dungeon-generator', generator);
@@ -43,12 +51,9 @@
 
                 const dungeon = radugen.generators.dungeon.generate(generator, size);
                 const tileSize = 8;
-                const canvas = document.getElementById('output-canvas');
                 canvas.width = dungeon.width * tileSize;
                 canvas.height = dungeon.height * tileSize;
 
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 for (let y = 0; y < dungeon.height; y++) {
                     for (let x = 0; x < dungeon.width; x++) {
@@ -68,10 +73,16 @@
                     let [posX, posY] = [rect.centerX * tileSize, rect.centerY * tileSize];
                     ctx.fillText(ri.toString(), posX, posY);
                 }
+
+                document.getElementById('dungeon-name').innerHTML = radugen.generators.names.dungeonName();
             });
         });
     </script>
     <style type="text/css" rel="stylesheet">
+        html, body {
+            font-family: sans-serif;
+        }
+
         [Options] {
             display: block;
             float: left;
@@ -114,7 +125,7 @@
         <input id="dungeon-generate" type="button" value="Generate Dungeon" />
     </div>
     <div Output style="display: block; float:left">
-        <h2>Output</h2>
+        <h2 id="dungeon-name">Output</h2>
         <canvas id="output-canvas" width="64" height="64" />
     </div>
 </body>
