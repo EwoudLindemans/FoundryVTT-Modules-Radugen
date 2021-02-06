@@ -1,21 +1,31 @@
 window.radugen = window.radugen || {};
 
 
+class RadugenSettings extends FormApplication {
+    constructor(...args) {
+        super(...args);
+    }
+    static get defaultOptions() {
+        const options = super.defaultOptions;
+        options.title = "Random dungeon generator settings";
+        options.id = "radugen-settings";
+        options.template = "modules/Radugen/templates/thanks.html";
+        return options;
+    }
+
+    async getData() {
+        let data = {};
+       
+        return data;
+    }
+}
+
 window.radugen.settings = class extends FormApplication {
     constructor(entity, options) {
         super(entity, options);
     }
 
     static register() {
-        //game.settings.registerMenu("radugen", 'setupMenu', {
-        //    name: "Radugen",
-        //    label: "random dungeon generator",
-        //    hint: "radugen.setup.hint",
-        //    icon: 'fas fa-wrench',
-        //    type: window.radugen.settings,
-        //    restricted: true
-        //});
-
         game.settings.register("radugen", "dungeonUploadPath", {
             name: "Scene upload path",
             hint: "This is where we will store the generated dungeons",
@@ -23,9 +33,7 @@ window.radugen.settings = class extends FormApplication {
             config: true,        // This specifies that the setting appears in the configuration view
             type: String,
             default: "medium",        // The default value for the setting
-            onChange: value => { // A callback function which triggers when the setting is changed
-                game.settings.set("radugen", "dungeonUploadPath", value);
-            }
+            restricted: true
         });
 
         game.settings.register("radugen", "tileResolution", {
@@ -40,10 +48,8 @@ window.radugen.settings = class extends FormApplication {
                 large: "192x192",
                 huge: "256x256",
             },
-            default: "medium",        // The default value for the setting
-            onChange: value => { // A callback function which triggers when the setting is changed
-                game.settings.set("radugen", "tileResolution", value);
-            }
+            default: "small",        // The default value for the setting
+            restricted: true
         });
 
         game.settings.register("radugen", "wallMode", {
@@ -58,10 +64,14 @@ window.radugen.settings = class extends FormApplication {
                 strict: "Strict (In this mode there will be no corner peeking)",
             },
             default: "pretty",        // The default value for the setting
-            onChange: value => { // A callback function which triggers when the setting is changed
-                game.settings.set("radugen", "wallMode", value);
-            }
+            restricted: true
         });
+
+        game.settings.registerMenu("radugen", 'setupMenu', {
+            label: "Support us!",
+            icon: 'fas fa-heart',
+            type: RadugenSettings,
+         });
     }
 }
 

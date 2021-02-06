@@ -1,11 +1,11 @@
 {
   "name": "Radugen",
-  "title": "Random dungeon generator",
+  "title": "Radugen (Random dungeon generator)",
   "description": "You want a random dungeon, you got one!.",
-  "author": "Ewoud Lindemans/Stefan Wouters-Yaowanasap",
-  "version": "0.0.1",
+  "author": "Ewoud Lindemans / Stefan Wouters-Yaowanasap",
+  "version": "0.0.2",
   "minimumCoreVersion": "0.7.8",
-  "compatibleCoreVersion": "0.7.8",
+  "compatibleCoreVersion": "0.7.9",
   "scripts": [
     "scripts/helper.js",
     "scripts/settings.js",
