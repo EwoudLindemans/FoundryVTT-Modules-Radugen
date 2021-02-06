@@ -4,6 +4,7 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 // Define the dungeon generator algorithms
 radugen.generators.dungeonGenerator = Object.freeze({
+    GenV3: 5,
     GenV2: 4,
     GenV1: 3,
     Grid: 2,
@@ -19,6 +20,7 @@ radugen.generators.dungeonSize = Object.freeze({
     Huge: 4,
     Gargantuan: 5,
     Custom: 0,
+    WTF: 6
 });
 
 radugen.generators.dungeon = class {
@@ -35,7 +37,7 @@ radugen.generators.dungeon = class {
      * @param {radugen.generators.dungeonGenerator} dungeonType
      * @param {radugen.generators.dungeonSize} dungeonSize
      * @returns {radugen.generators.dungeon}
-     */
+     */f
     static generate(dungeonType, dungeonSize){
         const generatorClass = (dungeonType in radugen.generators.dungeons) ? radugen.generators.dungeons[dungeonType] : radugen.generators.dungeon;
         const generator = new generatorClass(dungeonSize);
@@ -57,6 +59,7 @@ radugen.generators.dungeon = class {
             case radugen.generators.dungeonSize.Large: return 9;
             case radugen.generators.dungeonSize.Huge: return 11;
             case radugen.generators.dungeonSize.Gargantuan: return 14;
+            case radugen.generators.dungeonSize.WTF: return 100;
         }
     };
 

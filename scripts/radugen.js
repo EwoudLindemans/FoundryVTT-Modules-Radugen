@@ -101,13 +101,15 @@ class RadugenInit {
         const imageRenderer = new radugen.renderer.Image(dungeonMap, settings.resolution);
         const blob = await imageRenderer.render();
 
-            //Upload file
+        //Upload file
         let file = new File([blob], `${scene._id}.webp`);
 
         let upload = await FilePicker.upload("data", `modules/Radugen/uploads/scenes/`, file);
 
         //Save scene
-        radugen.compendium.scene.importEntity(scene);
+        await radugen.compendium.scene.importEntity(scene).then((scene) => {
+            game.scenes.importFromCollection("world.radugen", scene.data._id, {}, { renderSheet: false });
+        });
     }
 }
 
