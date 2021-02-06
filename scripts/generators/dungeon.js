@@ -19,9 +19,7 @@ radugen.generators.dungeonSize = Object.freeze({
     Medium: 2,
     Large: 3,
     Huge: 4,
-    Gargantuan: 5,
-    Custom: 0,
-    WTF: 6
+    Gargantuan: 5
 });
 
 radugen.generators.dungeon = class {
@@ -60,7 +58,6 @@ radugen.generators.dungeon = class {
             case radugen.generators.dungeonSize.Large: return 9;
             case radugen.generators.dungeonSize.Huge: return 11;
             case radugen.generators.dungeonSize.Gargantuan: return 14;
-            case radugen.generators.dungeonSize.WTF: return 100;
         }
     };
 
