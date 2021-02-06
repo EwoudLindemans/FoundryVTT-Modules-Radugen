@@ -2,19 +2,19 @@ window.radugen = window.radugen || {};
 radugen.generators = radugen.generators || {};
 radugen.generators.dungeons = radugen.generators.dungeons || {};
 
-radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV1] = class extends radugen.generators.dungeon {
+radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV2] = class extends radugen.generators.dungeon {
     /**
      * @param {radugen.generators.dungeonSize} dungeonSize
      */
     constructor(dungeonSize) {
-        super('genV1');
+        super('genV2');
     }
 
     generate() {
         const [roomCount, directions] = [this.roomCount, radugen.helper.directions];
         const [rnd, rect] = [radugen.helper.getRndFromNum, radugen.helper.rect];
         
-        const rooms = new radugen.generators.dungeons.rooms.patterns.cross(roomCount).generate();
+        const rooms = new radugen.generators.dungeons.rooms.patterns.random(roomCount).generate();
 
         const offset_x = -Math.min(...rooms.map(r => r.rect.x1)) + 1;
         const offset_y = -Math.min(...rooms.map(r => r.rect.y1)) + 1;

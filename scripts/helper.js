@@ -15,6 +15,7 @@ radugen.helper = {
     getRndFromNum: (num) => {
         return radugen.helper.getRndFromArr([...Array(num).keys()]) + 1;
     },
+    directions: Object.freeze({ North: 1, West: 2, South: 3, East: 4 }),
     minMax: class {
         /**
          * @param {number} min
@@ -147,10 +148,33 @@ radugen.helper = {
             return this._top + this._height;
         }
 
+        /**
+         * @type {number}
+         */
+        get centerX() {
+            return this._left + (this._width / 2);
+        }
+
+        /**
+         * @type {number}
+         */
+        get centerY() {
+            return this._top + (this._height / 2);
+        }
+
+        /**
+         * Expand the rectangle by given number on each side.
+         * @param {number} border Border size to add on each side of the rectangle.
+         * @returns {radugen.helper.rect}
+         */
         expand(border) {
             return new radugen.helper.rect(this._left - border, this._top - border, this._width + (border * 2), this._height + (border * 2));
         }
 
+        /**
+         * @param {radugen.helper.rect} rect Rectangle to compare with.
+         * @returns {boolean}
+         */
         intersects(rect) {
             return !(this.x1 > rect.x2 || this.x2 < rect.x1 || this.y1 > rect.y2 || this.y2 < rect.y1);
         }

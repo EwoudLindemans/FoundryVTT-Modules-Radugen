@@ -1,98 +1,122 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8" />
-<title>Radugen Experiments</title>
-<script type="text/javascript" src="./scripts/helper.js"></script>
-<script type="text/javascript" src="./scripts/generators/dungeon.js"></script>
-<script type="text/javascript" src="./scripts/generators/dungeons/genV1.js"></script>
-<script type="text/javascript" src="./scripts/generators/dungeons/grid.js"></script>
-<script type="text/javascript" src="./scripts/generators/dungeons/static.js"></script>
-<script type="text/javascript">
-function fillSelect(id, dictionary) {
-    const storageValue = localStorage.getItem(`radugen-${id}`);
-    let html = '';
-    for (let key of Object.keys(dictionary)) {
-        const selected = (storageValue === dictionary[key].toString());
-        html += `<option value="${dictionary[key]}"${selected ? ' selected' : ''}>${key}</option>`;
-    }
-    document.getElementById(id).innerHTML = html;
-}
-
-function getSelect(id) {
-    return parseInt(document.getElementById(id).value);
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-    fillSelect('dungeon-generator', radugen.generators.dungeonGenerator);
-    fillSelect('dungeon-size', radugen.generators.dungeonSize);
-
-    document.getElementById('dungeon-generate').addEventListener('click', () => {
-        const [generator, size] = [getSelect('dungeon-generator'), getSelect('dungeon-size')];
-        
-        localStorage.setItem('radugen-dungeon-generator', generator);
-        localStorage.setItem('radugen-dungeon-size', size);
-
-        const dungeon = radugen.generators.dungeon.generate(generator, size);
-        const tileSize = 8;
-        const canvas = document.getElementById('output-canvas');
-        canvas.width = dungeon.width * tileSize;
-        canvas.height = dungeon.height * tileSize;
-
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "black";
-
-        for (let y = 0; y < dungeon.height; y++) {
-            for (let x = 0; x < dungeon.width; x++) {
-                if (dungeon._map[y][x] == 0) continue;
-                ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
+    <meta charset="utf-8" />
+    <title>Radugen Experiments</title>
+    <script type="text/javascript" src="./scripts/helper.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeon.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/paths/paths.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/paths/patterns/adjecent.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/paths/patterns/random.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/rooms/rooms.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/rooms/patterns/random.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/rooms/patterns/cross.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/genV1.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/genV2.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/grid.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/static.js"></script>
+    <script type="text/javascript">
+        function fillSelect(id, dictionary) {
+            const storageValue = localStorage.getItem(`radugen-${id}`);
+            let html = '';
+            for (let key of Object.keys(dictionary)) {
+                const selected = (storageValue === dictionary[key].toString());
+                html += `<option value="${dictionary[key]}"${selected ? ' selected' : ''}>${key}</option>`;
             }
+            document.getElementById(id).innerHTML = html;
         }
-    });
-});
-</script>
-<style type="text/css" rel="stylesheet">
-[Options] {
-    display: block;
-    float: left;
-    margin-right: 16px;
-    width: 320px;
-}
 
-[Options] label{
-    margin-bottom: 1em;
-}
-[Options] label,
-[Options] select,
-[Options] input {
-    clear: none;
-    width: 100%;
-}
-[Output] {
-    display: block;
-    float:left;
-}
-[Output] canvas {
-    border: solid 1px #ddd;
-}
-</style>
+        function getSelect(id) {
+            return parseInt(document.getElementById(id).value);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fillSelect('dungeon-generator', radugen.generators.dungeonGenerator);
+            fillSelect('dungeon-size', radugen.generators.dungeonSize);
+
+            document.getElementById('dungeon-generate').addEventListener('click', () => {
+                const [generator, size] = [getSelect('dungeon-generator'), getSelect('dungeon-size')];
+
+                localStorage.setItem('radugen-dungeon-generator', generator);
+                localStorage.setItem('radugen-dungeon-size', size);
+
+                const dungeon = radugen.generators.dungeon.generate(generator, size);
+                const tileSize = 8;
+                const canvas = document.getElementById('output-canvas');
+                canvas.width = dungeon.width * tileSize;
+                canvas.height = dungeon.height * tileSize;
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let y = 0; y < dungeon.height; y++) {
+                    for (let x = 0; x < dungeon.width; x++) {
+                        if (dungeon.map[y][x] == 0) continue;
+                        ctx.fillStyle = dungeon.map[y][x] == 99 ? "red" : "black";
+                        ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
+                    }
+                }
+
+                ctx.save();
+                ctx.font = '30px sans-serif';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                for (let ri in dungeon._rooms) {
+                    const rect = dungeon._rooms[ri]
+                    let [posX, posY] = [rect.centerX * tileSize, rect.centerY * tileSize];
+                    ctx.fillText(ri.toString(), posX, posY);
+                }
+            });
+        });
+    </script>
+    <style type="text/css" rel="stylesheet">
+        [Options] {
+            display: block;
+            float: left;
+            margin-right: 16px;
+            width: 320px;
+        }
+
+        [Options] label {
+            margin-bottom: 1em;
+        }
+
+        [Options] label,
+        [Options] select,
+        [Options] input {
+            clear: none;
+            width: 100%;
+        }
+
+        [Output] {
+            display: block;
+            float: left;
+        }
+
+        [Output] canvas {
+            border: solid 1px #ddd;
+        }
+    </style>
 </head>
+
 <body>
-<h1>Radugen Experiments</h1>
-<div Options>
-<h2>Generate dungeon</h2>
-<label style="width:100%;display:block">Generator:
-<select id="dungeon-generator"></select>
-</label>
-<label style="width:100%;display:block">Size:
-<select id="dungeon-size"></select>
-</label>
-<input id="dungeon-generate" type="button" value="Generate Dungeon" />
-</div>
-<div Output style="display: block; float:left">
-<h2>Output</h2>
-<canvas id="output-canvas" width="64" height="64" />
-</div>
+    <h1>Radugen Experiments</h1>
+    <div Options>
+        <h2>Generate dungeon</h2>
+        <label style="width:100%;display:block">Generator:
+            <select id="dungeon-generator"></select>
+        </label>
+        <label style="width:100%;display:block">Size:
+            <select id="dungeon-size"></select>
+        </label>
+        <input id="dungeon-generate" type="button" value="Generate Dungeon" />
+    </div>
+    <div Output style="display: block; float:left">
+        <h2>Output</h2>
+        <canvas id="output-canvas" width="64" height="64" />
+    </div>
 </body>
+
 </html>

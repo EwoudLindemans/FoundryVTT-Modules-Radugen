@@ -92,7 +92,7 @@ radugen.renderer.Image = class {
 
     renderFloorTilesBg(ctx) {
         this.iterateMap((x, y) => {
-            if (this._map[y][x] == 1) {
+            if (this._map[y][x] != 0) {
                 ctx.fillStyle = "black";
                 ctx.fillRect(x * this._tileResolution, y * this._tileResolution, this._tileResolution, this._tileResolution);
             };
@@ -103,7 +103,7 @@ radugen.renderer.Image = class {
         let promises = [];
 
         this.iterateMap((x, y) => {
-            if (this._map[y][x] == 1) {
+            if (this._map[y][x] != 0) {
                 promises.push(
                     this.loadImage(radugen.helper.getRndFromArr(themeFiles.files)).then(img => {
                         this.flipContextRandom(ctx, x, y);
