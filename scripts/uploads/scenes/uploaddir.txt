@@ -1,1 +1,0 @@
-Ensure the upload directory exists
