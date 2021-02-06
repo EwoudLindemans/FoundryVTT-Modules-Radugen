@@ -63,7 +63,7 @@ radugen.renderer.Tilemap = class {
         console.log(definition, tileMap);
 
         this.iterateMap((x, y) => {
-            if (this._map[y][x] == 1) {
+            if (this._map[y][x] != 0) {
                 this.drawMapPart(ctx, definition, tileMap, 'floor', x, y);
             };
 

@@ -4,6 +4,7 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 // Define the dungeon generator algorithms
 radugen.generators.dungeonGenerator = Object.freeze({
+    GenV2: 4,
     GenV1: 3,
     Grid: 2,
     Static: 1,
@@ -43,6 +44,21 @@ radugen.generators.dungeon = class {
         generator.generate();
         return generator;
     }
+
+
+    /**
+     * @type {number}
+     */
+    get roomCount(){
+        switch (parseInt(this.size)) {
+            case radugen.generators.dungeonSize.Tiny: return 3;
+            case radugen.generators.dungeonSize.Small: return 5;
+            case radugen.generators.dungeonSize.Medium: return 7;
+            case radugen.generators.dungeonSize.Large: return 9;
+            case radugen.generators.dungeonSize.Huge: return 11;
+            case radugen.generators.dungeonSize.Gargantuan: return 14;
+        }
+    };
 
     /**
      * Whether the dungeon is valid, probably.
@@ -86,6 +102,20 @@ radugen.generators.dungeon = class {
      */
     get height(){
         return this._map.length;
+    }
+
+    /**
+     * @type {radugen.helper.rect[]}
+     */
+    get rooms(){
+        return this._rooms;
+    }
+
+    /**
+     * @type {Array.<number[]>}
+     */
+    get map(){
+        return this._map;
     }
 
     createEmptyMap() {
