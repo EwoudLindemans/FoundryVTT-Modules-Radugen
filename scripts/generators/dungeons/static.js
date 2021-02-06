@@ -13,7 +13,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Static] = class 
 
     generate() {
         let r = 1;
-        let h = 1;
+        let h = 99;
 
         this._map = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

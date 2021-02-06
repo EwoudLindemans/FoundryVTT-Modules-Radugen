@@ -16,6 +16,7 @@
     <script type="text/javascript" src="./scripts/generators/dungeons/genV2.js"></script>
     <script type="text/javascript" src="./scripts/generators/dungeons/genV3.js"></script>
     <script type="text/javascript" src="./scripts/generators/dungeons/grid.js"></script>
+    <script type="text/javascript" src="./scripts/generators/dungeons/layoutV1.js"></script>
     <script type="text/javascript" src="./scripts/generators/dungeons/static.js"></script>
     <script type="text/javascript" src="./scripts/generators/names.js"></script>
     <script type="text/javascript">
@@ -50,7 +51,7 @@
                 localStorage.setItem('radugen-dungeon-size', size);
 
                 const dungeon = radugen.generators.dungeon.generate(generator, size);
-                const tileSize = 8;
+                const tileSize = 12;
                 canvas.width = dungeon.width * tileSize;
                 canvas.height = dungeon.height * tileSize;
 
@@ -64,7 +65,7 @@
                 }
 
                 ctx.save();
-                ctx.font = '30px sans-serif';
+                ctx.font = '12px sans-serif';
                 ctx.fillStyle = '#fff';
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";

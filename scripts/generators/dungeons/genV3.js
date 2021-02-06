@@ -18,13 +18,13 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV3] = class e
 
         const offset_x = -Math.min(...rooms.map(r => r.rect.x1)) + 1;
         const offset_y = -Math.min(...rooms.map(r => r.rect.y1)) + 1;
-        const w = (Math.max(...rooms.map(r => r.rect.x2)) - Math.min(...rooms.map(r => r.rect.x1))) + 2;
-        const h = (Math.max(...rooms.map(r => r.rect.y2)) - Math.min(...rooms.map(r => r.rect.y1))) + 2;
+        const w = (Math.max(...rooms.map(r => r.rect.x2)) - Math.min(...rooms.map(r => r.rect.x1))) + 1;
+        const h = (Math.max(...rooms.map(r => r.rect.y2)) - Math.min(...rooms.map(r => r.rect.y1))) + 1;
 
         const grid = [];
-        for (let y = 0; y < h; y++) {
+        for (let y = 0; y <= h; y++) {
             grid[y] = [];
-            for (let x = 0; x < w; x++) {
+            for (let x = 0; x <= w; x++) {
                 grid[y][x] = 0;
             }
         }
@@ -47,10 +47,10 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV3] = class e
 
             const roadsNS = (room1, room2) => {
                 //Random x 
-                xStart = room2.rect.left + offset_x + rnd(room2.rect.width - 1) ; 
+                xStart = room2.rect.left + offset_x + rnd(room2.rect.width - 2); 
                 yStart = room2.rect.top + offset_y;
 
-                xEnd = room1.rect.left + offset_x + rnd(room1.rect.width - 1) ; 
+                xEnd = room1.rect.left + offset_x + rnd(room1.rect.width - 2); 
                 yEnd = room1.rect.bottom + offset_y;
 
                 xDiff = Math.abs(xStart - xEnd);
@@ -73,10 +73,10 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV3] = class e
             const roadsWE = (room1, room2) => {
                 //Random y
                 xStart = room2.rect.left + offset_x;
-                yStart = room2.rect.top + offset_y + rnd(room2.rect.height - 1); 
+                yStart = room2.rect.top + offset_y + rnd(room2.rect.height - 2);
 
                 xEnd = room1.rect.right + offset_x;
-                yEnd = room1.rect.top + offset_y + rnd(room1.rect.height - 1); 
+                yEnd = room1.rect.top + offset_y + rnd(room1.rect.height - 2);
 
                 xDiff = Math.abs(xStart - xEnd);
                 yDiff = Math.abs(yStart - yEnd);

@@ -14,6 +14,7 @@ radugen.generators.dungeons.rooms.patterns.cross = class{
         const [rect, rnd, directions] = [radugen.helper.rect, radugen.helper.getRndFromNum, radugen.helper.directions];
         const [width, height] = radugen.generators.dungeons.rooms.getRoomSize();
         const rooms = [{
+            index: 0,
             adjecent: null,
             direction: null,
             rect: new rect(0, 0, width, height)
@@ -50,7 +51,7 @@ radugen.generators.dungeons.rooms.patterns.cross = class{
                 if (rooms.find(r => r.rect.expand(1).intersects(recta))) continue;
                 success = true;
                 rooms.push({
-                    count: ri,
+                    index: ri,
                     adjecent: adjecent,
                     direction: direction,
                     rect: recta

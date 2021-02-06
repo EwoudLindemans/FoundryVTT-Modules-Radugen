@@ -9,6 +9,7 @@ radugen.generators.dungeonGenerator = Object.freeze({
     GenV1: 3,
     Grid: 2,
     Static: 1,
+    LayoutV1: 6,
 });
 
 // Define the dungeon sizes
@@ -108,7 +109,7 @@ radugen.generators.dungeon = class {
     }
 
     /**
-     * @type {radugen.helper.rect[]}
+     * @type {radugen.helper.shape[]}
      */
     get rooms(){
         return this._rooms;
@@ -121,18 +122,23 @@ radugen.generators.dungeon = class {
         return this._map;
     }
 
-    createEmptyMap() {
-        const [width, height] = [16, 12];
-        this._map = [];
-        for (let y = 0; y < this.height; y++) {
-            this._map[y] = [];
-            for (let x = 0; x < this.width; x++) {
-                this._map[y][x] = 0;
+    /**
+     * @param {width} number
+     * @param {height} number
+     * @returns {Array.<number[]>}
+     */
+    createEmptyMap(width, height) {
+        const grid = [];
+        for (let y = 0; y < height; y++) {
+            grid[y] = [];
+            for (let x = 0; x < width; x++) {
+                grid[y][x] = 0;
             }
         }
+        return grid;
     }
 
     generate() {
-        this.createEmptyMap();
+        this._map = this.createEmptyMap(16, 12);
     }
 };
