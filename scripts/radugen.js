@@ -11,7 +11,9 @@ class RadugenInit {
     }
 
     hookInit() {
-        Hooks.on("init", () => { });
+        Hooks.on("init", () => {
+            radugen.settings.register();
+        });
     }
     hookReady() {
         Hooks.on("ready", () => {
@@ -24,8 +26,6 @@ class RadugenInit {
                     radugen.compendium.scene = pack;
                 });
             }
-
-            radugen.settings.register();
         });
     }
     hookSceneDirectory() {
@@ -70,7 +70,7 @@ class RadugenInit {
     }
 
     async createScene(settings) {
-        switch (game.settings.get("radugen", "tileResolution")) {
+        switch (game.settings.get("Radugen", "tileResolution")) {
             case 'small':
                 settings.resolution = 64;
                 break;
@@ -86,7 +86,7 @@ class RadugenInit {
             default:
         }
 
-        settings.wallMode = game.settings.get("radugen", "wallMode");
+        settings.wallMode = game.settings.get("Radugen", "wallMode");
 
         const dungeonGenerator = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize)
         const dungeonMap = dungeonGenerator.generate();
@@ -104,7 +104,7 @@ class RadugenInit {
         //Upload file
         let file = new File([blob], `${scene._id}.webp`);
 
-        let upload = await FilePicker.upload("data", `modules/Radugen/uploads/scenes/`, file);
+        let upload = await FilePicker.upload("data", `${game.settings.get("Radugen", "dungeonUploadPath")}/`, file);
 
         //Save scene
         await radugen.compendium.scene.importEntity(scene).then((scene) => {

@@ -8,6 +8,7 @@
   "compatibleCoreVersion": "0.7.9",
   "scripts": [
     "scripts/helper.js",
+    "scripts/settings-extender.js",
     "scripts/settings.js",
     "scripts/generators/names.js",
     "scripts/generators/dungeon.js",
