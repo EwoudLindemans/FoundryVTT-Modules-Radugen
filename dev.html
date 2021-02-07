@@ -4,20 +4,16 @@
 <head>
     <meta charset="utf-8" />
     <title>Radugen Experiments</title>
-    <script type="text/javascript" src="./scripts/helper.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeon.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/paths/paths.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/paths/patterns/adjecent.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/paths/patterns/random.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/rooms/rooms.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/rooms/patterns/random.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/rooms/patterns/cross.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/genV1.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/genV2.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/genV3.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/grid.js"></script>
-    <script type="text/javascript" src="./scripts/generators/dungeons/static.js"></script>
-    <script type="text/javascript" src="./scripts/generators/names.js"></script>
+    <script type="text/javascript" src="scripts/helper.js"></script>
+    <script type="text/javascript" src="scripts/classes/tiles/tile.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/dungeon.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/genV1.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/genV2.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/names.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/rooms/crossRoomGenerator.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/rooms/randomRoomGenerator.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/rooms/rooms.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/pathfinding/adjecentPathfinding.js"></script>
     <script type="text/javascript">
         function fillSelect(id, dictionary) {
             const storageValue = localStorage.getItem(`radugen-${id}`);
@@ -51,14 +47,17 @@
 
                 const dungeon = radugen.generators.dungeon.generate(generator, size);
                 const tileSize = 8;
-                canvas.width = dungeon.width * tileSize;
-                canvas.height = dungeon.height * tileSize;
+                
+                const grid = dungeon.rasterize()
+                const [width, height] = [grid[0].length, grid.length];
 
+                canvas.width = width * tileSize;
+                canvas.height = height * tileSize;
 
-                for (let y = 0; y < dungeon.height; y++) {
-                    for (let x = 0; x < dungeon.width; x++) {
-                        if (dungeon.map[y][x] == 0) continue;
-                        ctx.fillStyle = dungeon.map[y][x] == 99 ? "red" : "black";
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        if (grid[y][x] == 0) continue;
+                        ctx.fillStyle = grid[y][x] == 99 ? "red" : "black";
                         ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
                     }
                 }

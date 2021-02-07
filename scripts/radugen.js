@@ -33,7 +33,7 @@ class RadugenInit {
             if (!game.user.isGM) {
                 return;
             }
-            const importButton = $('<button class="radugen-generate-scene"><i class="fas fa-hat-wizard"></i> Generate Dungeon</button>');
+            const importButton = $(`<button class="radugen-generate-scene"><i class="fas fa-hat-wizard"></i>${game.i18n.localize('Radugen.generate-dungeon')}</button>`);
 
             html.find('.radugen-generate-scene').remove();
             html.find('.directory-footer').append(importButton);
@@ -51,7 +51,7 @@ class RadugenInit {
             if (!game.user.isGM) {
                 return;
             }
-            const importButton = $('<button class="radugen-generate-sidebar"><i class="fas fa-hat-wizard"></i> Generate Dungeon</button>');
+            const importButton = $(`<button class="radugen-generate-sidebar"><i class="fas fa-hat-wizard"></i>${game.i18n.localize('Radugen.generate-dungeon')}</button>`);
 
             html.find('.radugen-generate-sidebar').remove();
             html.find('button[data-action="configure"]').after(importButton);
@@ -88,17 +88,19 @@ class RadugenInit {
 
         settings.wallMode = game.settings.get("Radugen", "wallMode");
 
-        const dungeonGenerator = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize)
-        const dungeonMap = dungeonGenerator.generate();
+        const dungeon = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize)
+        dungeon.generate();
+
+        const grid = dungeon.rasterize();
 
         let walls = [];
         if (settings.wallMode != 'none') {
-            walls = new radugen.renderer.Walls(dungeonMap, settings.resolution, settings.wallMode).render();
+            walls = new radugen.renderer.Walls(grid, settings.resolution, settings.wallMode).render();
         }
 
-        const scene = new radugen.RadugenScene(dungeonGenerator.width, dungeonGenerator.height, settings.resolution, walls);
+        const scene = new radugen.RadugenScene(grid[0].length, grid.length, settings.resolution, walls);
 
-        const imageRenderer = new radugen.renderer.Image(dungeonMap, settings.resolution);
+        const imageRenderer = new radugen.renderer.Image(grid, settings.resolution);
         const blob = await imageRenderer.render();
 
         //Upload file
