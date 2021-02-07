@@ -4,6 +4,7 @@
   "description": "You want a random dungeon, you got one!.",
   "author": "Ewoud Lindemans / Stefan Wouters-Yaowanasap",
   "version": "0.0.2",
+  "download": "https://github.com/EwoudLindemans/FoundryVTT-Modules-Radugen/releases/latest/download/module.zip",
   "minimumCoreVersion": "0.7.8",
   "compatibleCoreVersion": "0.7.9",
   "scripts": [
