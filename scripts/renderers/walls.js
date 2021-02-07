@@ -1,10 +1,10 @@
 window.radugen = window.radugen || {};
 radugen.renderer = radugen.renderer || {};
 radugen.renderer.Walls = class {
-    constructor(map, tileResolution, wallMode) {
-        this._map = map;
-        this._gridHeight = map.length;
-        this._gridWidth = map[0].length;
+    constructor(grid, tileResolution, wallMode) {
+        this._grid = grid;
+        this._gridHeight = grid.length;
+        this._gridWidth = grid[0].length;
         this._wallMode = wallMode;
 
         this._imageWidth = this._gridWidth * tileResolution;
@@ -91,6 +91,17 @@ radugen.renderer.Walls = class {
         }
     }
 
+    getDoor(x, y, direction) {
+        return {
+            c: this.getWallForSide(x, y, direction),
+            move: CONST.WALL_MOVEMENT_TYPES.NORMAL,
+            sense: CONST.WALL_SENSE_TYPES.NORMAL,
+            dir: CONST.WALL_DIRECTIONS.BOTH,
+            door: CONST.WALL_DOOR_TYPES.DOOR,
+            ds: CONST.WALL_DOOR_STATES.LOCKED
+        }
+    }
+
     getTerrainWall(x, y, direction) {
         return {
             c: this.getWallForSide(x, y, direction),
@@ -110,7 +121,7 @@ radugen.renderer.Walls = class {
     renderWalls(ctx, themeFiles) {
         const walls = [];
         this.iterateMap((x, y) => {
-            if (this._map[y][x] == 0) {
+            if (this._grid[y][x] == 0) {
                 let drawTop = false;
                 let drawLeft = false;
                 let drawRight = false;
@@ -119,7 +130,7 @@ radugen.renderer.Walls = class {
 
                 //check top
                 if (y != 0) {
-                    if (this._map[y - 1][x] != 0) {
+                    if (this._grid[y - 1][x] != 0) {
                         drawTop = true;
                         drawCount++;
                     }
@@ -127,7 +138,7 @@ radugen.renderer.Walls = class {
 
                 //check left
                 if (x != 0) {
-                    if (this._map[y][x - 1] != 0) {
+                    if (this._grid[y][x - 1] != 0) {
                         drawLeft = true;
                         drawCount++;
                     }
@@ -135,7 +146,7 @@ radugen.renderer.Walls = class {
                
                 //check right
                 if (x != this._gridWidth - 1) {
-                    if (this._map[y][x + 1] != 0) {
+                    if (this._grid[y][x + 1] != 0) {
                         drawRight = true;
                         drawCount++;
                     }
@@ -143,7 +154,7 @@ radugen.renderer.Walls = class {
 
                 //check bottom
                 if (y != this._gridHeight - 1) {
-                    if (this._map[y + 1][x] != 0) {
+                    if (this._grid[y + 1][x] != 0) {
                         drawBottom = true;
                         drawCount++;
                     }
@@ -186,7 +197,7 @@ radugen.renderer.Walls = class {
                     if (drawCount == 0) {
                         //check top left
                         if (y != 0 && x != 0) {
-                            if (this._map[y - 1][x - 1] != 0) {
+                            if (this._grid[y - 1][x - 1] != 0) {
                                 walls.push(this.getWall(x, y, 'right'));
                                 walls.push(this.getWall(x, y, 'bottom'));
                             }
@@ -194,7 +205,7 @@ radugen.renderer.Walls = class {
 
                         //check top right
                         if (y != 0 && x != this._gridWidth - 1) {
-                            if (this._map[y - 1][x + 1] != 0) {
+                            if (this._grid[y - 1][x + 1] != 0) {
                                 walls.push(this.getWall(x, y, 'left'));
                                 walls.push(this.getWall(x, y, 'bottom'));
                             }
@@ -202,7 +213,7 @@ radugen.renderer.Walls = class {
 
                         //check bottom left
                         if (y != this._gridHeight - 1 && x != 0) {
-                            if (this._map[y + 1][x - 1] != 0) {
+                            if (this._grid[y + 1][x - 1] != 0) {
                                 walls.push(this.getWall(x, y, 'right'));
                                 walls.push(this.getWall(x, y, 'top'));
                             }
@@ -210,7 +221,7 @@ radugen.renderer.Walls = class {
 
                         //check bottom right
                         if (y != this._gridHeight - 1 && x != this._gridWidth - 1) {
-                            if (this._map[y + 1][x + 1] != 0) {
+                            if (this._grid[y + 1][x + 1] != 0) {
                                 walls.push(this.getWall(x, y, 'left'));
                                 walls.push(this.getWall(x, y, 'top'));
                             }
@@ -218,6 +229,55 @@ radugen.renderer.Walls = class {
                     }
                 }
             }
+
+          
+            // if (this._map[y][x] == 1) {
+            //     let doorTop = false;
+            //     let doorLeft = false;
+            //     let doorRight = false;
+            //     let doorBottom = false;
+            //     //check top
+            //     if (y != 0) {
+            //         if (this._map[y - 1][x] == 99) {
+            //             doorTop = true;
+            //         }
+            //     }
+
+            //     //check left
+            //     if (x != 0) {
+            //         if (this._map[y][x - 1] == 99) {
+            //             doorLeft = true;
+            //         }
+            //     }
+
+            //     //check right
+            //     if (x != this._gridWidth - 1) {
+            //         if (this._map[y][x + 1] == 99) {
+            //             doorRight = true;
+            //         }
+            //     }
+
+            //     //check bottom
+            //     if (y != this._gridHeight - 1) {
+            //         if (this._map[y + 1][x] == 99) {
+            //             doorBottom = true;
+            //         }
+            //     }
+
+            //     if (doorTop) {
+            //         walls.push(this.getDoor(x, y, 'top'));
+            //     }
+            //     if (doorLeft) {
+            //         walls.push(this.getDoor(x, y, 'left'));
+            //     }
+            //     if (doorRight) {
+            //         walls.push(this.getDoor(x, y, 'right'));
+            //     }
+            //     if (doorBottom) {
+            //         walls.push(this.getDoor(x, y, 'bottom'));
+            //     }
+            // }
+
         })
 
         return walls;
