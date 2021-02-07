@@ -23,7 +23,7 @@ radugen.RadugenScene = class extends Scene {
             tokenVision: true,
             fogExploration: false,
             walls: walls,
-            img: `modules/Radugen/uploads/scenes/${id}.webp`
+            img: `${game.settings.get("Radugen", "dungeonUploadPath")}/${id}.webp`
         });
 
         this._width = width;
