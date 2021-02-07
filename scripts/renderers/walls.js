@@ -91,6 +91,17 @@ radugen.renderer.Walls = class {
         }
     }
 
+    getDoor(x, y, direction) {
+        return {
+            c: this.getWallForSide(x, y, direction),
+            move: CONST.WALL_MOVEMENT_TYPES.NORMAL,
+            sense: CONST.WALL_SENSE_TYPES.NORMAL,
+            dir: CONST.WALL_DIRECTIONS.BOTH,
+            door: CONST.WALL_DOOR_TYPES.DOOR,
+            ds: CONST.WALL_DOOR_STATES.LOCKED
+        }
+    }
+
     getTerrainWall(x, y, direction) {
         return {
             c: this.getWallForSide(x, y, direction),
@@ -218,6 +229,55 @@ radugen.renderer.Walls = class {
                     }
                 }
             }
+
+          
+            // if (this._map[y][x] == 1) {
+            //     let doorTop = false;
+            //     let doorLeft = false;
+            //     let doorRight = false;
+            //     let doorBottom = false;
+            //     //check top
+            //     if (y != 0) {
+            //         if (this._map[y - 1][x] == 99) {
+            //             doorTop = true;
+            //         }
+            //     }
+
+            //     //check left
+            //     if (x != 0) {
+            //         if (this._map[y][x - 1] == 99) {
+            //             doorLeft = true;
+            //         }
+            //     }
+
+            //     //check right
+            //     if (x != this._gridWidth - 1) {
+            //         if (this._map[y][x + 1] == 99) {
+            //             doorRight = true;
+            //         }
+            //     }
+
+            //     //check bottom
+            //     if (y != this._gridHeight - 1) {
+            //         if (this._map[y + 1][x] == 99) {
+            //             doorBottom = true;
+            //         }
+            //     }
+
+            //     if (doorTop) {
+            //         walls.push(this.getDoor(x, y, 'top'));
+            //     }
+            //     if (doorLeft) {
+            //         walls.push(this.getDoor(x, y, 'left'));
+            //     }
+            //     if (doorRight) {
+            //         walls.push(this.getDoor(x, y, 'right'));
+            //     }
+            //     if (doorBottom) {
+            //         walls.push(this.getDoor(x, y, 'bottom'));
+            //     }
+            // }
+
         })
 
         return walls;
