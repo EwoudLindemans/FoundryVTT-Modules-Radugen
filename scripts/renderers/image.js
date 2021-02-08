@@ -10,6 +10,7 @@ radugen.renderer.Image = class {
         this._imageHeight = this._gridHeight * tileResolution;
 
         this._tileResolution = tileResolution;
+        this._baseCanvas = this.createCanvas();
     }
 
     getDirectoryContents(src) {
@@ -41,8 +42,7 @@ radugen.renderer.Image = class {
 
     render() {
         return new Promise((resolve, reject) => {
-            const baseCanvas = this.createCanvas();
-            const baseCtx = baseCanvas.getContext("2d");
+            const baseCtx = this._baseCanvas.getContext("2d");
             
             const floorCanvas = this.createCanvas();
             const floorCtx = floorCanvas.getContext("2d");
@@ -83,7 +83,7 @@ radugen.renderer.Image = class {
                 //Whatever happens, merge the contexts we do have
                 
                 baseCtx.drawImage(floorCanvas, 0, 0);
-                baseCanvas.toBlob(imageBlob => {
+                this._baseCanvas.toBlob(imageBlob => {
                     resolve(imageBlob);
                 }, "image/webp", 0.80);
             });

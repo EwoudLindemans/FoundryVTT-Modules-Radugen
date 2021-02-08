@@ -88,8 +88,7 @@ class RadugenInit {
 
         settings.wallMode = game.settings.get("Radugen", "wallMode");
 
-        const dungeon = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize)
-        dungeon.generate();
+        const dungeon = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize);
 
         const grid = dungeon.rasterize();
 
