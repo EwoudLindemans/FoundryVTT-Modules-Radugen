@@ -3,33 +3,58 @@
   "title": "Radugen (Random dungeon generator)",
   "description": "You want a random dungeon, you got one!.",
   "author": "Ewoud Lindemans / Stefan Wouters-Yaowanasap",
+  "authors": [
+    {
+      "name": "Ewoud Lindemans"
+    },
+    {
+      "name": "Stefan Wouters-Yaowanasap"
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    },
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    },
+    {
+      "lang": "es",
+      "name": "Español",
+      "path": "lang/es.json"
+    }
+  ],
   "version": "0.0.2",
   "download": "https://github.com/EwoudLindemans/FoundryVTT-Modules-Radugen/releases/latest/download/module.zip",
   "minimumCoreVersion": "0.7.8",
   "compatibleCoreVersion": "0.7.9",
   "scripts": [
-    "scripts/helper.js",
-    "scripts/settings-extender.js",
-    "scripts/settings.js",
-    "scripts/generators/names.js",
-    "scripts/generators/dungeon.js",
-    "scripts/generators/dungeons/paths/paths.js",
-    "scripts/generators/dungeons/paths/patterns/adjecent.js",
-    "scripts/generators/dungeons/paths/patterns/random.js",
-    "scripts/generators/dungeons/rooms/rooms.js",
-    "scripts/generators/dungeons/rooms/patterns/cross.js",
-    "scripts/generators/dungeons/rooms/patterns/random.js",
-    "scripts/generators/dungeons/genV1.js",
-    "scripts/generators/dungeons/genV2.js",
-    "scripts/generators/dungeons/genV3.js",
-    "scripts/generators/dungeons/grid.js",
-    "scripts/generators/dungeons/layoutV1.js",
-    "scripts/generators/dungeons/static.js",
-    "scripts/helpers/dialog.js",
-    "scripts/renderers/image.js",
-    "scripts/renderers/walls.js",
-    "scripts/renderers/tilemap.js",
-    "scripts/radugenScene.js",
-    "scripts/radugen.js"
+    "./scripts/helper.js",
+    "./scripts/settings-extender.js",
+    "./scripts/settings.js",
+    "./scripts/radugen.js",
+    "./scripts/radugenScene.js",
+    "./scripts/classes/tiles/tile.js",
+    "./scripts/dungeons/dungeon.js",
+    "./scripts/dungeons/generators/genV1.js",
+    "./scripts/dungeons/generators/genV2.js",
+    "./scripts/dungeons/generators/names.js",
+    "./scripts/dungeons/generators/rooms/crossRoomGenerator.js",
+    "./scripts/dungeons/generators/rooms/randomRoomGenerator.js",
+    "./scripts/dungeons/generators/rooms/rooms.js",
+    "./scripts/dungeons/pathfinding/adjecentPathfinding.js",
+    "./scripts/helpers/dialog.js",
+    "./scripts/renderers/image.js",
+    "./scripts/renderers/tilemap.js",
+    "./scripts/renderers/walls.js"
   ]
 }

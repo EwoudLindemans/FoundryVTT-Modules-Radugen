@@ -2,23 +2,32 @@ window.radugen = window.radugen || {};
 radugen.generators = radugen.generators || {};
 radugen.generators.dungeons = radugen.generators.dungeons || {};
 radugen.generators.dungeons.rooms = radugen.generators.dungeons.rooms || {};
-radugen.generators.dungeons.rooms.patterns = radugen.generators.dungeons.rooms.patterns || {};
 
-radugen.generators.dungeons.rooms.patterns.random = class{
-    constructor(roomCount){
+radugen.generators.dungeons.rooms.randomRoomGenerator = class{
+    constructor(grid, roomCount){
+        this._grid = grid;
         this._roomCount = roomCount;
         this._rooms = [];
     }
 
     generate() {
+        const pushRoomToGrid = (ox, oy, w, h) => {
+            for(let x = ox; x < ox + w; x++){
+                for(let y = oy; y < oy + h; y++){
+                    this._grid.push(new Tile(x, y, TileType.Room));
+                }
+            }
+        };
+
+        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
         const [rect, rnd, directions] = [radugen.helper.rect, radugen.helper.getRndFromNum, radugen.helper.directions];
         const [width, height] = radugen.generators.dungeons.rooms.getRoomSize();
-        const rooms = [{
-            index: 0,
+        let rooms = [{
             adjecent: null,
             direction: null,
             rect: new rect(0, 0, width, height)
         }];
+        pushRoomToGrid(0, 0, width, height);
         for (let ri = 1; ri < this._roomCount; ri++) {
             //We have to create x rooms
             let success = false;
@@ -47,9 +56,13 @@ radugen.generators.dungeons.rooms.patterns.random = class{
                         oy = rooms[adjecent].rect.y1 + rnd(rooms[adjecent].rect.height) - rnd(h) - 1;
                         break;
                 }
+
                 const recta = new rect(ox, oy, w, h);
                 if (rooms.find(r => r.rect.expand(1).intersects(recta))) continue;
+
                 success = true;
+                pushRoomToGrid(ox, oy, w, h);
+
                 rooms.push({
                     index: ri,
                     adjecent: adjecent,

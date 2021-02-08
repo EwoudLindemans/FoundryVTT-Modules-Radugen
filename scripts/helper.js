@@ -70,6 +70,11 @@ radugen.helper = {
             // todo
         }
 
+        reproject(offsetLeft, offsetTop){
+            this._left += offsetLeft;
+            this._top += offsetTop
+        }
+
         /**
          * @type {number}
          */

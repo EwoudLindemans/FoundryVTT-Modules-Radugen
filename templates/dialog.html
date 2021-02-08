@@ -2,11 +2,13 @@
 <form class="radugen-generate-scene">
     {{#each fields}}
     <label for="{{name}}">{{label}}</label>
+    {{#if select}}
     <select name="{{name}}" style="width: 90%">
         {{#each select}}
         <option value="{{value}}">{{key}}</option>
         {{/each}}
     </select>
+    {{/if}}
     <br />
     {{/each}}
 </form>
