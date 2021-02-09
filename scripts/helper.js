@@ -184,4 +184,5 @@ radugen.helper = {
             return !(this.x1 > rect.x2 || this.x2 < rect.x1 || this.y1 > rect.y2 || this.y2 < rect.y1);
         }
     }
+    
 };

@@ -70,7 +70,7 @@ radugen.generators.dungeon = class {
             grid[tile.y - minY + 1][tile.x - minX + 1] = tile.type;
         }
 
-        return grid;
+        return new radugen.classes.tiles.TileGrid(grid);
     }
 
     /**
