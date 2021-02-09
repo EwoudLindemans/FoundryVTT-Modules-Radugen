@@ -34,6 +34,23 @@ radugen.renderer.Image = class {
         return Promise.all(promises);
     }
 
+
+    async loadThemes(themeName){
+        return (await this.getDirectoryContents(`modules/Radugen/assets/themes/`)).dirs;
+    }
+
+    async loadTheme(themeFolder){
+        let theme = {};
+        let themeFolders = (await this.getDirectoryContents(themeFolder)).dirs;
+        
+        for(let subFolder of themeFolders){
+            let name = subFolder.substring(subFolder.lastIndexOf("/") + 1, subFolder.length);
+            theme[name] = (await this.getDirectoryContents(subFolder)).files;
+        }
+
+        return theme;
+    }
+
     createCanvas() {
         const canvas = document.createElement('canvas');
         canvas.width = this._imageWidth;
@@ -42,7 +59,8 @@ radugen.renderer.Image = class {
     }
 
     async render() {
-        return new Promise((resolve, reject) => {            
+        this._theme = await this.loadTheme(radugen.helper.getRndFromArr(await this.loadThemes()));
+        return new Promise(async (resolve, reject) => {            
             const floorCanvas = this.createCanvas();
             const floorCtx = floorCanvas.getContext("2d");
 
@@ -51,47 +69,32 @@ radugen.renderer.Image = class {
             // floorCtx.imageSmoothingEnabled = false;
             floorCtx.imageSmoothingQuality  = "high";
 
-            this.getThemeFileDirectoryContents({
-                floor: "grass",
-            }).then(([background]) => {
                 //Background
+            if(this._theme.background){
                 this._baseCtx.fillStyle = "black";
                 this._baseCtx.fillRect(0, 0, this._imageWidth, this._imageHeight);
-                return this.loadImage(radugen.helper.getRndFromArr(background.files)).then(img => {
-                    this.patternizeContext(this._baseCtx, img, 1);
-                    this.renderFloorTilesBg(this._baseCtx);
-                    this.resetContext(this._baseCtx);
-                });
-            }).then(async () => {
-                //Floor
+                let backgroundImg = await this.loadImage(radugen.helper.getRndFromArr(this._theme.background));
+                this.patternizeContext(this._baseCtx, backgroundImg, 1);
+                this.renderFloorTilesBg(this._baseCtx);
+                this._baseCtx.restore();
+            }
 
-                let [floorFiles, wallFiles] = await this.getThemeFileDirectoryContents({
-                    floor: "wood",
-                    wall: "wood"
-                });
-                // await this.renderFloorTiles(floorCtx, floorFiles);
-                await this.renderFloorTiles(floorCtx, radugen.helper.getRndFromArr(floorFiles.files));
-                await this.renderWallTiles(floorCtx, radugen.helper.getRndFromArr(wallFiles.files));
+           
+            
+            if(this._theme.floor.length){
+                await this.renderFloorTiles(floorCtx, radugen.helper.getRndFromArr(this._theme.floor));
+            }
+            if(this._theme.wall.length){
+                await this.renderWallTiles(floorCtx, radugen.helper.getRndFromArr(this._theme.wall));
+            }
 
-                // let patterns = await this.getPatternDirectoryContents();
-                // let patternImage = await this.loadImage(radugen.helper.getRndFromArr(patterns.files))
-
-                //await this.patternizeContext(floorCtx, patternImage, 0.8); 
-
-                //Color overwrite's patter at the moment, we need to fix this someway.
-                // const rnd = radugen.helper.getRndFromNum;
-                // this.gradientContext(floorCtx, [rnd(255), rnd(255), rnd(255), rnd(100) / 100], [rnd(255), rnd(255), rnd(255),  rnd(100) / 100])
-
-                this.resetContext(floorCtx);
-                // this.renderWalls(floorCtx);
-                return;
-            }).finally(() => {
-                //Whatever happens, merge the contexts we do have
-                this._baseCtx.drawImage(floorCanvas, 0, 0);
-                this._baseCanvas.toBlob(imageBlob => {
-                    resolve(imageBlob);
-                }, "image/webp", 0.80);
-            });
+            floorCtx.restore();
+            
+             //Whatever happens, merge the contexts we do have
+             this._baseCtx.drawImage(floorCanvas, 0, 0);
+             this._baseCanvas.toBlob(imageBlob => {
+                 resolve(imageBlob);
+             }, "image/webp", 0.80);
         });
     }
 
@@ -246,19 +249,14 @@ radugen.renderer.Image = class {
         let wallTextureImg = await this.loadImage(wallTextureSrc);
 
 
-        let [pillarFiles] = await this.getThemeFileDirectoryContents({
-            floor: "rough",
-        });
-
         let pillarImages = [];
-        for (let file of pillarFiles.files) {
-            let img = await this.loadImage(file);
-            pillarImages.push(img);
+        if(this._theme.pillar){
+            for (let file of this._theme.pillar) {
+                let img = await this.loadImage(file);
+                pillarImages.push(img);
+            }
         }
         
-
-
-        const walls = [];
         this._grid.iterate((tile, x, y, adjecent) => {
             if (tile != 0) {
                 if (adjecent.top == 0) {
@@ -349,66 +347,70 @@ radugen.renderer.Image = class {
                 }
             }
         });
-
-        return walls;
     }
 
 
     drawWallMiddle(ctx, centerX, centerY, pillarImages){
-        let size = this._tileResolution / 8;
-        size = size % 2 == 1 ? size + 1 : size;
-        let img = radugen.helper.getRndFromArr(pillarImages);
-        ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+        if(pillarImages.length){
+            let size = this._tileResolution / 8;
+            size = size % 2 == 1 ? size + 1 : size;
+            let img = radugen.helper.getRndFromArr(pillarImages);
+            ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+        }
     }
     drawWallCorner(ctx, centerX, centerY, pillarImages){
-        let size = this._tileResolution / 4;
-        let img = radugen.helper.getRndFromArr(pillarImages);
-        ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+        if(pillarImages.length){
+            let size = this._tileResolution / 4;
+            let img = radugen.helper.getRndFromArr(pillarImages);
+            ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+        }
     }
 
     drawWall(ctx, x0, y0, x1, y1, wallTextureImg) {
-        let size = Math.round(this._tileResolution / 6);
-        let wallThickness = size % 2 == 1 ? size + 1 : size;
-        let rnd = radugen.helper.getRndFromNum;
+        if(wallTextureImg){
+            let size = Math.round(this._tileResolution / 6);
+            let wallThickness = size % 2 == 1 ? size + 1 : size;
+            let rnd = radugen.helper.getRndFromNum;
 
-        let xstart, xend, ystart, yend;
-        if(x0 < x1){
-            xstart = x0;
-            xend = x1;
-        }
-        else{
-            xstart = x1;
-            xend = x0;
-        }
+            let xstart, xend, ystart, yend;
+            if(x0 < x1){
+                xstart = x0;
+                xend = x1;
+            }
+            else{
+                xstart = x1;
+                xend = x0;
+            }
 
-        if(y0 < y1){
-            ystart = y0;
-            yend = y1;
-        }
-        else{
-            ystart = y1;
-            yend = y0;
-        }
+            if(y0 < y1){
+                ystart = y0;
+                yend = y1;
+            }
+            else{
+                ystart = y1;
+                yend = y0;
+            }
 
-        let width = xend - xstart;
-        let height = yend - ystart;
+            let width = xend - xstart;
+            let height = yend - ystart;
 
-        if(xstart == xend){
-            let rndxStart = rnd(wallTextureImg.width - wallThickness);
-            let rndyStart = rnd(wallTextureImg.height - height);
-            ctx.drawImage(wallTextureImg, rndxStart, rndyStart, wallThickness, height, xstart - wallThickness / 2, ystart, wallThickness, height);
-        }
-        else{
-            let rndxStart = rnd(wallTextureImg.width - width);
-            let rndyStart = rnd(wallTextureImg.height - wallThickness);
-            ctx.save(); 
-            ctx.translate(this._tileResolution / 2, this._tileResolution / 2);
-            ctx.translate(xstart - wallThickness / 2, ystart - wallThickness);
-            ctx.translate(width / 2, wallThickness / 2);
-            ctx.rotate(90 * Math.PI / 180);
-            ctx.translate(-width / 2, -wallThickness / 2);
-            ctx.drawImage(wallTextureImg, rndxStart, rndyStart, width, wallThickness, 0, 0, wallThickness, width);
-            ctx.restore();
+            if(xstart == xend){
+                let rndxStart = rnd(wallTextureImg.width - wallThickness);
+                let rndyStart = rnd(wallTextureImg.height - height);
+                ctx.drawImage(wallTextureImg, rndxStart, rndyStart, wallThickness, height, xstart - wallThickness / 2, ystart, wallThickness, height);
+            }
+            else{
+                let rndxStart = rnd(wallTextureImg.width - width);
+                let rndyStart = rnd(wallTextureImg.height - wallThickness);
+                ctx.save(); 
+                ctx.translate(this._tileResolution / 2, this._tileResolution / 2);
+                ctx.translate(xstart - wallThickness / 2, ystart - wallThickness);
+                ctx.translate(width / 2, wallThickness / 2);
+                ctx.rotate(90 * Math.PI / 180);
+                ctx.translate(-width / 2, -wallThickness / 2);
+                ctx.drawImage(wallTextureImg, rndxStart, rndyStart, width, wallThickness, 0, 0, wallThickness, width);
+                ctx.restore();
+            }
         }
     }
 };
