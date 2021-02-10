@@ -59,18 +59,20 @@ radugen.classes.tiles.TileGrid = class {
     iterate(callback) {
         for (let x = 0; x < this._width; x++) {
             for (let y = 0; y < this._height; y++) {
+                let tile = this._grid[y][x];
+                tile.adjecent = {
+                    top: this.top(x, y) || {},
+                    topRight:this.topRight(x, y) || {},
+                    right:this.right(x, y) || {},
+                    bottomRight:this.bottomRight(x, y) || {},
+                    bottom:this.bottom(x, y) || {},
+                    bottomLeft:this.bottomLeft(x, y) || {},
+                    left:this.left(x, y) || {},
+                    topLeft:this.topLeft(x, y) || {}
+                }
 
                 //Assign navigation to grid item
-                callback(this._grid[y][x], x, y, {
-                    top: this.top(x, y),
-                    topRight:this.topRight(x, y),
-                    right:this.right(x, y),
-                    bottomRight:this.bottomRight(x, y),
-                    bottom:this.bottom(x, y),
-                    bottomLeft:this.bottomLeft(x, y),
-                    left:this.left(x, y),
-                    topLeft:this.topLeft(x, y)
-                });
+                callback(tile, x, y, tile.adjecent);
             }
         }
     }

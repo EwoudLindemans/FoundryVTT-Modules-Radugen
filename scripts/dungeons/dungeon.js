@@ -7,7 +7,8 @@ radugen.generators.dungeonGenerator = Object.freeze({
     GenV2: 2,
     GenV1: 1,
     'LayoutV1 (experimental)': 4,
-    Maze: 3
+    Maze: 3,
+    Preview: 5
 });
 
 // Define the dungeon sizes
@@ -62,13 +63,16 @@ radugen.generators.dungeon = class {
 
     rasterize(){
         const TileType = radugen.classes.tiles.TileType;
-        const grid = Array.from({ length: this.height + 2 }).map(_ => Array.from({ length: this.width + 2 }).map(_ => TileType.Void));
+
+        const grid = Array.from({length: this.height + 2}).map((_, y) => Array.from({length: this.width + 2}).map((_, x) => 
+            new radugen.classes.tiles.Tile(x, y, TileType.Void)
+        ));
 
         const minY = this.minY;
         const minX = this.minX;
 
         for(let tile of this._grid){
-            grid[tile.y - minY + 1][tile.x - minX + 1] = tile.type;
+            grid[tile.y - minY + 1][tile.x - minX + 1] = tile;
         }
 
         return new radugen.classes.tiles.TileGrid(grid);

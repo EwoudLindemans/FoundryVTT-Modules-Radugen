@@ -15,7 +15,19 @@ radugen.classes.tiles.Tile = class {
     constructor(x, y, tileType) {
         this.x = x;
         this.y = y;
-        this._tileType = tileType || tileType.Void;
+        this._tileType = tileType || radugen.classes.tiles.TileType.Void;
+        this.wall = {
+            top: false,
+            right: false,
+            bottom: false,
+            left: false,
+        };
+        this.door = {
+            top: false,
+            right: false,
+            bottom: false,
+            left: false,
+        }
     }
 
     /**
