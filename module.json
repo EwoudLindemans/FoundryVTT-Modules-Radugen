@@ -57,7 +57,6 @@
     "./scripts/dungeons/pathfinding/adjecentPathfinding.js",
     "./scripts/helpers/dialog.js",
     "./scripts/renderers/image.js",
-    "./scripts/renderers/tilemap.js",
     "./scripts/renderers/walls.js"
   ]
 }

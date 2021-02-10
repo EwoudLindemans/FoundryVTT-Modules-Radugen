@@ -120,8 +120,8 @@ radugen.renderer.Walls = class {
     //CONST.WALL_SENSE_TYPES.{NONE: 0, NORMAL: 1, LIMITED: 2}
     renderWalls(ctx, themeFiles) {
         const walls = [];
-        this._grid.iterate((tile, x, y, adjecent) => {
-            if (tile == 0) {
+        this._grid.iterate((tile, x, y) => {
+            if (tile.type == 0) {
                 let drawTop = false;
                 let drawLeft = false;
                 let drawRight = false;
@@ -129,25 +129,25 @@ radugen.renderer.Walls = class {
                 let drawCount = 0;
 
                 //check top
-                if (adjecent.top != 0) {
+                if (tile.adjecent.top.type != 0) {
                     drawTop = true;
                     drawCount++;
                 }
 
                 //check left
-                if (adjecent.left != 0) {
+                if (tile.adjecent.left.type != 0) {
                     drawLeft = true;
                     drawCount++;
                 }
 
                 //check right
-                if (adjecent.right != 0) {
+                if (tile.adjecent.right.type != 0) {
                     drawRight = true;
                     drawCount++;
                 }
 
                 //check bottom
-                if (adjecent.bottom != 0) {
+                if (tile.adjecent.bottom.type != 0) {
                     drawBottom = true;
                     drawCount++;
                 }
@@ -189,26 +189,26 @@ radugen.renderer.Walls = class {
                     if (drawCount == 0) {
                         //check top left
 
-                        if (adjecent.topLeft != 0) {
+                        if (tile.adjecent.topLeft.type != 0) {
                             walls.push(this.getWall(x, y, 'right'));
                             walls.push(this.getWall(x, y, 'bottom'));
                         }
 
                         //check top right
 
-                        if (adjecent.topRight != 0) {
+                        if (tile.adjecent.topRight.type != 0) {
                             walls.push(this.getWall(x, y, 'left'));
                             walls.push(this.getWall(x, y, 'bottom'));
                         }
 
                         //check bottom left
-                        if (adjecent.bottomLeft != 0) {
+                        if (tile.adjecent.bottomLeft.type != 0) {
                             walls.push(this.getWall(x, y, 'right'));
                             walls.push(this.getWall(x, y, 'top'));
                         }
 
                         //check bottom right
-                        if (adjecent.bottomRight != 0) {
+                        if (tile.adjecent.bottomRight.type != 0) {
                             walls.push(this.getWall(x, y, 'left'));
                             walls.push(this.getWall(x, y, 'top'));
                         }
