@@ -1,0 +1,180 @@
+window.radugen = window.radugen || {};
+radugen.generators = radugen.generators || {};
+radugen.generators.dungeons = radugen.generators.dungeons || {};
+
+radugen.generators.dungeons[radugen.generators.dungeonGenerator.LayoutV1] = class extends radugen.generators.dungeon {
+    /**
+     * @param {radugen.generators.dungeonSize} dungeonSize
+     */
+    constructor(dungeonSize) {
+        super('layoutV1');
+    }
+
+    /**
+     * @type {radugen.helper.minMax}
+     */
+    get minMax() {
+        switch (this._size) {
+            case radugen.generators.dungeonSize.Tiny:
+                return new radugen.helper.minMax(8, 12);
+            case radugen.generators.dungeonSize.Small:
+                return new radugen.helper.minMax(12, 16);
+            case radugen.generators.dungeonSize.Medium:
+                return new radugen.helper.minMax(16, 22);
+            case radugen.generators.dungeonSize.Large:
+                return new radugen.helper.minMax(22, 28);
+            case radugen.generators.dungeonSize.Huge:
+                return new radugen.helper.minMax(28, 36);
+            case radugen.generators.dungeonSize.Gargantuan:
+                return new radugen.helper.minMax(36, 48);
+            default:
+                return new radugen.helper.minMax(10, 30);
+        }
+    }
+
+    splitRect(rectToSplit) {
+        const [rnd, rect] = [radugen.helper.getRndFromNum, radugen.helper.rect];
+        const hw = rnd(2) == 1 ? 'width' : 'height';
+        if (rectToSplit[hw] < 8) return null;
+        const split = Math.floor(rectToSplit[hw] / 2) - rnd(Math.ceil(rectToSplit[hw] * 0.35));
+
+        switch (hw) {
+            case 'width':
+                return [
+                    new rect(rectToSplit.x1, rectToSplit.y1, split, rectToSplit.height),
+                    new rect(rectToSplit.x1 + split + 1, rectToSplit.y1, rectToSplit.width - split - 1, rectToSplit.height)
+                ];
+            case 'height':
+                return [
+                    new rect(rectToSplit.x1, rectToSplit.y1, rectToSplit.width, split),
+                    new rect(rectToSplit.x1, rectToSplit.y1 + split + 1, rectToSplit.width, rectToSplit.height - split - 1)
+                ];
+            default:
+                return null;
+        }
+    }
+
+    generate() {
+        const [roomCount, directions] = [this.roomCount, radugen.helper.directions];
+        const [rnd, rect] = [radugen.helper.getRndFromNum, radugen.helper.rect];
+        const minMax = this.minMax;
+        const [width, height] = Array.from({length: 2}, () => rnd(minMax.max - minMax.min) + minMax.min - 1);
+
+        const rooms = [{
+            index: 0,
+            adjecent: null,
+            direction: null,
+            connections: [],
+            rect: new rect(0, 0, width, height)
+        }];
+        for (let ri = 1; ri < roomCount; ri++){
+            let success = false;
+            for (let retry = 0; retry < 100; retry++) {
+                let recta = null;
+                const adjecent = (() => {
+                    const roomSize = rooms.map(room => room.rect.width * room.rect.height);
+                    return roomSize.indexOf(Math.max(...roomSize));
+                })();
+                const split = this.splitRect(rooms[adjecent].rect);
+                if (!split || split.find(rect => rect.width <= 2 || rect.height <= 2)) continue;
+                [rooms[adjecent].rect, recta] = split;
+                success = true;
+                rooms.push({
+                    index: ri,
+                    adjecent: adjecent,
+                    direction: null, // TODO
+                    connections: [],
+                    rect: recta
+                });
+                break;
+            }
+            if (!success) return this.generate();
+        }
+        
+        const unaspected = rooms.filter(room => room.rect.aspectRatio > 1.7);
+        for (let room of unaspected) {
+            let success = false;
+            for (let retry = 0; retry < 100; retry++) {
+                let recta = null;
+                const split = this.splitRect(rooms[room.index].rect);
+                if (!split || split.find(rect => rect.width <= 2 || rect.height <= 2)) continue;
+                [rooms[room.index].rect, recta] = split;
+                success = true;
+                rooms.push({
+                    index: rooms.length,
+                    adjecent: room.index,
+                    direction: null, // TODO
+                    connections: [],
+                    rect: recta
+                });
+                break;
+            }
+            if (!success) return this.generate();
+        }
+
+        const getAdjacentRooms = (room => {
+            const output = [];
+            output.push(...rooms.filter(r => r.rect.intersects(new rect(room.rect.x1 - 2, room.rect.y1, 1, room.rect.height))).map(room => new Object({ index: room.index, direction: directions.West })));
+            output.push(...rooms.filter(r => r.rect.intersects(new rect(room.rect.x2 + 2, room.rect.y1, 1, room.rect.height))).map(room => new Object({ index: room.index, direction: directions.East })));
+            output.push(...rooms.filter(r => r.rect.intersects(new rect(room.rect.x1, room.rect.y1 - 2, room.rect.width, 1))).map(room => new Object({ index: room.index, direction: directions.North })));
+            output.push(...rooms.filter(r => r.rect.intersects(new rect(room.rect.x1, room.rect.y2 + 2, room.rect.width, 1))).map(room => new Object({ index: room.index, direction: directions.South })));
+            return output;
+        });
+
+        const grid = this.createEmptyMap(width, height);
+        for (let room of rooms) {
+            const adjacentRooms = getAdjacentRooms(room).filter(r => !rooms[r.index].connections.find(connection => connection.index == r.index));
+            if (adjacentRooms.length > 0) {
+                const ar = adjacentRooms[rnd(adjacentRooms.length) - 1];
+                rooms[ar.index].connections.push({ direction: radugen.helper.oppositeDirection(ar.direction), index: room.index });
+                room.connections.push({ direction: ar.direction, index: ar.index });
+            }
+
+            for (let y = room.rect.y1; y <= room.rect.y2; y++) {
+                for (let x = room.rect.x1; x <= room.rect.x2; x++) {
+                    grid[y][x] = 1;
+                }
+            }
+        }
+        
+        const getIntersection = (coor, rect1, rect2) => [Math.min(rect1[`${coor}1`], rect2[`${coor}2`]), Math.max(rect1[`${coor}2`], rect2[`${coor}1`])];
+        for (let room of rooms) {
+            for (let connection of room.connections.filter(connection => connection.index > room.index)) {
+                let min, max;
+                switch (connection.direction) {
+                    case directions.North:
+                        [min, max] = getIntersection('x', room.rect, rooms[connection.index].rect);
+                        grid[room.rect.y1 - 1][rnd(max - min) + min] = 99;
+                        // console.log(room.index, 'North', connection.index);
+                        break;
+                    case directions.West:
+                        [min, max] = getIntersection('y', room.rect, rooms[connection.index].rect);
+                        grid[rnd(max - min) + min][room.rect.x1 - 1] = 99;
+                        // console.log(room.index, 'West', connection.index);
+                        break;
+                    case directions.South:
+                        [min, max] = getIntersection('x', room.rect, rooms[connection.index].rect);
+                        grid[room.rect.y2 + 1][rnd(max - min) + min] = 99;
+                        // console.log(room.index, 'South', connection.index);
+                        break;
+                    case directions.East:
+                        [min, max] = getIntersection('y', room.rect, rooms[connection.index].rect);
+                        grid[rnd(max - min) + min][room.rect.x2 + 1] = 99;
+                        // console.log(room.index, 'East', connection.index);
+                        break;
+                }
+            }
+        }
+        // // };
+        // const connections = {};
+        // for (let room of rooms) {
+        //     // if (room.adjecent == null) continue;
+        //     const adjacentRooms = getAdjacentRooms(room);
+        //     console.log(room.index, adjacentRooms);
+        // }
+
+        this._rooms = rooms.map(x => new rect(x.rect.x1, x.rect.y1, x.rect.width, x.rect.height));
+        this._map = grid;
+        return this._map;
+    }
+}

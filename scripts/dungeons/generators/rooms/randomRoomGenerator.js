@@ -64,7 +64,7 @@ radugen.generators.dungeons.rooms.randomRoomGenerator = class{
                 pushRoomToGrid(ox, oy, w, h);
 
                 rooms.push({
-                    count: ri,
+                    index: ri,
                     adjecent: adjecent,
                     direction: direction,
                     rect: recta
