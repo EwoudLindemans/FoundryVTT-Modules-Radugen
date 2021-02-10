@@ -10,11 +10,8 @@
     <script type="text/javascript" src="scripts/dungeons/dungeon.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/genV1.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/genV2.js"></script>
-<<<<<<< HEAD
     <script type="text/javascript" src="scripts/dungeons/generators/layoutV1.js"></script>
-=======
     <script type="text/javascript" src="scripts/dungeons/generators/maze.js"></script>
->>>>>>> 4418332189c0066d6d8152426221883246ebd320
     <script type="text/javascript" src="scripts/dungeons/generators/names.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/rooms/crossRoomGenerator.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/rooms/randomRoomGenerator.js"></script>
@@ -54,19 +51,16 @@
                 const dungeon = radugen.generators.dungeon.generate(generator, size);
                 const tileSize = 8;
                 
-                const grid = dungeon.rasterize()
-                const [width, height] = [grid[0].length, grid.length];
+                const grid = dungeon.rasterize();
 
-                canvas.width = width * tileSize;
-                canvas.height = height * tileSize;
+                canvas.width = grid.width * tileSize;
+                canvas.height = grid.height * tileSize;
 
-                for (let y = 0; y < height; y++) {
-                    for (let x = 0; x < width; x++) {
-                        if (grid[y][x] == 0) continue;
-                        ctx.fillStyle = grid[y][x] == 99 ? "red" : "black";
-                        ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
-                    }
-                }
+                grid.iterate((tile, x, y) => {
+                    if (tile == 0) return;
+                    ctx.fillStyle = tile == 99 ? "red" : "black";
+                    ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
+                });
 
                 ctx.save();
                 ctx.font = '12px sans-serif';

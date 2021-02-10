@@ -6,11 +6,8 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 radugen.generators.dungeonGenerator = Object.freeze({
     GenV2: 2,
     GenV1: 1,
-<<<<<<< HEAD
     'LayoutV1 (experimental)': 4,
-=======
     Maze: 3
->>>>>>> 4418332189c0066d6d8152426221883246ebd320
 });
 
 // Define the dungeon sizes
@@ -41,15 +38,9 @@ radugen.generators.dungeon = class {
      */
     static generate(dungeonType, dungeonSize){
         const generatorClass = (dungeonType in radugen.generators.dungeons) ? radugen.generators.dungeons[dungeonType] : radugen.generators.dungeon;
-<<<<<<< HEAD
         const generator = new generatorClass(dungeonSize);
         generator._type = parseInt(dungeonType);
         generator._size = parseInt(dungeonSize);
-=======
-        const generator = new generatorClass();
-        generator._type = dungeonType;
-        generator._size = dungeonSize;
->>>>>>> 4418332189c0066d6d8152426221883246ebd320
         generator.generate();
         return generator;
     }
