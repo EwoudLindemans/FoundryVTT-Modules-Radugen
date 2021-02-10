@@ -88,8 +88,7 @@ class RadugenInit {
 
         settings.wallMode = game.settings.get("Radugen", "wallMode");
 
-        const dungeon = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize)
-        dungeon.generate();
+        const dungeon = radugen.generators.dungeon.generate(settings.dungeonGenerator, settings.dungeonSize);
 
         const grid = dungeon.rasterize();
 
@@ -98,7 +97,7 @@ class RadugenInit {
             walls = new radugen.renderer.Walls(grid, settings.resolution, settings.wallMode).render();
         }
 
-        const scene = new radugen.RadugenScene(grid[0].length, grid.length, settings.resolution, walls);
+        const scene = new radugen.RadugenScene(grid.width, grid.height, settings.resolution, walls);
 
         const imageRenderer = new radugen.renderer.Image(grid, settings.resolution);
         const blob = await imageRenderer.render();
