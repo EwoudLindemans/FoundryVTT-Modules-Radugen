@@ -3,10 +3,7 @@ radugen.generators = radugen.generators || {};
 radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 radugen.generators.dungeons[radugen.generators.dungeonGenerator.GenV1] = class extends radugen.generators.dungeon {
-    /**
-     * @param {radugen.generators.dungeonSize} dungeonSize
-     */
-    constructor(dungeonSize) {
+    constructor() {
         super('genV1');
     }
 

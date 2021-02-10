@@ -6,7 +6,11 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 radugen.generators.dungeonGenerator = Object.freeze({
     GenV2: 2,
     GenV1: 1,
+<<<<<<< HEAD
     'LayoutV1 (experimental)': 4,
+=======
+    Maze: 3
+>>>>>>> 4418332189c0066d6d8152426221883246ebd320
 });
 
 // Define the dungeon sizes
@@ -37,9 +41,15 @@ radugen.generators.dungeon = class {
      */
     static generate(dungeonType, dungeonSize){
         const generatorClass = (dungeonType in radugen.generators.dungeons) ? radugen.generators.dungeons[dungeonType] : radugen.generators.dungeon;
+<<<<<<< HEAD
         const generator = new generatorClass(dungeonSize);
         generator._type = parseInt(dungeonType);
         generator._size = parseInt(dungeonSize);
+=======
+        const generator = new generatorClass();
+        generator._type = dungeonType;
+        generator._size = dungeonSize;
+>>>>>>> 4418332189c0066d6d8152426221883246ebd320
         generator.generate();
         return generator;
     }
@@ -70,15 +80,8 @@ radugen.generators.dungeon = class {
             grid[tile.y - minY + 1][tile.x - minX + 1] = tile.type;
         }
 
-        return grid;
+        return new radugen.classes.tiles.TileGrid(grid);
     }
-/*
-
-        const offset_x = -Math.min(...rooms.map(r => r.rect.x1)) + 1;
-        const offset_y = -Math.min(...rooms.map(r => r.rect.y1)) + 1;
-        const w = (Math.max(...rooms.map(r => r.rect.x2)) - Math.min(...rooms.map(r => r.rect.x1))) + 1;
-        const h = (Math.max(...rooms.map(r => r.rect.y2)) - Math.min(...rooms.map(r => r.rect.y1))) + 1;
-*/
 
     /**
      * @type {number}

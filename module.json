@@ -44,10 +44,15 @@
     "./scripts/radugen.js",
     "./scripts/radugenScene.js",
     "./scripts/classes/tiles/tile.js",
+    "./scripts/classes/tiles/tileGrid.js",
     "./scripts/dungeons/dungeon.js",
     "./scripts/dungeons/generators/genV1.js",
     "./scripts/dungeons/generators/genV2.js",
+<<<<<<< HEAD
     "./scripts/dungeons/generators/layoutV1.js",
+=======
+    "./scripts/dungeons/generators/maze.js",
+>>>>>>> 4418332189c0066d6d8152426221883246ebd320
     "./scripts/dungeons/generators/names.js",
     "./scripts/dungeons/generators/rooms/crossRoomGenerator.js",
     "./scripts/dungeons/generators/rooms/randomRoomGenerator.js",
