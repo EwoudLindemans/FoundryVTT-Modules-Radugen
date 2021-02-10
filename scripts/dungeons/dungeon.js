@@ -6,17 +6,17 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 radugen.generators.dungeonGenerator = Object.freeze({
     GenV2: 2,
     GenV1: 1,
-    LayoutV1: 3,
+    'LayoutV1 (experimental)': 4,
 });
 
 // Define the dungeon sizes
 radugen.generators.dungeonSize = Object.freeze({
     Tiny: 1,
     Small: 2,
-    Medium: 2,
-    Large: 3,
-    Huge: 4,
-    Gargantuan: 5
+    Medium: 3,
+    Large: 4,
+    Huge: 5,
+    Gargantuan: 6
 });
 
 radugen.generators.dungeon = class {
@@ -38,8 +38,8 @@ radugen.generators.dungeon = class {
     static generate(dungeonType, dungeonSize){
         const generatorClass = (dungeonType in radugen.generators.dungeons) ? radugen.generators.dungeons[dungeonType] : radugen.generators.dungeon;
         const generator = new generatorClass(dungeonSize);
-        generator._type = dungeonType;
-        generator._size = dungeonSize;
+        generator._type = parseInt(dungeonType);
+        generator._size = parseInt(dungeonSize);
         generator.generate();
         return generator;
     }
@@ -49,7 +49,7 @@ radugen.generators.dungeon = class {
      * @type {number}
      */
     get roomCount(){
-        switch (parseInt(this.size)) {
+        switch (this.size) {
             case radugen.generators.dungeonSize.Tiny: return 3;
             case radugen.generators.dungeonSize.Small: return 5;
             case radugen.generators.dungeonSize.Medium: return 7;
