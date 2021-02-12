@@ -45,6 +45,7 @@
     "./scripts/radugenScene.js",
     "./scripts/classes/tiles/tile.js",
     "./scripts/classes/tiles/tileGrid.js",
+    "./scripts/classes/themeLoader.js",
     "./scripts/dungeons/dungeon.js",
     "./scripts/dungeons/generators/genV1.js",
     "./scripts/dungeons/generators/genV2.js",

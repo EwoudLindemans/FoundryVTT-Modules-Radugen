@@ -13,6 +13,7 @@ class RadugenInit {
     hookInit() {
         Hooks.on("init", () => {
             radugen.settings.register();
+            radugen.helpers.Dialog = new radugen.helpers.DialogClass();
         });
     }
     hookReady() {
@@ -99,7 +100,7 @@ class RadugenInit {
 
         const scene = new radugen.RadugenScene(grid.width, grid.height, settings.resolution, walls);
 
-        const imageRenderer = new radugen.renderer.Image(grid, settings.resolution);
+        const imageRenderer = new radugen.renderer.Image(grid, settings.resolution, settings.dungeonTheme);
         const blob = await imageRenderer.render();
 
         //Upload file
