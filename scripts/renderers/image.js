@@ -3,7 +3,7 @@ radugen.renderer = radugen.renderer || {};
 
 
 radugen.renderer.Image = class {
-    constructor(grid, tileResolution) {
+    constructor(grid, tileResolution, theme) {
         this._grid = grid;
 
         this._imageWidth = this._grid.width * tileResolution;
@@ -13,72 +13,16 @@ radugen.renderer.Image = class {
 
         this._baseCanvas = this.createCanvas();
         this._baseCtx = this._baseCanvas.getContext("2d");
+
+        this._themeLoader = radugen.classes.ThemeLoader;
+        this._theme = theme;
     }
 
-    getDirectoryContents(src) {
-        return FilePicker.browse("data", src);
-    }
+    // getPatternDirectoryContents() {
+    //     return FilePicker.browse("data",'modules/Radugen/assets/patterns/');
+    // }
 
-    getPatternDirectoryContents() {
-        return this.getDirectoryContents('modules/Radugen/assets/patterns/');
-    }
-
-    getJsonObject(src){
-        return new Promise(function(resove, reject){
-            let request = new XMLHttpRequest();
-            request.open('GET', src, true);
-            request.send(null);
-            request.onreadystatechange = function () {
-                if (request.readyState === 4 && request.status === 200) {
-                    resove(JSON.parse(request.responseText));
-                }
-            }
-        });
-    }
-
-    async getThemeFileDirectoryContents(theme) {
-        const promises = [];
-        for (let key in theme) {
-            if (theme.hasOwnProperty(key)) {
-                promises.push(this.getDirectoryContents(`modules/Radugen/assets/themes/${theme[key]}/${key}/`));
-            }
-        }
-
-        return Promise.all(promises);
-    }
-
-
-    async loadThemes(themeName){
-        return (await this.getDirectoryContents(`modules/Radugen/assets/themes/`)).dirs;
-    }
-
-    async loadTheme(themeFolder){
-        let theme = {};
-        let themeFolderStructure = await this.getDirectoryContents(themeFolder);
-        let themeFolders = themeFolderStructure.dirs;
-
-
-        theme.settings = {
-            "floor": {
-                "allowMultiple": false,
-                "allowTexture": false,
-                "allowHue": false,
-                "allowRotate": false,
-                "allowFlip": false
-            }
-        }
-        if(themeFolderStructure.files.length){
-            theme.settings = await this.getJsonObject(themeFolderStructure.files[0]);
-        }
-
-        for(let subFolder of themeFolders){
-            let name = subFolder.substring(subFolder.lastIndexOf("/") + 1, subFolder.length);
-            theme[name] = (await this.getDirectoryContents(subFolder)).files;
-            
-        }
-
-        return theme;
-    }
+  
 
     createCanvas() {
         const canvas = document.createElement('canvas');
@@ -89,14 +33,13 @@ radugen.renderer.Image = class {
 
     async render() {
         const rnd = radugen.helper.getRndFromNum;
-        const themes = await this.loadThemes();
-        this._theme = await this.loadTheme(radugen.helper.getRndFromArr(themes));
-        // this._theme = await this.loadTheme("modules/Radugen/assets/themes/Random%20Dungeon");
+        this._theme = await this._themeLoader.loadTheme(this._theme);
         return new Promise(async (resolve, reject) => {            
-            
             this._baseCtx.save();
-            
-            let hue = [[rnd(255), rnd(255), rnd(255), rnd(100) / 100], [rnd(255), rnd(255), rnd(255),  rnd(100) / 100]];
+            let hue = [
+                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100], 
+                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100]
+            ];
 
             //Background
             if(this._theme.background.length){

@@ -1,15 +1,27 @@
 window.radugen = window.radugen || {};
 radugen.helpers = {};
 
-radugen.helpers.Dialog = new class {
-    constructor() { }
+radugen.helpers.DialogClass = class {
+    constructor() {
+        this._themeLoader = radugen.classes.ThemeLoader;
 
-    getKeyValueFromObject(heynum) {
+        game.settings.register("Radugen", "dungeonGenerationSelectedFields", {
+            scope: "world", 
+            config: false,     
+            type: String,
+            default: "{}",
+          });
+
+        this._selectedFields = JSON.parse(game.settings.get("Radugen", "dungeonGenerationSelectedFields"));
+     }
+
+    getKeyValueFromObject(heynum, selected) {
         let returnArr = [];
         for (let key of Object.keys(heynum)) {
             returnArr.push({
                 key: key,
-                value: heynum[key]
+                value: heynum[key],
+                selected : selected == heynum[key]
             });
         }
         return returnArr;
@@ -18,7 +30,9 @@ radugen.helpers.Dialog = new class {
     getFormFields(html) {
         const form = html[0].querySelector("form");
         const fd = new FormDataExtended(form);
-        return fd.toObject();
+        this._selectedFields = fd.toObject();
+        game.settings.set("Radugen", "dungeonGenerationSelectedFields", JSON.stringify(this._selectedFields));
+        return this._selectedFields;
     }
 
     async createDungeonGenerationDialog() {
@@ -27,12 +41,17 @@ radugen.helpers.Dialog = new class {
                 {
                     label: 'Dungeon Generator',
                     name: 'dungeonGenerator',
-                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator)
+                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator, this._selectedFields.dungeonGenerator)
                 },
                 {
                     label: 'Dungeon Size',
                     name: 'dungeonSize',
-                    select: this.getKeyValueFromObject(radugen.generators.dungeonSize)
+                    select: this.getKeyValueFromObject(radugen.generators.dungeonSize, this._selectedFields.dungeonSize)
+                },
+                {
+                    label: 'Theme',
+                    name: 'dungeonTheme',
+                    select: this.getKeyValueFromObject(await this._themeLoader.loadThemesObject(), this._selectedFields.dungeonTheme)
                 }
             ]
         });

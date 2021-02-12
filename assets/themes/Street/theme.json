@@ -1,0 +1,9 @@
+{
+    "floor": {
+        "allowMultiple": true,
+        "allowTexture": false,
+        "allowHue": false,
+        "allowRotate": true,
+        "allowFlip": true
+    }
+}

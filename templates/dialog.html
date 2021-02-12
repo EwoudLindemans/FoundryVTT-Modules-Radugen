@@ -5,7 +5,7 @@
     {{#if select}}
     <select name="{{name}}" style="width: 90%">
         {{#each select}}
-        <option value="{{value}}">{{key}}</option>
+            <option {{#if selected}}selected="selected"{{/if}} value="{{value}}">{{key}}</option>
         {{/each}}
     </select>
     {{/if}}
