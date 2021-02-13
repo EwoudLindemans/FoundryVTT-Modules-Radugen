@@ -18,6 +18,7 @@ radugen.helpers.DialogClass = class {
     getKeyValueFromObject(heynum, selected) {
         let returnArr = [];
         for (let key of Object.keys(heynum)) {
+            if(heynum[key] < 0){continue;}
             returnArr.push({
                 key: key,
                 value: heynum[key],
@@ -35,7 +36,24 @@ radugen.helpers.DialogClass = class {
         return this._selectedFields;
     }
 
+    async blobToDataURL(blob) {
+        return new Promise(function(resolve){
+            var a = new FileReader();
+            a.onload = function(e) {resolve(e.target.result);}
+            a.readAsDataURL(blob);
+        });
+    }
+
     async createDungeonGenerationDialog() {
+        let themes = this.getKeyValueFromObject(await this._themeLoader.loadThemesObject(), this._selectedFields.dungeonTheme);
+        for(let theme of themes){
+            const dungeon = radugen.generators.dungeon.generate(radugen.generators.dungeonGenerator.Preview, radugen.generators.dungeonSize.Tiny);
+            const grid = dungeon.rasterize();
+            const imageRenderer = new radugen.renderer.Image(grid, 16, theme.value);
+            const blob = await imageRenderer.render();
+            theme.img = await this.blobToDataURL(blob)
+        }
+
         const html = await renderTemplate(`modules/Radugen/templates/dialog.html`, {
             fields: [
                 {
@@ -51,7 +69,7 @@ radugen.helpers.DialogClass = class {
                 {
                     label: 'Theme',
                     name: 'dungeonTheme',
-                    select: this.getKeyValueFromObject(await this._themeLoader.loadThemesObject(), this._selectedFields.dungeonTheme)
+                    radio: themes
                 }
             ]
         });

@@ -57,7 +57,7 @@ window.radugen.settings = class extends FormApplication {
                 pretty: "Pretty (Walls will be rendered for player quality)",
                 strict: "Strict (In this mode there will be no corner peeking)",
             },
-            default: "pretty",        // The default value for the setting
+            default: "strict",        // The default value for the setting
             restricted: true
         });
 

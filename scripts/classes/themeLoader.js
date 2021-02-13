@@ -37,20 +37,20 @@ radugen.classes.ThemeLoader = class {
         let themeFolderStructure = await FilePicker.browse("data", themeFolder);
         let themeFolders = themeFolderStructure.dirs;
 
-        let theme = {
-            settings : {
-                floor: {
-                    allowMultiple: false,
-                    allowTexture: false,
-                    allowHue: false,
-                    allowRotate: false,
-                    allowFlip: false
-                }
+        let layers = ["floor", "background", "wall"];
+        let theme = {settings : {}}
+        for(let layer of layers){
+            theme.settings[layer] = {
+                mode: 'single', //single|multiple
+                hue: 'none', //none|random
+                gradient: 'none', //none|random
+                rotate: 'global', //none|global|random
+                flip: 'global' //none|global|random
             }
         }
 
         if(themeFolderStructure.files.length){
-            theme.settings = await this.getJsonObject(themeFolderStructure.files[0]);
+            Object.assign(theme.settings, await this.getJsonObject(themeFolderStructure.files[0]))
         }
 
         for(let subFolder of themeFolders){
