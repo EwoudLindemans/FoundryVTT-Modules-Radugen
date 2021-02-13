@@ -1,15 +1,40 @@
-<p>Scene options:</p>
 <form class="radugen-generate-scene">
     {{#each fields}}
-    <label for="{{name}}">{{label}}</label>
-    {{#if select}}
-    <select name="{{name}}" style="width: 90%">
-        {{#each select}}
-            <option {{#if selected}}selected="selected"{{/if}} value="{{value}}">{{key}}</option>
-        {{/each}}
-    </select>
-    {{/if}}
-    <br />
+        <label for="{{name}}">{{label}}</label><br />
+        {{#if select}}
+            <select name="{{name}}" style="width: 90%">
+                {{#each select}}
+                    <option {{#if selected}}selected="selected"{{/if}} value="{{value}}">{{key}}</option>
+                {{/each}}
+            </select>
+        {{/if}}
+        {{#if type}}
+            <input name="{{name}}" style="width: 90%" type="{{type}}" />
+        {{/if}}
+        
+        {{#if radio}}
+        <style type="text/css" rel="stylesheet">
+            input + img {
+                border:5px solid transparent;
+                margin: 4px;
+            }
+            input:checked + img {
+                border: 5px solid #fe5301;
+            }
+        </style>
+        <div style="clear:both;">
+            {{#each radio}}
+                <label style="float: left; width:25%;">
+                    <input {{#if selected}}checked="checked"{{/if}} style="position: absolute;opacity: 0.001;" type="radio" value="{{value}}" name="{{../name}}" />
+                    {{#if img}}<img  src="{{img}}" style="cursor: pointer; background: #000;" />{{/if}}
+                    {{#if text}}{{text}}{{/if}}
+                </label>
+            {{/each}}
+        </div>
+        {{/if}}
+        
+        <br />
+        <br />
     {{/each}}
 </form>
 <br />

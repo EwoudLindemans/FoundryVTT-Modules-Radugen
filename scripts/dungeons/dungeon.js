@@ -6,9 +6,9 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 radugen.generators.dungeonGenerator = Object.freeze({
     GenV2: 2,
     GenV1: 1,
-    'LayoutV1 (experimental)': 4,
     Maze: 3,
-    Preview: 5
+    'LayoutV1 (experimental)': 4,
+    Preview: -1
 });
 
 // Define the dungeon sizes

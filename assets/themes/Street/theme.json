@@ -1,9 +1,9 @@
 {
     "floor": {
-        "allowMultiple": true,
-        "allowTexture": false,
-        "allowHue": false,
-        "allowRotate": true,
-        "allowFlip": true
+        "mode": "single",
+        "hue": "none",
+        "gradient": "none",
+        "rotate": "global",
+        "flip": "global"
     }
 }

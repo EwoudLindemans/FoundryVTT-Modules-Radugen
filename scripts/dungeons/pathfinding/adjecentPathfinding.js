@@ -40,7 +40,7 @@ radugen.generators.dungeons.pathfinding.adjecentPathfinding = class{
          xStart = room2.rect.left;
          yStart = room2.rect.top + rnd(room2.rect.height - 1); 
 
-         xEnd = room1.rect.right;
+         xEnd = room1.rect.right + 1;
          yEnd = room1.rect.top + rnd(room1.rect.height - 1); 
 
          xDiff = Math.abs(xStart - xEnd);
@@ -70,8 +70,8 @@ radugen.generators.dungeons.pathfinding.adjecentPathfinding = class{
         xStart = room2.rect.left + rnd(room2.rect.width - 1) ; 
         yStart = room2.rect.top;
 
-        xEnd = room1.rect.left + rnd(room1.rect.width - 1) ; 
-        yEnd = room1.rect.bottom;
+        xEnd = room1.rect.left + rnd(room1.rect.width - 1);
+        yEnd = room1.rect.bottom + 1;
 
         xDiff = Math.abs(xStart - xEnd);
         yDiff = Math.abs(yStart - yEnd);

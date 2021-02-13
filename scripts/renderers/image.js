@@ -18,12 +18,6 @@ radugen.renderer.Image = class {
         this._theme = theme;
     }
 
-    // getPatternDirectoryContents() {
-    //     return FilePicker.browse("data",'modules/Radugen/assets/patterns/');
-    // }
-
-  
-
     createCanvas() {
         const canvas = document.createElement('canvas');
         canvas.width = this._imageWidth;
@@ -32,26 +26,23 @@ radugen.renderer.Image = class {
     }
 
     async render() {
-        const rnd = radugen.helper.getRndFromNum;
         this._theme = await this._themeLoader.loadTheme(this._theme);
         return new Promise(async (resolve, reject) => {            
             this._baseCtx.save();
-            let hue = [
-                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100], 
-                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100]
-            ];
 
-            //Background
             if(this._theme.background.length){
-                this._baseCtx.fillStyle = "black";
-                this._baseCtx.fillRect(0, 0, this._imageWidth, this._imageHeight);
+                const backgroundCanvas = this.createCanvas();
+                const backgroundCtx = backgroundCanvas.getContext("2d");
+                backgroundCtx.fillStyle = "black";
+                backgroundCtx.fillRect(0, 0, this._imageWidth, this._imageHeight);
                 let backgroundImg = await this.loadImage(radugen.helper.getRndFromArr(this._theme.background));
-                this.patternizeContext(this._baseCtx, backgroundImg, 1);
-                this.renderFloorTilesBg(this._baseCtx);
-                this._baseCtx.restore();
+                this.patternizeContext(backgroundCtx, backgroundImg, 1);
+                this.renderFloorTilesBg(backgroundCtx);
+
+                this.applyGenericFilters(backgroundCtx, this._theme.settings.background);
+                this._baseCtx.drawImage(backgroundCanvas, 0, 0);
             }
 
-            //Floor
             if(this._theme.floor.length){
                 const floorCanvas = this.createCanvas();
                 const floorCtx = floorCanvas.getContext("2d");
@@ -60,10 +51,7 @@ radugen.renderer.Image = class {
 
                 await this.renderFloorTiles(floorCtx);
 
-                if(this._theme.settings.floor.allowHue){
-                    this.gradientContext(floorCtx, hue)
-                }
-
+                this.applyGenericFilters(floorCtx, this._theme.settings.floor);
                 this._baseCtx.drawImage(floorCanvas, 0, 0);
             }
 
@@ -75,10 +63,7 @@ radugen.renderer.Image = class {
                 wallCtx.imageSmoothingQuality  = "high";
                 await this.renderWallTiles(wallCtx, radugen.helper.getRndFromArr(this._theme.wall));
 
-                // if(this._theme.settings.floor.allowHue){
-                //     this.gradientContext(wallCtx, hue)
-                // }
-
+                this.applyGenericFilters(wallCtx, this._theme.settings.wall);
                 this._baseCtx.drawImage(wallCanvas, 0, 0);
             }
 
@@ -87,6 +72,16 @@ radugen.renderer.Image = class {
                  resolve(imageBlob);
              }, "image/webp", 0.80);
         });
+    }
+
+    applyGenericFilters(ctx, themeSettings){
+        const rnd = radugen.helper.getRndFromNum;
+        if(themeSettings.gradient == "random"){
+            this.gradientContext(ctx, [
+                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100], 
+                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100]
+            ]);
+        }
     }
 
     renderFloorTilesBg(ctx) {
@@ -101,31 +96,38 @@ radugen.renderer.Image = class {
     async renderFloorTiles(ctx) {
         //preload all floor tiles
         let floorTextureImages = [];
-        if(this._theme.settings.floor.allowMultiple){
+        if(this._theme.settings.floor.mode == 'multiple'){
             for(let floortile of this._theme.floor){
                 floorTextureImages.push(await this.loadImage(floortile));
             }
         }
 
         let floorTextureImg = await this.loadImage(radugen.helper.getRndFromArr(this._theme.floor));
-
+        let flipRnd = radugen.helper.getRndFromNum(2);
+        let rotateRnd = radugen.helper.getRndFromNum(4);
         this._grid.iterate((tile, x, y) => {
             if (tile.type != 0) {
                 ctx.save();
                 //Grab a new image
-                if(this._theme.settings.floor.allowMultiple){
+                if(this._theme.settings.floor.mode == 'multiple'){
                     floorTextureImg = radugen.helper.getRndFromArr(floorTextureImages);
                 }
 
-                if(this._theme.settings.floor.allowFlip){
-                    this.flipContextRandom(ctx, x, y);
+                // move tile
+                ctx.translate(x * this._tileResolution, y * this._tileResolution); 
+
+                if(this._theme.settings.floor.flip != 'none'){
+                    if(this._theme.settings.floor.flip == 'random'){
+                        flipRnd = radugen.helper.getRndFromNum(2);
+                    }
+                    this.flipContext(ctx, x, y, flipRnd);
                 }
-                else{
-                    ctx.translate(x * this._tileResolution, y * this._tileResolution); // move tile
-                }
-5
-                if(this._theme.settings.floor.allowRotate){
-                    this.rotateContextRandom(ctx);
+
+                if(this._theme.settings.floor.rotate != 'none'){
+                    if(this._theme.settings.floor.rotate == 'random'){
+                        rotateRnd = radugen.helper.getRndFromNum(4);
+                    }
+                    this.rotateContext(ctx, rotateRnd);
                 }
                 ctx.drawImage(floorTextureImg, 0, 0, this._tileResolution, this._tileResolution);
                 ctx.restore();
@@ -152,17 +154,15 @@ radugen.renderer.Image = class {
         ctx.restore();
     }
 
-    rotateContextRandom(ctx) {
+    rotateContext(ctx, rotate) {
         ctx.translate(this._tileResolution / 2, this._tileResolution / 2);
-        ctx.rotate((Math.PI / 2) * radugen.helper.getRndFromNum(4)); // rotate tile
+        ctx.rotate((Math.PI / 2) * rotate); // rotate tile
         ctx.translate(-this._tileResolution / 2, -this._tileResolution / 2);
     }
 
-    flipContextRandom(ctx, x, y) {
-        if (radugen.helper.getRndFromNum(2) == 1) {
-            ctx.transform(-1, 0, 0, 1, (x + 1) * this._tileResolution, y * this._tileResolution); // flip and move tile
-        } else {
-            ctx.translate(x * this._tileResolution, y * this._tileResolution); // move tile
+    flipContext(ctx, x, y, flip) {
+        if (flip == 1) {
+            ctx.transform(-1, 0, 0, 1, this._tileResolution, 0); // flip and move tile
         }
     }
 
