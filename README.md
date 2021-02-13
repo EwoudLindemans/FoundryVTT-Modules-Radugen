@@ -1,6 +1,7 @@
 # FoundryVTT-Modules-Radugen
 An all in solution for random FoundryVTT dungeons
 
+![image](https://user-images.githubusercontent.com/14161771/107837177-1174e300-6da0-11eb-843a-ad34bba0627a.png)
 
 <h2>Support us</h2>
 <h3>Patreon</h3>
