@@ -37,7 +37,7 @@ radugen.classes.ThemeLoader = class {
         let themeFolderStructure = await FilePicker.browse("data", themeFolder);
         let themeFolders = themeFolderStructure.dirs;
 
-        let layers = ["floor", "background", "wall"];
+        let layers = ["floor", "background", "wall", "pillar"];
         let theme = {settings : {}}
         for(let layer of layers){
             theme.settings[layer] = {
@@ -47,6 +47,8 @@ radugen.classes.ThemeLoader = class {
                 rotate: 'global', //none|global|random
                 flip: 'global' //none|global|random
             }
+
+            theme[layer] = [];
         }
 
         if(themeFolderStructure.files.length){
@@ -56,7 +58,6 @@ radugen.classes.ThemeLoader = class {
         for(let subFolder of themeFolders){
             let name = subFolder.substring(subFolder.lastIndexOf("/") + 1, subFolder.length);
             theme[name] = (await FilePicker.browse("data",subFolder)).files;
-            
         }
 
         return theme;
