@@ -8,6 +8,7 @@ radugen.generators.dungeonGenerator = Object.freeze({
     GenV1: 1,
     Maze: 3,
     'LayoutV1 (experimental)': 4,
+    Cave: 5,
     Preview: -1
 });
 

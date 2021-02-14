@@ -11,15 +11,22 @@ radugen.generators.dungeons.rooms.crossRoomGenerator = class{
     }
 
     generate() {
+        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+
         const pushRoomToGrid = (ox, oy, w, h) => {
             for(let x = ox; x < ox + w; x++){
                 for(let y = oy; y < oy + h; y++){
-                    this._grid.push(new Tile(x, y, TileType.Room));
+                    let tile = new Tile(x, y, TileType.Room);
+                    // if(x == ox){tile.wall.left = true;}
+                    // if(x == ox + w - 1){tile.wall.right = true;}
+                    // if(y == oy){tile.wall.top = true;}
+                    // if(y == oy + h - 1){tile.wall.bottom = true;}
+                    this._grid.push(tile);
                 }
             }
         };
 
-        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+        
         const [rect, rnd, directions] = [radugen.helper.rect, radugen.helper.getRndFromNum, radugen.helper.directions];
         const [width, height] = radugen.generators.dungeons.rooms.getRoomSize();
         let rooms = [{

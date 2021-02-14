@@ -51,6 +51,7 @@
     "./scripts/dungeons/generators/genV2.js",
     "./scripts/dungeons/generators/layoutV1.js",
     "./scripts/dungeons/generators/maze.js",
+    "./scripts/dungeons/generators/cave.js",
     "./scripts/dungeons/generators/names.js",
     "./scripts/dungeons/generators/preview.js",
     "./scripts/dungeons/generators/rooms/crossRoomGenerator.js",

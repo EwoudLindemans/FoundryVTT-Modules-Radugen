@@ -168,7 +168,8 @@ class Cell {
             right: (x < this.width - 1 ? this.getCell(x + 1, y) : Cell.dummy)
         };
     }
-    
+
+    //Maze without void walls
     renderToGrid(){
         let grid = [];
         const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
@@ -176,36 +177,60 @@ class Cell {
         for (var i = 0, len = cells.length; i < len; i++) {
             let pos = this.getPos(i);
    
-            grid.push(new Tile(pos.x * 3 + 1, pos.y * 3 + 1, TileType.Room));
-            if (!(cells[i].walls & Cell.walls.LEFT)) {
-                grid.push(new Tile(pos.x * 3, pos.y * 3 + 1, TileType.Room));
+            let tile = new Tile(pos.x, pos.y, TileType.Room)
+            if (cells[i].walls & Cell.walls.LEFT) {tile.wall.left = true;}
+            if (cells[i].walls & Cell.walls.UP) {tile.wall.top = true;}
+            if (pos.x == this.width - 1){
+                tile.wall.right = true;
             }
-   
-            if (!(cells[i].walls & Cell.walls.UP)) {
-                grid.push(new Tile(pos.x * 3 + 1, pos.y * 3, TileType.Room));
+            if(pos.y == this.height - 1){
+                tile.wall.bottom = true;
             }
-   
-            if (!(cells[i].walls & Cell.walls.RIGHT)) {
-                grid.push(new Tile(pos.x * 3 + 2, pos.y * 3 + 1, TileType.Room));
-            }
-   
-            if (!(cells[i].walls & Cell.walls.DOWN)) {
-                grid.push(new Tile(pos.x * 3 + 1, pos.y * 3 + 2, TileType.Room));
-            }
-
-
-         }
-
-         for(let i in grid){
-            let tile = grid[i];
-            let divX = Math.floor(tile.x / 3);
-            let divY = Math.floor(tile.y / 3);
-            tile.x -= divX;
-            tile.y -= divY;
+            grid.push(tile);
          }
 
          return grid;
     }
+    
+
+    // renderToGrid(){
+    //     let grid = [];
+    //     const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+    //     var cells = this.cells;
+    //     for (var i = 0, len = cells.length; i < len; i++) {
+    //         let pos = this.getPos(i);
+   
+            
+    //         if (!(cells[i].walls & Cell.walls.LEFT)) {
+    //             grid.push(new Tile(pos.x * 3, pos.y * 3 + 1, TileType.Room));
+    //         }
+   
+    //         if (!(cells[i].walls & Cell.walls.UP)) {
+    //             grid.push(new Tile(pos.x * 3 + 1, pos.y * 3, TileType.Room));
+    //         }
+   
+    //         if (!(cells[i].walls & Cell.walls.RIGHT)) {
+    //             grid.push(new Tile(pos.x * 3 + 2, pos.y * 3 + 1, TileType.Room));
+    //         }
+   
+    //         if (!(cells[i].walls & Cell.walls.DOWN)) {
+    //             grid.push(new Tile(pos.x * 3 + 1, pos.y * 3 + 2, TileType.Room));
+    //         }
+    //         grid.push(new Tile(pos.x * 3 + 1, pos.y * 3 + 1, TileType.Room));
+
+
+    //      }
+
+    //      for(let i in grid){
+    //         let tile = grid[i];
+    //         let divX = Math.floor(tile.x / 3);
+    //         let divY = Math.floor(tile.y / 3);
+    //         tile.x -= divX;
+    //         tile.y -= divY;
+    //      }
+
+    //      return grid;
+    // }
 }
  
 
