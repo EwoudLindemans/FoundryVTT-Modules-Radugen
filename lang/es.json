@@ -1,5 +1,14 @@
 {
     "Radugen.module-name": "Radugen (Generador de mazmorras al azar)",
     "Radugen.generate-dungeon": "Generar mazmorra",
-    "Radugen.thanks-for-using": "Gracias por usar Radugen"
+    "Radugen.thanks-for-using": "Gracias por usar Radugen",
+    "Radugen.dungeonGenerator": "Generador de mazmorras",
+    "Radugen.dungeonSize": "Tamaño de la mazmorra",
+    "Radugen.theme": "Tema",
+    "Radugen.tiny": "Diminuto",
+    "Radugen.small": "Pequeño",
+    "Radugen.medium": "Medio",
+    "Radugen.large": "Grande",
+    "Radugen.huge": "Enorme",
+    "Radugen.gargantuan": "Gigantesco"
 }

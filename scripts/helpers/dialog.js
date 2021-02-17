@@ -36,6 +36,17 @@ radugen.helpers.DialogClass = class {
         return this._selectedFields;
     }
 
+    translateArray(array, fieldName) {
+        const toCamelCase = (str) => `${str.substr(0, 1).toLowerCase()}${str.substr(1)}`;
+        const returnArr = [];
+        for(let i = 0; i < array.length; i++){
+            const obj = new Object(array[i]);
+            obj[fieldName] = game.i18n.localize(`Radugen.${toCamelCase(obj[fieldName])}`);
+            returnArr.push(obj);
+        }
+        return returnArr;
+    }
+
     async blobToDataURL(blob) {
         return new Promise(function(resolve){
             var a = new FileReader();
@@ -57,17 +68,17 @@ radugen.helpers.DialogClass = class {
         const html = await renderTemplate(`modules/Radugen/templates/dialog.html`, {
             fields: [
                 {
-                    label: 'Dungeon Generator',
+                    label: game.i18n.localize('Radugen.dungeonGenerator'),
                     name: 'dungeonGenerator',
                     select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator, this._selectedFields.dungeonGenerator)
                 },
                 {
-                    label: 'Dungeon Size',
+                    label: game.i18n.localize('Radugen.dungeonSize'),
                     name: 'dungeonSize',
-                    select: this.getKeyValueFromObject(radugen.generators.dungeonSize, this._selectedFields.dungeonSize)
+                    select: this.translateArray(this.getKeyValueFromObject(radugen.generators.dungeonSize, this._selectedFields.dungeonSize), 'key')
                 },
                 {
-                    label: 'Theme',
+                    label: game.i18n.localize('Radugen.theme'),
                     name: 'dungeonTheme',
                     radio: themes
                 }

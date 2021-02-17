@@ -1,5 +1,14 @@
 {
     "Radugen.module-name": "Radugen (Random dungeon generator)",
     "Radugen.generate-dungeon": "Generate Dungeon",
-    "Radugen.thanks-for-using": "Thanks for using Radugen"
+    "Radugen.thanks-for-using": "Thanks for using Radugen",
+    "Radugen.dungeonGenerator": "Dungeon Generator",
+    "Radugen.dungeonSize": "Dungeon Size",
+    "Radugen.theme": "Theme",
+    "Radugen.tiny": "Tiny",
+    "Radugen.small": "Small",
+    "Radugen.medium": "Medium",
+    "Radugen.large": "Large",
+    "Radugen.huge": "Huge",
+    "Radugen.gargantuan": "Gargantuan"
 }

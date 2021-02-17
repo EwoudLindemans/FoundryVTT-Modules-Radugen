@@ -5,7 +5,8 @@ radugen.classes.tiles = radugen.classes.tiles || {};
 radugen.classes.tiles.TileType = Object.freeze({ 
     Void: 0,
     Room: 1,
-    Corridor: 99
+    Corridor: 99,
+    Liquid: 98
 });
 
 radugen.classes.tiles.Tile = class {

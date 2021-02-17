@@ -6,9 +6,11 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 radugen.generators.dungeonGenerator = Object.freeze({
     GenV2: 2,
     GenV1: 1,
+    GenV3: 7,
     Maze: 3,
     'LayoutV1 (experimental)': 4,
     Cave: 5,
+    randomRoomShape: 6,
     Preview: -1
 });
 

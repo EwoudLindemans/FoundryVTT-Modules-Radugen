@@ -11,15 +11,18 @@
     <script type="text/javascript" src="scripts/dungeons/dungeon.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/genV1.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/genV2.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/genV3.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/layoutV1.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/maze.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/cave.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/randomRoomShape.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/names.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/rooms/crossRoomGenerator.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/rooms/randomRoomGenerator.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/rooms/rooms.js"></script>
     <script type="text/javascript" src="scripts/dungeons/pathfinding/adjecentPathfinding.js"></script>
     <script type="text/javascript">
+        const tileSize = 8;
         function fillSelect(id, dictionary) {
             const storageValue = localStorage.getItem(`radugen-${id}`);
             let html = '';
@@ -32,6 +35,33 @@
 
         function getSelect(id) {
             return parseInt(document.getElementById(id).value);
+        }
+
+        function getTileCoordinate(x, y, direction) {
+            switch (direction) {
+                case 'top': return tileSize * y;
+                case 'right': return tileSize * (x + 1);
+                case 'bottom': return tileSize * (y + 1);
+                case 'left': return tileSize * x;
+                default:
+            }
+        }
+        function getWallForSide(x, y, direction) {
+            switch (direction) {
+                case 'top':return [getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'top'),getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'top')];
+                case 'right':return [getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'top'),getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'bottom')];
+                case 'bottom':return [getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'bottom'),getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'bottom')];
+                case 'left':return [getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'bottom'),getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'top')];
+                default:
+            }
+        }
+        function drawWall(ctx, sx, sy, ex, ey){
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(ex, ey);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'brown';
+            ctx.stroke();
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -51,7 +81,7 @@
                 localStorage.setItem('radugen-dungeon-size', size);
 
                 const dungeon = radugen.generators.dungeon.generate(generator, size);
-                const tileSize = 8;
+                
                 
                 const grid = dungeon.rasterize();
 
@@ -60,8 +90,27 @@
 
                 grid.iterate((tile, x, y) => {
                     if (tile.type == 0) return;
-                    ctx.fillStyle = tile.type == 99 ? "red" : "black";
+                    ctx.fillStyle = tile.type == 99 ? "red" : tile.type == 98 ? "blue" : "black";
                     ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
+                });
+
+                grid.iterate((tile, x, y) => {
+                    if(tile.wall.top){
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'top');
+                        drawWall(ctx, x0, x1, y0, y1);
+                    }
+                    if (tile.wall.bottom) {
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'bottom');
+                        drawWall(ctx, x0, x1, y0, y1);
+                    }
+                    if(tile.wall.left){
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'left');
+                        drawWall(ctx, x0, x1, y0, y1);
+                    }
+                    if(tile.wall.right){
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'right');
+                        drawWall(ctx, x0, x1, y0, y1);
+                    }
                 });
 
                 ctx.save();

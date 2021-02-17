@@ -80,5 +80,4 @@ radugen.generators.dungeons.rooms.randomRoomGenerator = class{
         this._rooms = rooms;
         return rooms;
     }
-
 }

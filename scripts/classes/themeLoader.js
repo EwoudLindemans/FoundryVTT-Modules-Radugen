@@ -37,7 +37,7 @@ radugen.classes.ThemeLoader = class {
         let themeFolderStructure = await FilePicker.browse("data", themeFolder);
         let themeFolders = themeFolderStructure.dirs;
 
-        let layers = ["floor", "background", "wall", "pillar"];
+        let layers = ["floor", "background", "wall", "pillar", "liquid"];
         let theme = {settings : {}}
         for(let layer of layers){
             theme.settings[layer] = {

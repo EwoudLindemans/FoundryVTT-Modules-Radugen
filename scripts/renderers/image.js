@@ -49,12 +49,19 @@ radugen.renderer.Image = class {
                 floorCtx.save();
                 floorCtx.imageSmoothingQuality  = "high";
 
-                await this.renderFloorTiles(floorCtx);
+                //Liquid
+                const liquidCanvas = this.createCanvas();
+                const liquidCtx = liquidCanvas.getContext("2d");
+                liquidCtx.save();
+                liquidCtx.imageSmoothingQuality  = "high";
+
+                await this.renderFloorTiles(floorCtx, floorCanvas, liquidCtx);
+                await this.renderLiquidTiles(liquidCtx);
 
                 this.applyGenericFilters(floorCtx, this._theme.settings.floor);
                 this._baseCtx.drawImage(floorCanvas, 0, 0);
-            }
-
+                this._baseCtx.drawImage(liquidCanvas, 0, 0);
+            }       
 
             if(this._theme.wall.length){
                 const wallCanvas = this.createCanvas();
@@ -93,7 +100,8 @@ radugen.renderer.Image = class {
         });
     }
 
-    async renderFloorTiles(ctx) {
+    async renderFloorTiles(ctx, canvas, liquidCtx) {
+        const [TileType] = [radugen.classes.tiles.TileType];
         //preload all floor tiles
         let floorTextureImages = [];
         if(this._theme.settings.floor.mode == 'multiple'){
@@ -106,8 +114,9 @@ radugen.renderer.Image = class {
         let flipRnd = radugen.helper.getRndFromNum(2);
         let rotateRnd = radugen.helper.getRndFromNum(4);
         this._grid.iterate((tile, x, y) => {
-            if (tile.type != 0) {
+            if (tile.type == TileType.Room || tile.type == TileType.Corridor || tile.type == TileType.Liquid) {
                 ctx.save();
+                liquidCtx.save();
                 //Grab a new image
                 if(this._theme.settings.floor.mode == 'multiple'){
                     floorTextureImg = radugen.helper.getRndFromArr(floorTextureImages);
@@ -115,7 +124,7 @@ radugen.renderer.Image = class {
 
                 // move tile
                 ctx.translate(x * this._tileResolution, y * this._tileResolution); 
-
+                liquidCtx.translate(x * this._tileResolution, y * this._tileResolution); 
                 if(this._theme.settings.floor.flip != 'none'){
                     if(this._theme.settings.floor.flip == 'random'){
                         flipRnd = radugen.helper.getRndFromNum(2);
@@ -129,10 +138,45 @@ radugen.renderer.Image = class {
                     }
                     this.rotateContext(ctx, rotateRnd);
                 }
+
                 ctx.drawImage(floorTextureImg, 0, 0, this._tileResolution, this._tileResolution);
+                if(tile.type == TileType.Liquid){
+                    liquidCtx.save();
+
+                    liquidCtx.fillStyle = 'black';
+                    liquidCtx.fillRect(0, 0, this._tileResolution, this._tileResolution);
+
+                    liquidCtx.restore();
+                    // liquidCtx.drawImage(
+                    //     canvas, 
+                    //     x * this._tileResolution,  //sourcex
+                    //     y * this._tileResolution,  //sourcey
+                    //     this._tileResolution, //width
+                    //     this._tileResolution, //height
+                    //     0,  //targetx
+                    //     0,  //targety
+                    //     this._tileResolution, //width
+                    //     this._tileResolution, //height
+                    //     );
+                }
+                liquidCtx.restore();
                 ctx.restore();
             };
         });
+    }
+    
+    async renderLiquidTiles(liquidCtx){
+        const [TileType] = [radugen.classes.tiles.TileType];
+        liquidCtx.save();
+        liquidCtx.globalCompositeOperation = "source-atop";
+        this.hueContext(liquidCtx, [0, 63, 159, 0.35]);
+
+        if(this._theme.liquid.length){
+            let image = await this.loadImage(radugen.helper.getRndFromArr(this._theme.liquid));
+            this.patternizeContext(liquidCtx, image, 1);
+        }
+
+        liquidCtx.restore();
     }
 
     loadImage(src) {
@@ -187,8 +231,10 @@ radugen.renderer.Image = class {
 
     hueContext(ctx, rgba){
         let [r,g,b,a] = rgba;
+        ctx.save();
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
         ctx.fillRect(0, 0,  this._imageWidth, this._imageHeight);
+        ctx.restore();
     }
 
     gradientContext(ctx, rgba){
