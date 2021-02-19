@@ -1,3 +1,13 @@
+<style type="text/css" rel="stylesheet">
+form>label {
+    display: block;
+    float: left;
+    font-size: 110%;;
+    font-weight: bold;
+    margin-top: 8px;
+    width: 100%;
+}
+</style>
 <form class="radugen-generate-scene">
     {{#each fields}}
         <label for="{{name}}">{{label}}</label><br />
@@ -14,9 +24,14 @@
         
         {{#if radio}}
         <style type="text/css" rel="stylesheet">
+            label:nth-child(4n+5) {
+                clear: both;
+            }
             input + img {
                 border:5px solid transparent;
                 margin: 4px;
+                max-height: 96px;
+                max-width: 90%;
             }
             input:checked + img {
                 border: 5px solid #fe5301;
