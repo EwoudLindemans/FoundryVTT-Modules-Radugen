@@ -25,6 +25,7 @@
         <div style="clear:both;">
             {{#each radio}}
                 <label style="float: left; width:25%;">
+                    {{#if name}}{{name}}{{/if}}
                     <input {{#if selected}}checked="checked"{{/if}} style="position: absolute;opacity: 0.001;" type="radio" value="{{value}}" name="{{../name}}" />
                     {{#if img}}<img  src="{{img}}" style="cursor: pointer; background: #000;" />{{/if}}
                     {{#if text}}{{text}}{{/if}}

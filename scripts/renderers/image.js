@@ -26,7 +26,12 @@ radugen.renderer.Image = class {
     }
 
     async render() {
+        const [rnd] = [radugen.helper.getRndFromNum];
+        const [TileType] = [radugen.classes.tiles.TileType];
         this._theme = await this._themeLoader.loadTheme(this._theme);
+
+        let gradient =  [[rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100], [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100]];
+        let gradientDirection = this.getRandomDirection();
         return new Promise(async (resolve, reject) => {            
             this._baseCtx.save();
 
@@ -49,16 +54,38 @@ radugen.renderer.Image = class {
                 floorCtx.save();
                 floorCtx.imageSmoothingQuality  = "high";
 
+
                 //Liquid
                 const liquidCanvas = this.createCanvas();
                 const liquidCtx = liquidCanvas.getContext("2d");
-                liquidCtx.save();
                 liquidCtx.imageSmoothingQuality  = "high";
 
-                await this.renderFloorTiles(floorCtx, floorCanvas, liquidCtx);
-                await this.renderLiquidTiles(liquidCtx);
+                const liquidBelowCanvas = this.createCanvas();
+                const liquidBelowCtx = liquidBelowCanvas.getContext("2d");
+                liquidBelowCtx.imageSmoothingQuality  = "high";
 
-                this.applyGenericFilters(floorCtx, this._theme.settings.floor);
+                if(this._theme.liquid.length){
+                    let pattern = await this.loadImage(radugen.helper.getRndFromArr(this._theme.liquid));
+
+                    // //Create liquid beneath tiles
+                    // this.createBaseLayer(liquidBelowCtx, TileType.Room);
+                    // this.patternizeContext(liquidBelowCtx, pattern, 1);
+                    
+                    await this.renderFloorTiles(floorCtx, floorCanvas, liquidCtx);
+                    
+                    //Create liquid on liquid tiles
+                    this.createBaseLayer(liquidCtx, TileType.Liquid);
+                    this.patternizeContext(liquidCtx, pattern, 1);
+                }
+                else{
+                    await this.renderFloorTiles(floorCtx, floorCanvas, liquidCtx);
+                }
+                
+                await this.renderFloorTiles(floorCtx, floorCanvas, liquidCtx);
+                
+
+                this.applyGenericFilters(floorCtx, this._theme.settings.floor, gradient, gradientDirection);
+                this._baseCtx.drawImage(liquidBelowCanvas, 0, 0);
                 this._baseCtx.drawImage(floorCanvas, 0, 0);
                 this._baseCtx.drawImage(liquidCanvas, 0, 0);
             }       
@@ -70,7 +97,7 @@ radugen.renderer.Image = class {
                 wallCtx.imageSmoothingQuality  = "high";
                 await this.renderWallTiles(wallCtx, radugen.helper.getRndFromArr(this._theme.wall));
 
-                this.applyGenericFilters(wallCtx, this._theme.settings.wall);
+                this.applyGenericFilters(wallCtx, this._theme.settings.wall, gradient, gradientDirection);
                 this._baseCtx.drawImage(wallCanvas, 0, 0);
             }
 
@@ -81,13 +108,9 @@ radugen.renderer.Image = class {
         });
     }
 
-    applyGenericFilters(ctx, themeSettings){
-        const rnd = radugen.helper.getRndFromNum;
+    applyGenericFilters(ctx, themeSettings, gradient, gradientDirection){
         if(themeSettings.gradient == "random"){
-            this.gradientContext(ctx, [
-                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100], 
-                [rnd(255), rnd(255), rnd(255), 0.2 + rnd(60) / 100]
-            ]);
+            this.gradientContext(ctx, gradient, gradientDirection);
         }
     }
 
@@ -116,7 +139,6 @@ radugen.renderer.Image = class {
         this._grid.iterate((tile, x, y) => {
             if (tile.type == TileType.Room || tile.type == TileType.Corridor || tile.type == TileType.Liquid) {
                 ctx.save();
-                liquidCtx.save();
                 //Grab a new image
                 if(this._theme.settings.floor.mode == 'multiple'){
                     floorTextureImg = radugen.helper.getRndFromArr(floorTextureImages);
@@ -124,7 +146,6 @@ radugen.renderer.Image = class {
 
                 // move tile
                 ctx.translate(x * this._tileResolution, y * this._tileResolution); 
-                liquidCtx.translate(x * this._tileResolution, y * this._tileResolution); 
                 if(this._theme.settings.floor.flip != 'none'){
                     if(this._theme.settings.floor.flip == 'random'){
                         flipRnd = radugen.helper.getRndFromNum(2);
@@ -140,43 +161,42 @@ radugen.renderer.Image = class {
                 }
 
                 ctx.drawImage(floorTextureImg, 0, 0, this._tileResolution, this._tileResolution);
-                if(tile.type == TileType.Liquid){
-                    liquidCtx.save();
-
-                    liquidCtx.fillStyle = 'black';
-                    liquidCtx.fillRect(0, 0, this._tileResolution, this._tileResolution);
-
-                    liquidCtx.restore();
-                    // liquidCtx.drawImage(
-                    //     canvas, 
-                    //     x * this._tileResolution,  //sourcex
-                    //     y * this._tileResolution,  //sourcey
-                    //     this._tileResolution, //width
-                    //     this._tileResolution, //height
-                    //     0,  //targetx
-                    //     0,  //targety
-                    //     this._tileResolution, //width
-                    //     this._tileResolution, //height
-                    //     );
-                }
-                liquidCtx.restore();
                 ctx.restore();
             };
         });
     }
     
-    async renderLiquidTiles(liquidCtx){
+    async renderLiquidBelow(liquidCtx, pattern){
         const [TileType] = [radugen.classes.tiles.TileType];
+
+        liquidCtx.save();
+        this._grid.iterate((tile, x, y) => {
+            if (tile.type == TileType.Room) {
+                liquidCtx.translate(x * this._tileResolution, y * this._tileResolution);
+                liquidCtx.fillStyle = 'black';
+                liquidCtx.fillRect(0, 0, this._tileResolution, this._tileResolution);
+            }
+        });
+        liquidCtx.restore();
+
         liquidCtx.save();
         liquidCtx.globalCompositeOperation = "source-atop";
-        this.hueContext(liquidCtx, [0, 63, 159, 0.35]);
-
         if(this._theme.liquid.length){
             let image = await this.loadImage(radugen.helper.getRndFromArr(this._theme.liquid));
-            this.patternizeContext(liquidCtx, image, 1);
+            this.patternizeContext(liquidCtx, pattern, 1);
         }
-
         liquidCtx.restore();
+    }
+
+    async createBaseLayer(ctx, tileType){      
+        ctx.save();
+        this._grid.iterate((tile, x, y) => {
+            if (tile.type == tileType) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(x * this._tileResolution, y * this._tileResolution, this._tileResolution, this._tileResolution);
+            }
+        });
+        ctx.restore();
     }
 
     loadImage(src) {
@@ -220,7 +240,7 @@ radugen.renderer.Image = class {
 
     patternizeContext(ctx, texture, opacity) {
         let pattern = ctx.createPattern(texture, "repeat");
-        
+        ctx.save();
         ctx.fillStyle = pattern;
         ctx.globalAlpha = opacity;
 
@@ -237,13 +257,8 @@ radugen.renderer.Image = class {
         ctx.restore();
     }
 
-    gradientContext(ctx, rgba){
-        let rgbaStart = rgba[0];
-        let rgbaEnd = rgba[1];
-        ctx.save();
-        ctx.globalCompositeOperation = 'source-atop';
-        let [r, g, b, a] = rgbaStart;
-        const rnd = radugen.helper.getRndFromNum
+    getRandomDirection(){
+        const [rnd] = [radugen.helper.getRndFromNum];
 
         let directionXStart = rnd(this._imageWidth);
         let directionXEnd = this._imageWidth - directionXStart;
@@ -251,7 +266,20 @@ radugen.renderer.Image = class {
         let directionYStart = rnd(this._imageHeight);
         let directionYEnd = this._imageHeight - directionYStart;
 
-        let gradient = ctx.createLinearGradient(directionXStart, directionYStart, directionXEnd, directionYEnd);
+        return [directionXStart, directionYStart, directionXEnd, directionYEnd];
+    }
+
+    gradientContext(ctx, rgba, direction){
+        let rgbaStart = rgba[0];
+        let rgbaEnd = rgba[1];
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-atop';
+        const rnd = radugen.helper.getRndFromNum
+
+        let gradient = ctx.createLinearGradient(direction[0], direction[1], direction[2], direction[3]);
+
+        let [r, g, b, a] = rgbaStart;
         gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${a})`);
 
         [r, g, b, a] = rgbaEnd;
@@ -313,13 +341,14 @@ radugen.renderer.Image = class {
         let wallTextureImg = await this.loadImage(wallTextureSrc);
 
 
-        let pillarImages = [];
+        let pillarTextureImages = [];
         if(this._theme.pillar){
             for (let file of this._theme.pillar) {
                 let img = await this.loadImage(file);
-                pillarImages.push(img);
+                pillarTextureImages.push(img);
             }
         }
+        
 
         this._grid.iterate((tile, x, y, adjecent) => {
             if(tile.wall.top){
@@ -365,89 +394,91 @@ radugen.renderer.Image = class {
         });
 
     
-        this._grid.iterate((tile, x, y, adjecent) => {
-            if (tile.type != 0) {
-                if (adjecent.top.type == 0) { 
-                    if(adjecent.left.type == 0){ //Draw square
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                        this.drawWallCorner(ctx, x0, x1, pillarImages);
+        if(pillarTextureImages.length){
+            let pillarTextureImage = pillarTextureImages[0];
+
+            this._grid.iterate((tile, x, y, adjecent) => {
+                //Grab a new image
+                if(this._theme.settings.pillar.mode == 'multiple'){
+                    pillarTextureImage = radugen.helper.getRndFromArr(pillarTextureImages);
+                }
+                if (tile.type != 0) {
+                    if (adjecent.top.type == 0) { 
+                        if(adjecent.left.type == 0){ //Draw square
+                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
+                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
+                        }
+
+                        if(adjecent.right.type == 0){ //Draw square
+                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
+                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
+                        }
                     }
 
-                    if(adjecent.right.type == 0){ //Draw square
+                    //check bottom
+                    if (adjecent.bottom.type == 0) {
+                        if(adjecent.left.type == 0){ //Draw square
+                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
+                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
+                        }
+                        if(adjecent.right.type == 0){ //Draw square
+                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
+                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
+                        }
+                    }
+
+                    //Cross checks
+                    if(adjecent.topRight.type == 0 && adjecent.top.type != 0 && adjecent.right.type != 0){
                         let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                        this.drawWallCorner(ctx, x0, x1, pillarImages);
+                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
                     }
-                }
-
-                //check bottom
-                if (adjecent.bottom.type == 0) {
-                    if(adjecent.left.type == 0){ //Draw square
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                        this.drawWallCorner(ctx, x0, x1, pillarImages);
-                    }
-                    if(adjecent.right.type == 0){ //Draw square
+                    //Cross checks
+                    if(adjecent.bottomRight.type == 0 && adjecent.bottom.type != 0 && adjecent.right.type != 0){
                         let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                        this.drawWallCorner(ctx, x0, x1, pillarImages);
+                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
+                    }
+                    //Cross checks
+                    if(adjecent.bottomLeft.type == 0 && adjecent.left.type != 0 && adjecent.bottom.type != 0){
+                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
+                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
+                    }
+                    //Cross checks
+                    if(adjecent.topLeft.type == 0 && adjecent.top.type != 0 && adjecent.left.type != 0){
+                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
+                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
+                    }
+
+                    //Middle walls
+                    if (adjecent.top.type != 0 && adjecent.left.type == 0 && adjecent.topLeft.type == 0) {
+                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
+                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
+                    }
+                    if (adjecent.right.type != 0 && adjecent.top.type == 0 && adjecent.topRight.type == 0) {
+                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
+                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
+                    }
+                    if (adjecent.bottom.type != 0 && adjecent.right.type == 0 && adjecent.bottomRight.type == 0) {
+                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
+                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
+                    }
+                    if (adjecent.left != 0 && adjecent.bottom.type == 0 && adjecent.bottomLeft.type == 0) {
+                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
+                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
                     }
                 }
-
-                //Cross checks
-                if(adjecent.topRight.type == 0 && adjecent.top.type != 0 && adjecent.right.type != 0){
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                    this.drawWallCorner(ctx, x0, x1, pillarImages);
-                }
-                //Cross checks
-                if(adjecent.bottomRight.type == 0 && adjecent.bottom.type != 0 && adjecent.right.type != 0){
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                    this.drawWallCorner(ctx, x0, x1, pillarImages);
-                }
-                //Cross checks
-                if(adjecent.bottomLeft.type == 0 && adjecent.left.type != 0 && adjecent.bottom.type != 0){
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                    this.drawWallCorner(ctx, x0, x1, pillarImages);
-                }
-                //Cross checks
-                if(adjecent.topLeft.type == 0 && adjecent.top.type != 0 && adjecent.left.type != 0){
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                    this.drawWallCorner(ctx, x0, x1, pillarImages);
-                }
-
-                //Middle walls
-                if (adjecent.top.type != 0 && adjecent.left.type == 0 && adjecent.topLeft.type == 0) {
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                    this.drawWallMiddle(ctx, x0, x1, pillarImages);
-                }
-                if (adjecent.right.type != 0 && adjecent.top.type == 0 && adjecent.topRight.type == 0) {
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                    this.drawWallMiddle(ctx, x0, x1, pillarImages);
-                }
-                if (adjecent.bottom.type != 0 && adjecent.right.type == 0 && adjecent.bottomRight.type == 0) {
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                    this.drawWallMiddle(ctx, x0, x1, pillarImages);
-                }
-                if (adjecent.left != 0 && adjecent.bottom.type == 0 && adjecent.bottomLeft.type == 0) {
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                    this.drawWallMiddle(ctx, x0, x1, pillarImages);
-                }
-            }
-        });
-    }
-
-
-    drawWallMiddle(ctx, centerX, centerY, pillarImages){
-        if(pillarImages.length){
-            let size = this._tileResolution / 8;
-            size = size % 2 == 1 ? size + 1 : size;
-            let img = radugen.helper.getRndFromArr(pillarImages);
-            ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+            });
         }
     }
-    drawWallCorner(ctx, centerX, centerY, pillarImages){
-        if(pillarImages.length){
-            let size = this._tileResolution / 4;
-            let img = radugen.helper.getRndFromArr(pillarImages);
-            ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
-        }
+
+
+    drawWallMiddle(ctx, centerX, centerY, img) {
+        let size = this._tileResolution / 4;
+        size = size % 2 == 1 ? size + 1 : size;
+        ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+    }
+    drawWallCorner(ctx, centerX, centerY, img){
+        let size = this._tileResolution / 3;
+        ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
     }
 
     drawWall(ctx, x0, y0, x1, y1, wallTextureImg) {

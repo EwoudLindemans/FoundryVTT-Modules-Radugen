@@ -12,10 +12,35 @@ radugen.generators.dungeons.rooms.randomRoomGenerator = class{
 
     generate() {
         const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+        const [rect, rnd, directions] = [radugen.helper.rect, radugen.helper.getRndFromNum, radugen.helper.directions];
+
+
         const pushRoomToGrid = (ox, oy, w, h) => {
+            //Give room 20% chance to spawn in liquid tiles
+            
+            let lavasquares = [];
+            if(rnd(5) == 1){
+                //determine lava size
+                let width = rnd(w);
+                let height = rnd(h);
+                let xstart = ox <= 0 ? ox : rnd(ox);
+                let ystart = oy <= 0 ? oy : rnd(oy);
+
+                for(let x = xstart; x < xstart + width; x++){
+                    for(let y = ystart; y < ystart + height; y++){
+                        lavasquares.push(`${x},${y}`);
+                    }
+                }
+            }
+
             for(let x = ox; x < ox + w; x++){
                 for(let y = oy; y < oy + h; y++){
-                    let tile = new Tile(x, y, TileType.Room);
+                    let roomtile = TileType.Room
+                    if (lavasquares.indexOf(`${x},${y}`) != -1) {
+                        roomtile = TileType.Liquid
+                    }
+
+                    let tile = new Tile(x, y, roomtile);
                     // if(x == ox){tile.wall.left = true;}
                     // if(x == ox + w - 1){tile.wall.right = true;}
                     // if(y == oy){tile.wall.top = true;}
@@ -25,7 +50,7 @@ radugen.generators.dungeons.rooms.randomRoomGenerator = class{
             }
         };
 
-        const [rect, rnd, directions] = [radugen.helper.rect, radugen.helper.getRndFromNum, radugen.helper.directions];
+        
         const [width, height] = radugen.generators.dungeons.rooms.getRoomSize();
         let rooms = [{
             adjecent: null,

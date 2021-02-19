@@ -62,6 +62,7 @@ radugen.helpers.DialogClass = class {
             const grid = dungeon.rasterize();
             const imageRenderer = new radugen.renderer.Image(grid, 16, theme.value);
             const blob = await imageRenderer.render();
+            theme.name = decodeURIComponent(theme.value.split('/').pop());
             theme.img = await this.blobToDataURL(blob)
         }
 

@@ -1,9 +1,0 @@
-{
-    "floor": {
-        "mode": "multiple",
-        "hue": "none",
-        "gradient": "random",
-        "rotate": "random",
-        "flip": "random"
-    }
-}

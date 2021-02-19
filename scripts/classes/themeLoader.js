@@ -52,7 +52,8 @@ radugen.classes.ThemeLoader = class {
         }
 
         if(themeFolderStructure.files.length){
-            Object.assign(theme.settings, await this.getJsonObject(themeFolderStructure.files[0]))
+            let themeJson = await this.getJsonObject(themeFolderStructure.files[0]);
+            Object.assign(theme.settings, themeJson);
         }
 
         for(let subFolder of themeFolders){
