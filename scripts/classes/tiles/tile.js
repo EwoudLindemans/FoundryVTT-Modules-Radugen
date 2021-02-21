@@ -29,6 +29,7 @@ radugen.classes.tiles.Tile = class {
             bottom: false,
             left: false,
         }
+        this.room = null;
     }
 
     /**

@@ -515,6 +515,7 @@ radugen.renderer.Image = class {
                 ctx.drawImage(wallTextureImg, rndxStart, rndyStart, wallThickness, height, xstart - wallThickness / 2, ystart, wallThickness, height);
             }
             else{
+                //TODO: the texture is all broken here
                 let rndxStart = rnd(wallTextureImg.width - width);
                 let rndyStart = rnd(wallTextureImg.height - wallThickness);
                 ctx.save(); 
