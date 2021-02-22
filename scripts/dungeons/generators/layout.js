@@ -7,7 +7,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator['LayoutV1 (exper
      * @param {radugen.generators.dungeonSize} dungeonSize
      */
     constructor(dungeonSize) {
-        super('layoutV1');
+        super('layout');
     }
 
     /**
