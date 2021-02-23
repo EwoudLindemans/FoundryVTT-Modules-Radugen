@@ -17,7 +17,7 @@
     <script type="text/javascript" src="scripts/dungeons/generators/names.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/rooms.js"></script>
     <script type="text/javascript">
-        const tileSize = 8;
+        const tileSize = 20;
         function fillSelect(id, dictionary) {
             const storageValue = localStorage.getItem(`radugen-${id}`);
             let html = '';
@@ -54,8 +54,8 @@
             ctx.beginPath();
             ctx.moveTo(sx, sy);
             ctx.lineTo(ex, ey);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = isdoor ? 'white' : 'grey';
+            ctx.lineWidth = tileSize / 5;
+            ctx.strokeStyle = isdoor ? 'white' : 'purple';
             ctx.stroke();
         }
 
@@ -107,20 +107,6 @@
                         drawWall(ctx, x0, x1, y0, y1, tile.door.right);
                     }
                 });
-
-                // ctx.save();
-                // ctx.font = '12px sans-serif';
-                // ctx.fillStyle = '#fff';
-                // ctx.textAlign = "center";
-                // ctx.textBaseline = "middle";
-
-                // //ISSUE: rooms.rect != rasterize
-                // for(let i = 0; i < dungeon._rooms.length; i++){
-                //     let room = dungeon._rooms[i];
-                //     let rect = room.rect
-                //     let [posX, posY] = [room.rect.centerX * tileSize, room.rect.centerY * tileSize];
-                //     ctx.fillText(room.distance, posX, posY);
-                // }
 
                 document.getElementById('dungeon-name').innerHTML = radugen.generators.names.dungeonName();
             });
