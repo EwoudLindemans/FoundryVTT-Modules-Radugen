@@ -90,21 +90,21 @@
                 });
 
                 grid.iterate((tile, x, y) => {
-                    if(tile.wall.top || tile.door.top){
+                    if(tile.wall.top || tile.passage.top){
                         let [x0, x1, y0, y1] = getWallForSide(x, y, 'top');
-                        drawWall(ctx, x0, x1, y0, y1, tile.door.top);
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.top);
                     }
-                    if (tile.wall.bottom || tile.door.bottom) {
+                    if (tile.wall.bottom || tile.passage.bottom) {
                         let [x0, x1, y0, y1] = getWallForSide(x, y, 'bottom',);
-                        drawWall(ctx, x0, x1, y0, y1, tile.door.bottom);
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.bottom);
                     }
-                    if(tile.wall.left || tile.door.left){
+                    if(tile.wall.left || tile.passage.left){
                         let [x0, x1, y0, y1] = getWallForSide(x, y, 'left');
-                        drawWall(ctx, x0, x1, y0, y1, tile.door.left);
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.left);
                     }
-                    if(tile.wall.right || tile.door.right){
+                    if(tile.wall.right || tile.passage.right){
                         let [x0, x1, y0, y1] = getWallForSide(x, y, 'right');
-                        drawWall(ctx, x0, x1, y0, y1, tile.door.right);
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.right);
                     }
                 });
 
@@ -132,22 +132,24 @@
 
                 document.getElementById('canvas-coord-x').innerHTML = `${x}`;
                 document.getElementById('canvas-coord-y').innerHTML = `${y}`;
-                let idontLikeCircularObjects = grid._grid[y][x];
-                if(idontLikeCircularObjects){
-                    delete idontLikeCircularObjects.adjecent;
-                    if(idontLikeCircularObjects.room != null){
-                        delete idontLikeCircularObjects.room.tiles;
-                        delete idontLikeCircularObjects.room.adjecent;
+                if(window.grid){
+                    let idontLikeCircularObjects = grid._grid[y][x];
+                    if(idontLikeCircularObjects){
+                        delete idontLikeCircularObjects.adjecent;
+                        if(idontLikeCircularObjects.room != null){
+                            delete idontLikeCircularObjects.room.tiles;
+                            delete idontLikeCircularObjects.room.adjecent;
+                        }
+                        delete_false_properties(idontLikeCircularObjects, true);
+                        
+                        document.getElementById('canvas-coord-more').innerHTML = JSON.stringify(idontLikeCircularObjects, null, 3);
                     }
-                    delete_false_properties(idontLikeCircularObjects, true);
-                    
-                    document.getElementById('canvas-coord-more').innerHTML = JSON.stringify(idontLikeCircularObjects, null, 3);
+                    else{
+                        document.getElementById('canvas-coord-more').innerHTML = "no moahr";
+                    }
+                    document.getElementById('canvas-coord').style.top = `${event.clientY + 32}px`;
+                    document.getElementById('canvas-coord').style.left = `${event.clientX}px`;
                 }
-                else{
-                    document.getElementById('canvas-coord-more').innerHTML = "no moahr";
-                }
-                document.getElementById('canvas-coord').style.top = `${event.clientY + 32}px`;
-                document.getElementById('canvas-coord').style.left = `${event.clientX}px`;
             });
         });
     </script>

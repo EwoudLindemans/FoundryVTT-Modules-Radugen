@@ -10,9 +10,144 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         this.liquidChance = Math.max(0, rnd(100) - 20);
     }
 
-    getCorridorTiles(room1, room2, invertAxis) {
-        const tiles = [];
+    vladVille(startPoints, endPoints){
         const [Tile, TileType, rnd] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType, radugen.helper.getRndFromNum];
+        let iterateStack = [];
+
+        const offsetX = this.minX, offsetY = this.minY;
+        const rasterizedGrid = this.rasterizeReal()._grid;
+        const gridMinX = this.minX - offsetX, gridMaxX = this.maxX - offsetX, gridMinY = this.minY - offsetY, gridMaxY = this.maxY - offsetY;
+        let vladzerizedGrid = Array.from({length: this.height}).map((_, y) => Array.from({length: this.width}).map((_, x) => null));
+        const winners = [];
+        const dracula = (x, y, grid, countDracula) => {
+            //Check if point exists on grid
+            if (x < gridMinX || y < gridMinY || x > gridMaxX  || y > gridMaxY) {return;} 
+
+            //Check if we already processed this tile
+            if (grid[y][x] != null){ 
+                return;
+            } 
+
+            //Check if we have a winning condition
+            for(let i = 0; i < endPoints.length; i++){ 
+                if(x + offsetX == endPoints[i].x && y + offsetY == endPoints[i].y){
+                    grid[y][x] = countDracula;
+                    winners.push([x, y, countDracula]);
+                    return true;
+                }
+            }
+            // if(rasterizedGrid[y][x].type == TileType.Corridor){
+            //     winners.push([x, y, countDracula]);
+            //     return true;
+            // }
+
+            // Check if we have to evade this tile
+            if(rasterizedGrid[y][x].type == TileType.Room && countDracula != 0){
+                return;
+            } 
+
+            // if(rasterizedGrid[y][x].type == TileType.Void){
+            //     let tile = new Tile(x + offsetX, y + offsetY, TileType.Corridor);
+            //     tile.debug = `rgba(254,0,${countDracula * 30}, 1)`;
+            //     tile.debugInfo = countDracula;
+            //     this._grid.push(tile)
+            // }
+
+            grid[y][x] = countDracula;
+            const diagonal = false;
+            for (let a = 0; a < 360; a += diagonal ? 45 : 90){
+                const rad = a * Math.PI / 180;
+                const [xx,yy] = [Math.round(Math.sin(rad)), Math.round(Math.cos(rad))];
+
+                //Make sure we dont hit walls
+                if (rasterizedGrid[y][x].wall.left && xx == -1 ||
+                    rasterizedGrid[y][x].wall.top && yy == -1 ||
+                    rasterizedGrid[y][x].wall.right && xx == 1 ||
+                    rasterizedGrid[y][x].wall.bottom && yy == 1) 
+                {
+                    continue;
+                }
+
+                iterateStack.push(() => dracula(x + xx, y + yy, grid, countDracula + 1));
+            }
+        }
+
+        //Start dracula
+        for (let startPoint of startPoints){ dracula(startPoint.x - offsetX, startPoint.y - offsetY, vladzerizedGrid, 0); };
+        for(let i = 0; i < iterateStack.length; i++){ if(iterateStack[i]() == true){ break; } }
+
+        iterateStack = [];
+        const alucard = (x, y, grid, countAlucard, start) => {
+            if (x < gridMinX || y < gridMinY || x > gridMaxX  || y > gridMaxY) {return;} //Check if point exists on grid
+            if(countAlucard == 0){return true;}
+            if(countAlucard == grid[y][x]){
+                if (start != grid[y][x]) {
+                    let tile = new Tile(x + offsetX, y + offsetY, TileType.Corridor)
+                    tile.debug = `rgba(${countAlucard * 30},200,254, 1)`;
+                    tile.debugInfo = countAlucard;
+                    this._grid.push(tile);
+                }
+
+                const diagonal = false;
+                //Go to a random count thats lower than the current
+                let randomOffset = rnd(4) - 1;
+                randomOffset = randomOffset * 90;
+                for (let a = 0; a < 360; a += diagonal ? 45 : 90) {
+                    const rad = a * Math.PI / 180;
+                    const [xx, yy] = [Math.round(Math.sin(rad)), Math.round(Math.cos(rad))];
+
+                    if (x + xx < gridMinX || y + yy < gridMinY || x + xx > gridMaxX || y + yy > gridMaxY) { continue; }
+
+                    // //Make sure we dont hit walls
+                    // if (rasterizedGrid[y][x].wall.left && xx == -1 ||
+                    //     rasterizedGrid[y][x].wall.top && yy == -1 ||
+                    //     rasterizedGrid[y][x].wall.right && xx == 1 ||
+                    //     rasterizedGrid[y][x].wall.bottom && yy == 1) 
+                    // {
+                    //     continue;
+                    // }
+
+                    if (grid[y + yy][x + xx] == countAlucard - 1) {
+                        iterateStack.push(() => alucard(x + xx, y + yy, grid, countAlucard - 1));
+                        break;
+                    }
+                }
+            }
+        }
+
+        //Start alucard
+        for(let i = 0; i < winners.length; i++){ //Check if we have a winning condition
+            alucard(winners[i][0], winners[i][1], vladzerizedGrid, winners[i][2], winners[i][2]);
+        }
+        for(let i = 0; i < iterateStack.length; i++){ //Iterate the grid
+            if(iterateStack[i]() == true){break;}
+        }
+
+        return vladzerizedGrid;
+    }
+
+    getCorridorTiles(room, invertAxis) {
+        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+        
+        if(!room.adjecent){
+            return;
+        }
+
+        //Handle these var's as array
+        let startPoints = room.tiles.filter(x => x.isPassage && x.passage.target == room.adjecent.index);
+        let endPoints = room.adjecent.tiles.filter(x => x.isPassage && x.passage.target == room.index);
+        
+        if (startPoints.length == 0 || endPoints.length == 0){
+            return;
+        }
+        
+        this.vladVille(startPoints, endPoints, function(tile){
+            return tile.type != TileType.Room;
+        });
+    }
+    
+    createEntrance(room1, room2, invertAxis){
+        const [rnd] = [radugen.helper.getRndFromNum];
 
         let room1Info = this.getSize(room1.tiles);
         let room2Info = this.getSize(room2.tiles);
@@ -22,123 +157,47 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         let y1 = invertAxis ? room2Info.top : room2Info.top + rnd(room2Info.height - 1);
         let y2 = invertAxis ? room1Info.bottom + 1 : room1Info.top + rnd(room1Info.height - 1);
 
+        //TODO: if walls bang, make corridor
+
         //Register tiles as entrance on the room
         for (let tile of room2.tiles) {
             if (tile.x == x1 && tile.y == y1) {
                 if (invertAxis) {
                     tile.room.connections += 1;
-                    // tile.debug = 'red';
+                    tile.debug = 'red';
                     tile.disallowObjectPlacement = true;
                     tile.wall.top = false;
-                    tile.door.top = true;
+                    tile.passage.top = true;
+                    tile.passage.target = room1.index;
                 }
                 else {
                     tile.room.connections += 1;
-                    // tile.debug = 'orange';
+                    tile.debug = 'orange';
                     tile.disallowObjectPlacement = true;
                     tile.wall.left = false;
-                    tile.door.left = true;
+                    tile.passage.left = true;
+                    tile.passage.target = room1.index;
                 }
             }
         }
         for (let tile of room1.tiles) {
             if (tile.x == x2 && tile.y == y2 - 1) {
                 tile.room.connections += 1;
-                // tile.debug = 'blue';
+                tile.debug = 'blue';
                 tile.disallowObjectPlacement = true;
                 tile.wall.bottom = false;
-                tile.door.bottom = true;
+                tile.passage.bottom = true;
+                tile.passage.target = room2.index;
             }
             if (tile.x == x2 - 1 && tile.y == y2) {
                 tile.room.connections += 1;
-                // tile.debug = 'green';
+                tile.debug = 'green';
                 tile.disallowObjectPlacement = true;
                 tile.wall.right = false;
-                tile.door.right = true;
+                tile.passage.right = true;
+                tile.passage.target = room2.index;
             }
         }
-
-        // // Vladville
-
-        // //TODO: Vladville Pathfinding
-        // let rx1, rx2, ry1, ry2;
-
-
-        // //Determin target and point zero
-        // let rasterizedGrid = this.rasterize();
-        // rasterizedGrid.iterate((tile, x, y) => {
-        //     if (tile.x == x1) { rx1 = x; }
-        //     if (tile.x == x2) { rx2 = x; }
-        //     if (tile.y == y1) { ry1 = y; }
-        //     if (tile.y == y2) { ry2 = y; }
-        // });
-
-
-        // //Now we have our zero and target, lets find a path
-        // let startX = rx1;
-        // let startY = ry1;
-        // let endX = rx2;
-        // let endY = ry2;
-
-        // //Create a copy of the grid with null values
-        // let vladGrid = Array.from({ length: rasterizedGrid.height }).map((_, y) => Array.from({ length: rasterizedGrid.width }).map((_, x) => null));
-
-        /*
-        let count = 1, found = false;
-        grid[startY][startX] = count;
-        while (!found) {
-            for (let y = 0; y < grid.length; y++) {
-                for (let x = 0; x < grid[y].length; x++) {
-                    if (grid[y][x] != count) continue;
-                    for (let xy of [{x:-1},{y:-1},{x:1},{y:1}]) {
-                      	if (y+(xy.y??0)<0 || y+(xy.y??0) >= grid.length) continue;
-                      	if (x+(xy.x??0)<0 || x+(xy.x??0) >= grid[y].length) continue;
-                        if (y+(xy.y??0) == endY && x+(xy.x??0) == endX) found = true;
-                        if (grid[y+(xy.y??0)][x+(xy.x??0)] != null) continue;
-                        grid[y+(xy.y??0)][x+(xy.x??0)] = count + 1;                                        
-                    }
-                }
-            }
-            count++;
-        }
-        */
-        // return yolo;
-
-        let xDiff = Math.abs(x1 - x2);
-        let yDiff = Math.abs(y1 - y2);
-
-        if ((xDiff == 1 || yDiff == 1) && (x1 > 0 && y1 > 0) && (x2 > 0 && y2 > 0)) {
-            console.error('yaha');
-        }
-
-        let split = invertAxis ? rnd(yDiff) - 1 + Math.min(y1, y2) : rnd(xDiff) - 1 + Math.min(x1, x2);
-        let stopAxis = invertAxis ? Math.max(y1, y2) : Math.max(x1, x2);
-        for (let axis = invertAxis ? Math.min(y1, y2) : Math.min(x1, x2); axis < stopAxis; axis++) {
-            if (axis < split) {
-                let tile = new Tile(invertAxis ? x2 : axis, invertAxis ? axis : y2, TileType.Corridor);
-                tile.debug = 'green';
-                tiles.push(tile);
-
-            } else if (axis > split) {
-                let tile = new Tile(invertAxis ? x1 : axis, invertAxis ? axis : y1, TileType.Corridor);
-                tile.debug = 'blue';
-                tiles.push(tile);
-            } else if (axis == split) {
-                let stopOppositeAxis = invertAxis ? Math.max(x1, x2) : Math.max(y1, y2);
-                for (let oppositeAxis = invertAxis ? Math.min(x1, x2) : Math.min(y1, y2); oppositeAxis <= stopOppositeAxis; oppositeAxis++) {
-                    let tile = new Tile(invertAxis ? oppositeAxis : axis, invertAxis ? axis : oppositeAxis, TileType.Corridor);
-                    tile.debugInfo = oppositeAxis;
-
-                    tile.debug = 'orange';
-
-                    tiles.push(tile);
-                }
-            }
-            else {
-                console.error('wtf', axis, split);
-            }
-        }
-        return tiles;
     }
 
     getRandomSquareWithinSquare(x, y, w, h) {
@@ -157,7 +216,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
         let tiles = [];
         for (let x = ox; x < ox + w; x++) {
-            for (let y = oy; y < oy + h; y++) {
+            for(let y = oy; y < oy + h; y++) {
                 tiles.push(new Tile(x, y, TileType.Room));
             }
         }
@@ -210,6 +269,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         let startRoom = {
             adjecent: null,
             direction: null,
+            index: 0,
             distance: 0,
             connections: 0,
             tiles: []
@@ -217,10 +277,9 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
 
         startRoom.tiles = this.getRoomTiles(0, 0, width, height, startRoom);
 
-        for (var tile of startRoom.tiles) { this._grid.push(tile); }
+        for (let tile of startRoom.tiles) { this._grid.push(tile); }
 
         let rooms = [startRoom];
-        let corridors = [];
 
         for (let roomIndex = 1; roomIndex < this.roomCount; roomIndex++) {
             //We have to create x rooms
@@ -267,42 +326,45 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                     tiles: []
                 };
 
+                
                 room.tiles = this.getRoomTiles(ox, oy, w, h, room);
-
-                let corridor = {
-                    tiles: []
-                };
-                //generate corridor:
-
-                //Push room/corridors to grid
-                for (var tile of room.tiles) { this._grid.push(tile); }
-
                 if (room.adjecent != null || room.direction != null) {
                     let directions = radugen.helper.directions;
 
                     switch (room.direction) {
                         case directions.North:
-                            corridor.tiles = this.getCorridorTiles(room, room.adjecent, true);
+                            this.createEntrance(room, room.adjecent, true);
                             break;
                         case directions.West:
-                            corridor.tiles = this.getCorridorTiles(room, room.adjecent, false);
+                            this.createEntrance(room, room.adjecent, false);
                             break;
                         case directions.South:
-                            corridor.tiles = this.getCorridorTiles(room.adjecent, room, true);
+                            this.createEntrance(room.adjecent, room, true);
                             break;
                         case directions.East:
-                            corridor.tiles = this.getCorridorTiles(room.adjecent, room, false)
+                            this.createEntrance(room.adjecent, room, false)
                             break;
                     }
                 }
 
-                
-                for (var tile of corridor.tiles) { this._grid.push(tile); }
-
+                for (let tile of room.tiles) { this._grid.push(tile); }
                 rooms.push(room);
             }
         }
         
+
+        //Pathfinding
+        let corridors = [];
+        for(let room of rooms){
+            if(room.adjecent){
+                let corridor = this.getCorridorTiles(room, rooms[room.adjecent]);
+                corridors.push(corridor);
+            }
+        }
+
+        // for (var corridor of corridors) { 
+        //     this._grid.push(corridor); 
+        // }
 
         this._rooms = rooms;
         this._corridors = corridors;
@@ -312,3 +374,5 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         this.generateRooms();
     }
 };
+
+
