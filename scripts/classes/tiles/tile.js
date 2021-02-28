@@ -23,7 +23,7 @@ radugen.classes.tiles.Tile = class {
             bottom: false,
             left: false,
         };
-        this.door = {
+        this.passage = {
             top: false,
             right: false,
             bottom: false,
@@ -39,10 +39,15 @@ radugen.classes.tiles.Tile = class {
         return this._tileType;
     }
 
+    get isPassage(){
+        return this.passage.top || this.passage.right || this.passage.bottom || this.passage.left;
+    }
+
     /**
      * @type {boolean}
      */
     get hasDoor() {
         return this._hasDoor;
     }
+
 }

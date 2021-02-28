@@ -94,16 +94,32 @@ radugen.generators.dungeon = class {
         };
     }
 
-    rasterize(){
+    rasterizeReal(){
         const TileType = radugen.classes.tiles.TileType;
-
-        const grid = Array.from({length: this.height + 2}).map((_, y) => Array.from({length: this.width + 2}).map((_, x) => 
-            new radugen.classes.tiles.Tile(x, y, TileType.Void)
-        ));
 
         const minY = this.minY;
         const minX = this.minX;
-        
+
+        const grid = Array.from({length: this.height}).map((_, y) => Array.from({length: this.width}).map((_, x) => 
+            new radugen.classes.tiles.Tile(x + minX, y + minY, TileType.Void)
+        ));
+
+        for(let tile of this._grid){
+            grid[tile.y - minY][tile.x - minX] = tile;
+        }
+
+        return new radugen.classes.tiles.TileGrid(grid);
+    }
+
+    rasterize(){
+        const TileType = radugen.classes.tiles.TileType;
+
+        const minY = this.minY;
+        const minX = this.minX;
+
+        const grid = Array.from({length: this.height + 2}).map((_, y) => Array.from({length: this.width + 2}).map((_, x) => 
+            new radugen.classes.tiles.Tile(x + minX, y + minY, TileType.Void)
+        ));
 
         for(let tile of this._grid){
             grid[tile.y - minY + 1][tile.x - minX + 1] = tile;
