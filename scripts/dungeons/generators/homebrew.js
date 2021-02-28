@@ -154,7 +154,8 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         this.vladVille(startPoints, endPoints, function(tile){
             return tile.type != TileType.Room;
         });
-    }
+        //change
+    } 
     
     findCommonWalls(room1, room2, invertAxis){
         const rnd = radugen.helper.getRndFromArr;
