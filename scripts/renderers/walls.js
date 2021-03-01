@@ -122,18 +122,18 @@ radugen.renderer.Walls = class {
         const walls = [];
         this._grid.iterate((tile, x, y) => {
             //New wall mode
-            if (tile.wall.top) {
-                walls.push(this.getWall(x, y, 'top'));
-            }
-            if (tile.wall.left) {
-                walls.push(this.getWall(x, y, 'left'));
-            }
-            if (tile.wall.right) {
-                walls.push(this.getWall(x, y, 'right'));
-            }
-            if (tile.wall.bottom) {
-                walls.push(this.getWall(x, y, 'bottom'));
-            }
+            // if (tile.wall.top) {
+            //     walls.push(this.getWall(x, y, 'top'));
+            // }
+            // if (tile.wall.left) {
+            //     walls.push(this.getWall(x, y, 'left'));
+            // }
+            // if (tile.wall.right) {
+            //     walls.push(this.getWall(x, y, 'right'));
+            // }
+            // if (tile.wall.bottom) {
+            //     walls.push(this.getWall(x, y, 'bottom'));
+            // }
 
             //Old wall mode
             if (tile.type == 0) {
