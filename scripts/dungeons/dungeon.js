@@ -4,12 +4,13 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 // Define the dungeon generator algorithms
 radugen.generators.dungeonGenerator = Object.freeze({
-    GenV2: 2,
-    GenV1: 1,
+    Homebrew: 7,
     Maze: 3,
     'LayoutV1 (experimental)': 4,
     Cave: 5,
-    Preview: -1
+    randomRoomShape: 6,
+    Preview: -1,
+    Simple: 8
 });
 
 // Define the dungeon sizes
@@ -62,15 +63,64 @@ radugen.generators.dungeon = class {
         }
     };
 
-    rasterize(){
-        const TileType = radugen.classes.tiles.TileType;
 
-        const grid = Array.from({length: this.height + 2}).map((_, y) => Array.from({length: this.width + 2}).map((_, x) => 
-            new radugen.classes.tiles.Tile(x, y, TileType.Void)
-        ));
+    intersects(tiles1, tiles2) {
+        let tileInfo1 = this.getSize(tiles1);
+        let tileInfo2 = this.getSize(tiles2);
+
+        return !(
+            tileInfo1.left > tileInfo2.right || 
+            tileInfo1.right < tileInfo2.left || 
+            tileInfo1.top > tileInfo2.bottom || 
+            tileInfo1.bottom < tileInfo2.top
+        );
+    }
+
+    getSize(tiles){
+        let minX = Math.min(...tiles.map(pos => pos.x));
+        let maxX = Math.max(...tiles.map(pos => pos.x));
+        let minY = Math.min(...tiles.map(pos => pos.y));
+        let maxY = Math.max(...tiles.map(pos => pos.y));
+
+        let width = maxX - minX + 1;
+        let height = maxY - minY + 1;
+
+        return {
+            width: width,
+            height: height,
+            left: minX,
+            top: minY,
+            right: maxX,
+            bottom: maxY
+        };
+    }
+
+    rasterizeReal(){
+        const TileType = radugen.classes.tiles.TileType;
 
         const minY = this.minY;
         const minX = this.minX;
+
+        const grid = Array.from({length: this.height}).map((_, y) => Array.from({length: this.width}).map((_, x) => 
+            new radugen.classes.tiles.Tile(x + minX, y + minY, TileType.Void)
+        ));
+
+        for(let tile of this._grid){
+            grid[tile.y - minY][tile.x - minX] = tile;
+        }
+
+        return new radugen.classes.tiles.TileGrid(grid);
+    }
+
+    rasterize(){
+        const TileType = radugen.classes.tiles.TileType;
+
+        const minY = this.minY;
+        const minX = this.minX;
+
+        const grid = Array.from({length: this.height + 2}).map((_, y) => Array.from({length: this.width + 2}).map((_, x) => 
+            new radugen.classes.tiles.Tile(x + minX, y + minY, TileType.Void)
+        ));
 
         for(let tile of this._grid){
             grid[tile.y - minY + 1][tile.x - minX + 1] = tile;

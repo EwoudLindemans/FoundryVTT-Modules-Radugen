@@ -9,17 +9,16 @@
     <script type="text/javascript" src="scripts/classes/tiles/tileGrid.js"></script>
     <script type="text/javascript" src="scripts/classes/themeLoader.js"></script>
     <script type="text/javascript" src="scripts/dungeons/dungeon.js"></script>
-    <script type="text/javascript" src="scripts/dungeons/generators/genV1.js"></script>
-    <script type="text/javascript" src="scripts/dungeons/generators/genV2.js"></script>
-    <script type="text/javascript" src="scripts/dungeons/generators/layoutV1.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/homebrew.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/simple.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/layout.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/maze.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/cave.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/randomRoomShape.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/names.js"></script>
-    <script type="text/javascript" src="scripts/dungeons/generators/rooms/crossRoomGenerator.js"></script>
-    <script type="text/javascript" src="scripts/dungeons/generators/rooms/randomRoomGenerator.js"></script>
-    <script type="text/javascript" src="scripts/dungeons/generators/rooms/rooms.js"></script>
-    <script type="text/javascript" src="scripts/dungeons/pathfinding/adjecentPathfinding.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/rooms.js"></script>
     <script type="text/javascript">
+        const tileSize = 20;
         function fillSelect(id, dictionary) {
             const storageValue = localStorage.getItem(`radugen-${id}`);
             let html = '';
@@ -32,6 +31,33 @@
 
         function getSelect(id) {
             return parseInt(document.getElementById(id).value);
+        }
+
+        function getTileCoordinate(x, y, direction) {
+            switch (direction) {
+                case 'top': return tileSize * y;
+                case 'right': return tileSize * (x + 1);
+                case 'bottom': return tileSize * (y + 1);
+                case 'left': return tileSize * x;
+                default:
+            }
+        }
+        function getWallForSide(x, y, direction) {
+            switch (direction) {
+                case 'top':return [getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'top'),getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'top')];
+                case 'right':return [getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'top'),getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'bottom')];
+                case 'bottom':return [getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'bottom'),getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'bottom')];
+                case 'left':return [getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'bottom'),getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'top')];
+                default:
+            }
+        }
+        function drawWall(ctx, sx, sy, ex, ey, isdoor){
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            ctx.lineTo(ex, ey);
+            ctx.lineWidth = tileSize / 5;
+            ctx.strokeStyle = isdoor ? 'white' : 'purple';
+            ctx.stroke();
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -51,31 +77,80 @@
                 localStorage.setItem('radugen-dungeon-size', size);
 
                 const dungeon = radugen.generators.dungeon.generate(generator, size);
-                const tileSize = 8;
                 
-                const grid = dungeon.rasterize();
+                
+                window.grid = dungeon.rasterize();
 
                 canvas.width = grid.width * tileSize;
                 canvas.height = grid.height * tileSize;
 
                 grid.iterate((tile, x, y) => {
                     if (tile.type == 0) return;
-                    ctx.fillStyle = tile.type == 99 ? "red" : "black";
+                    ctx.fillStyle = tile.debug != null ? tile.debug : "black";
                     ctx.fillRect(tileSize * x, tileSize * y, tileSize, tileSize);
                 });
 
-                ctx.save();
-                ctx.font = '12px sans-serif';
-                ctx.fillStyle = '#fff';
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                for (let ri in dungeon._rooms) {
-                    const rect = dungeon._rooms[ri]
-                    let [posX, posY] = [rect.centerX * tileSize, rect.centerY * tileSize];
-                    ctx.fillText(ri.toString(), posX, posY);
-                }
+                grid.iterate((tile, x, y) => {
+                    if(tile.wall.top || tile.passage.top){
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'top');
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.top);
+                    }
+                    if (tile.wall.bottom || tile.passage.bottom) {
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'bottom',);
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.bottom);
+                    }
+                    if(tile.wall.left || tile.passage.left){
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'left');
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.left);
+                    }
+                    if(tile.wall.right || tile.passage.right){
+                        let [x0, x1, y0, y1] = getWallForSide(x, y, 'right');
+                        drawWall(ctx, x0, x1, y0, y1, tile.passage.right);
+                    }
+                });
 
                 document.getElementById('dungeon-name').innerHTML = radugen.generators.names.dungeonName();
+            });
+
+
+            function delete_false_properties(test, recurse) {
+                for (let i in test) {
+                    if (test[i] === false) {
+                        delete test[i];
+                    } else if (recurse && typeof test[i] === 'object') {
+                        delete_false_properties(test[i], recurse);
+                    }
+                }
+            }
+
+            document.getElementById('output-canvas').addEventListener('mousemove', event => {
+                
+                x = Math.floor(event.offsetX / tileSize);
+                y = Math.floor(event.offsetY / tileSize);
+                if(x < 0 || y < 0){
+                    return;
+                }
+
+                document.getElementById('canvas-coord-x').innerHTML = `${x}`;
+                document.getElementById('canvas-coord-y').innerHTML = `${y}`;
+                if(window.grid){
+                    let idontLikeCircularObjects = grid._grid[y][x];
+                    if(idontLikeCircularObjects){
+                        delete idontLikeCircularObjects.adjecent;
+                        if(idontLikeCircularObjects.room != null){
+                            delete idontLikeCircularObjects.room.tiles;
+                            delete idontLikeCircularObjects.room.adjecent;
+                        }
+                        delete_false_properties(idontLikeCircularObjects, true);
+                        
+                        document.getElementById('canvas-coord-more').innerHTML = JSON.stringify(idontLikeCircularObjects, null, 3);
+                    }
+                    else{
+                        document.getElementById('canvas-coord-more').innerHTML = "no moahr";
+                    }
+                    document.getElementById('canvas-coord').style.top = `${event.clientY + 32}px`;
+                    document.getElementById('canvas-coord').style.left = `${event.clientX}px`;
+                }
             });
         });
     </script>
@@ -110,6 +185,32 @@
         [Output] canvas {
             border: solid 1px #ddd;
         }
+
+        #output-canvas {
+            cursor: crosshair;
+        }
+
+        #canvas-coord table {
+            background: #fff;
+            border-collapse: collapse;
+            box-shadow: 2px 2px 2px #000;
+            font-size: 80%;
+            opacity: 0.8;
+            table-layout: fixed;
+            z-index:1;
+        }
+        #canvas-coord thead {
+            background-color: #f80;
+            color: #fff;
+            font-weight: bold;
+        }
+        #canvas-coord td {
+            vertical-align: top;
+        }
+        #canvas-coord td:first-child {
+            font-weight: bold;
+        }
+        
     </style>
 </head>
 
@@ -127,8 +228,36 @@
     </div>
     <div Output style="display: block; float:left">
         <h2 id="dungeon-name">Output</h2>
-        <canvas id="output-canvas" width="64" height="64" />
-    </div>
-</body>
+        <canvas id="output-canvas" width="64" height="64"></canvas> 
+        <div id="canvas-coord" style="font-weight: normal;position: fixed; ">
+            <table>
+                <thead>
+                    <tr>
+                    <td>Key</td>
+                    <td>Val</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td>X</td>
+                    <td id="canvas-coord-x">---</td>
+                    <tr>
+                    </tr>
+                    <td>Y</td>
+                    <td id="canvas-coord-y">---</td>
+                    </tr>
+                    </tr>
+                    <td>More</td>
+                    <td><code id="canvas-coord-more" style="white-space: pre;">---</code></td>
+                    </tr>
+                </tbody>
 
+                
+            </table>
+        </table>
+    </div>
+</div>
+</body>
+            
+        
 </html>

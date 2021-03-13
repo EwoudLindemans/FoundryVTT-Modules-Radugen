@@ -76,4 +76,23 @@ radugen.classes.tiles.TileGrid = class {
             }
         }
     }
+
+    filter(condition) {
+        const results = [];
+        for (let x = 0; x < this._width; x++) {
+            for (let y = 0; y < this._height; y++) {
+                if (condition(this._grid[y][x])) results.push(this._grid[y][x]);
+            }
+        }
+        return results;
+    }
+
+    find(condition) {
+        for (let x = 0; x < this._width; x++) {
+            for (let y = 0; y < this._height; y++) {
+                if (condition(this._grid[y][x])) return this._grid[y][x];
+            }
+        }
+        return null;
+    }
 }

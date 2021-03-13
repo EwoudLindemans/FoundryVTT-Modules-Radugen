@@ -1,5 +1,14 @@
 {
     "Radugen.module-name": "Radugen (Générateur de donjon aléatoire)",
     "Radugen.generate-dungeon": "Générer donjon",
-    "Radugen.thanks-for-using": "Merci d'utiliser Radugen"
+    "Radugen.thanks-for-using": "Merci d'utiliser Radugen",
+    "Radugen.dungeonGenerator": "Générateur de donjon",
+    "Radugen.dungeonSize": "Taille du donjon",
+    "Radugen.theme": "Thème",
+    "Radugen.tiny": "Tout petit",
+    "Radugen.small": "Petit",
+    "Radugen.medium": "Moyen",
+    "Radugen.large": "Grande",
+    "Radugen.huge": "Énorme",
+    "Radugen.gargantuan": "Gargantuesque"
 }

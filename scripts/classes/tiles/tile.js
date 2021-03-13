@@ -5,7 +5,8 @@ radugen.classes.tiles = radugen.classes.tiles || {};
 radugen.classes.tiles.TileType = Object.freeze({ 
     Void: 0,
     Room: 1,
-    Corridor: 99
+    Corridor: 99,
+    Liquid: 98
 });
 
 radugen.classes.tiles.Tile = class {
@@ -22,12 +23,13 @@ radugen.classes.tiles.Tile = class {
             bottom: false,
             left: false,
         };
-        this.door = {
+        this.passage = {
             top: false,
             right: false,
             bottom: false,
             left: false,
         }
+        this.room = null;
     }
 
     /**
@@ -37,10 +39,15 @@ radugen.classes.tiles.Tile = class {
         return this._tileType;
     }
 
+    get isPassage(){
+        return this.passage.top || this.passage.right || this.passage.bottom || this.passage.left;
+    }
+
     /**
      * @type {boolean}
      */
     get hasDoor() {
         return this._hasDoor;
     }
+
 }

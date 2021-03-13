@@ -1,9 +1,9 @@
 {
-    "floor": {
-        "mode": "single",
-        "hue": "none",
-        "gradient": "none",
-        "rotate": "global",
-        "flip": "global"
-    }
+  "floor": {
+    "mode": "multiple",
+    "hue": "none",
+    "gradient": "none",
+    "rotate": "random",
+    "flip": "random"
+  }
 }

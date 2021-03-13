@@ -1,0 +1,12 @@
+{
+	"pillar": {
+		"mode": "multiple"
+	},
+    "floor": {
+        "mode": "multiple",
+        "hue": "none",
+        "gradient": "none",
+        "rotate": "random",
+        "flip": "random"
+    }
+}
