@@ -7,65 +7,65 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Simple] = class 
         super('Simple');
     }
 
-    roadsWE(room1, room2) {
-        let xStart, yStart, xEnd, yEnd, xDiff, yDiff;
-        const rnd = radugen.helper.getRndFromNum;
-        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+    getCorridorTiles(room1, room2, invertAxis) {
+        const tiles = [];
+        const [Tile, TileType, rnd] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType, radugen.helper.getRndFromNum];
 
-         //Random y
-         xStart = room2.rect.left;
-         yStart = room2.rect.top + rnd(room2.rect.height - 1); 
+        let room1Info = this.getSize(room1.tiles);
+        let room2Info = this.getSize(room2.tiles);
 
-         xEnd = room1.rect.right + 1;
-         yEnd = room1.rect.top + rnd(room1.rect.height - 1); 
+        let x1 = invertAxis ? room2Info.left + rnd(room2Info.width - 1) : room2Info.left;
+        let x2 = invertAxis ? room1Info.left + rnd(room1Info.width - 1) : room1Info.right + 1;
+        let y1 = invertAxis ? room2Info.top : room2Info.top + rnd(room2Info.height - 1);
+        let y2 = invertAxis ? room1Info.bottom + 1 : room1Info.top + rnd(room1Info.height - 1);
 
-         xDiff = Math.abs(xStart - xEnd);
-         yDiff = Math.abs(yStart - yEnd);
-         
-         let splitX = rnd(xDiff - 2) + Math.min(xStart, xEnd);
-         
-         for (let x = Math.min(xStart, xEnd); x < Math.max(xStart, xEnd); x++) {
-             if (x < splitX) {
-                this._grid.push(new Tile(x, yEnd, TileType.Corridor));
-             } else if (x > splitX) {
-                this._grid.push(new Tile(x, yStart, TileType.Corridor));
-             } else {
-                 for (let y = Math.min(yStart, yEnd); y <= Math.max(yStart, yEnd); y++) {
-                    this._grid.push(new Tile(x, y, TileType.Corridor));
-                 }
-             }
-         }
-    };
+        let xDiff = Math.abs(x1 - x2);
+        let yDiff = Math.abs(y1 - y2);
 
-    roadsNS(room1, room2) {
-        let xStart, yStart, xEnd, yEnd, xDiff, yDiff;
-        const rnd = radugen.helper.getRndFromNum;
-        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+        if ((xDiff == 1 || yDiff == 1) && (x1 > 0 && y1 > 0) && (x2 > 0 && y2 > 0)) {
+            console.error('yaha');
+        }
 
-        //Random x 
-        xStart = room2.rect.left + rnd(room2.rect.width - 1) ; 
-        yStart = room2.rect.top;
+        let split = invertAxis ? rnd(yDiff) - 1 + Math.min(y1, y2) : rnd(xDiff) - 1 + Math.min(x1, x2);
+        let stopAxis = invertAxis ? Math.max(y1, y2) : Math.max(x1, x2);
+        for (let axis = invertAxis ? Math.min(y1, y2) : Math.min(x1, x2); axis < stopAxis; axis++) {
+            if (axis < split) {
+                let tile = new Tile(invertAxis ? x2 : axis, invertAxis ? axis : y2, TileType.Corridor);
+                tile.debug = 'green';
+                tiles.push(tile);
 
-        xEnd = room1.rect.left + rnd(room1.rect.width - 1);
-        yEnd = room1.rect.bottom + 1;
+            } else if (axis > split) {
+                let tile = new Tile(invertAxis ? x1 : axis, invertAxis ? axis : y1, TileType.Corridor);
+                tile.debug = 'blue';
+                tiles.push(tile);
+            } else if (axis == split) {
+                let stopOppositeAxis = invertAxis ? Math.max(x1, x2) : Math.max(y1, y2);
+                for (let oppositeAxis = invertAxis ? Math.min(x1, x2) : Math.min(y1, y2); oppositeAxis <= stopOppositeAxis; oppositeAxis++) {
+                    let tile = new Tile(invertAxis ? oppositeAxis : axis, invertAxis ? axis : oppositeAxis, TileType.Corridor);
+                    tile.debugInfo = oppositeAxis;
 
-        xDiff = Math.abs(xStart - xEnd);
-        yDiff = Math.abs(yStart - yEnd);
-        
-        let splitY = rnd(yDiff - 2) + Math.min(yStart, yEnd);
-        
-        for (let y = Math.min(yStart, yEnd); y < Math.max(yStart, yEnd); y++) {
-            if (y < splitY) {
-                this._grid.push(new Tile(xEnd, y, TileType.Corridor));
-            } else if (y > splitY) {
-                this._grid.push(new Tile(xStart, y, TileType.Corridor));
-            } else {
-                for (let x = Math.min(xStart, xEnd); x <= Math.max(xStart, xEnd); x++) {
-                    this._grid.push(new Tile(x, y, TileType.Corridor));
+                    tile.debug = 'orange';
+
+                    tiles.push(tile);
                 }
             }
+            else {
+                console.error('wtf', axis, split);
+            }
         }
-    };
+        return tiles;
+    }
+
+    getTilesForRoom(ox, oy, w, h, room) {
+        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+        let tiles = [];
+        for (let x = ox; x < ox + w; x++) {
+            for(let y = oy; y < oy + h; y++) {
+                tiles.push(new Tile(x, y, TileType.Room));
+            }
+        }
+        return tiles;
+    }   
 
     generateRooms() {
         const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
@@ -73,10 +73,6 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Simple] = class 
             for(let x = ox; x < ox + w; x++){
                 for(let y = oy; y < oy + h; y++){
                     let tile = new Tile(x, y, TileType.Room);
-                    // if(x == ox){tile.wall.left = true;}
-                    // if(x == ox + w - 1){tile.wall.right = true;}
-                    // if(y == oy){tile.wall.top = true;}
-                    // if(y == oy + h - 1){tile.wall.bottom = true;}
                     this._grid.push(tile);
                 }
             }
@@ -84,85 +80,116 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Simple] = class 
 
         const [rect, rnd, directions] = [radugen.helper.rect, radugen.helper.getRndFromNum, radugen.helper.directions];
         const [width, height] = radugen.generators.dungeons.rooms.getRoomSize();
-        let rooms = [{
+        let startRoom = {
             adjecent: null,
             direction: null,
-            rect: new rect(0, 0, width, height)
-        }];
-        pushRoomToGrid(0, 0, width, height);
-        for (let ri = 1; ri < this.roomCount; ri++) {
+            index: 0,
+            distance: 0,
+            connections: 0,
+            tiles: []
+        }
+
+        startRoom.tiles = this.getRoomTiles(0, 0, width, height, startRoom);
+        for (let tile of startRoom.tiles) { this._grid.push(tile); }
+        let rooms = [startRoom];
+
+        for (let roomIndex = 1; roomIndex < this.roomCount; roomIndex++) {
             //We have to create x rooms
             let success = false;
             while (!success) {
-                const adjecent = rnd(ri) - 1;
+                const adjecent = rnd(roomIndex) - 1;
                 const [w, h] = radugen.generators.dungeons.rooms.getRoomSize();
-        
                 const direction = rnd(4);
         
+                let adjecentRoomInfo = this.getSize(rooms[adjecent].tiles);
+
                 let ox = 0, oy = 0;
                 switch (direction) {
                     case directions.North:
-                        ox = rooms[adjecent].rect.x1 + rnd(rooms[adjecent].rect.width) - rnd(w) - 1;
-                        oy = rooms[adjecent].rect.y1 - h - rnd(3) - 2;
+                        ox = adjecentRoomInfo.left + rnd(adjecentRoomInfo.width) - rnd(w) - 1;
+                        oy = adjecentRoomInfo.top - h - rnd(3) - 2;
                         break;
                     case directions.West:
-                        ox = rooms[adjecent].rect.x1 - w - rnd(3) - 2;
-                        oy = rooms[adjecent].rect.y1 + rnd(rooms[adjecent].rect.height) - rnd(h) - 1;
+                        ox = adjecentRoomInfo.left - w - rnd(3) - 2;
+                        oy = adjecentRoomInfo.top + rnd(adjecentRoomInfo.height) - rnd(h) - 1;
                         break;
                     case directions.South:
-                        ox = rooms[adjecent].rect.x1 + rnd(rooms[adjecent].rect.width) - rnd(w) - 1;
-                        oy = rooms[adjecent].rect.y2 + rnd(3) + 2;
+                        ox = adjecentRoomInfo.left + rnd(adjecentRoomInfo.width) - rnd(w) - 1;
+                        oy = adjecentRoomInfo.bottom + rnd(3) + 2;
                         break;
                     case directions.East:
-                        ox = rooms[adjecent].rect.x2 + rnd(3) + 2;
-                        oy = rooms[adjecent].rect.y1 + rnd(rooms[adjecent].rect.height) - rnd(h) - 1;
+                        ox = adjecentRoomInfo.right + rnd(3) + 2;
+                        oy = adjecentRoomInfo.top + rnd(adjecentRoomInfo.height) - rnd(h) - 1;
                         break;
                 }
 
-                const recta = new rect(ox, oy, w, h);
-                if (rooms.find(r => r.rect.expand(1).intersects(recta))) continue;
+                if (rooms.find(r => this.intersects(r.tiles, this.getTilesForRoom(ox, oy, w, h)))) continue;
 
                 success = true;
-                pushRoomToGrid(ox, oy, w, h);
 
-                rooms.push({
-                    index: ri,
-                    adjecent: adjecent,
+                let room = {
+                    connections: 0,
+                    index: roomIndex,
+                    adjecent: rooms[adjecent],
                     direction: direction,
-                    rect: recta
-                });
+                    distance: rooms[adjecent].distance + 1,
+                    tiles: []
+                };
+
+                room.tiles = this.getRoomTiles(ox, oy, w, h, room);
+
+
+                for (let tile of room.tiles) { this._grid.push(tile); }
+                rooms.push(room);
             }
         }
 
         this._rooms = rooms;
-    }
 
-    generatePaths(){
+        let corridor = {
+            tiles: []
+        };
         for (let room of this._rooms) {
-            if (room.adjecent == null || room.direction == null) continue;
-            let adjecentRoom = this._rooms[room.adjecent];
+            if (room.adjecent != null || room.direction != null) {
+                let directions = radugen.helper.directions;
 
-            let directions = radugen.helper.directions;
-            switch (room.direction) {
-                case directions.North:
-                    this.roadsNS(room, adjecentRoom);
-                    break;
-                case directions.West:
-                    this.roadsWE(room, adjecentRoom);
-                    break;
-                case directions.South:
-                    this.roadsNS(adjecentRoom, room);
-                    break;
-                case directions.East:
-                    this.roadsWE(adjecentRoom, room)
-                    break;
+                switch (room.direction) {
+                    case directions.North:
+                        corridor.tiles = this.getCorridorTiles(room, room.adjecent, true);
+                        break;
+                    case directions.West:
+                        corridor.tiles = this.getCorridorTiles(room, room.adjecent, false);
+                        break;
+                    case directions.South:
+                        corridor.tiles = this.getCorridorTiles(room.adjecent, room, true);
+                        break;
+                    case directions.East:
+                        corridor.tiles = this.getCorridorTiles(room.adjecent, room, false)
+                        break;
+                }
             }
+
+            for (var tile of corridor.tiles) { this._grid.push(tile); }
         }
     }
 
+    getRoomTiles(ox, oy, w, h, room) {
+        const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
+        let tiles = [];
+
+        for (let x = ox; x < ox + w; x++) {
+            for (let y = oy; y < oy + h; y++) {
+                let tile = new Tile(x, y, TileType.Room);
+                tile.room = room;
+                tiles.push(tile);
+            }
+        }
+        return tiles;
+    };
+
+
     generate() {
         this.generateRooms();
-        this.generatePaths();
         return this._grid;
     }
 };

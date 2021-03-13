@@ -13,6 +13,7 @@ radugen.helper = {
      * Because we can
      */
     getRndFromNum: (num) => {
+        return Math.floor(Math.random() * num) + 1;
         return radugen.helper.getRndFromArr([...Array(num).keys()]) + 1;
     },
     directions: Object.freeze({ North: 1, West: 2, South: 3, East: 4 }),
