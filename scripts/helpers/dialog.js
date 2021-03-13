@@ -49,7 +49,7 @@ radugen.helpers.DialogClass = class {
 
     async blobToDataURL(blob) {
         return new Promise(function(resolve){
-            var a = new FileReader();
+            const a = new FileReader();
             a.onload = function(e) {resolve(e.target.result);}
             a.readAsDataURL(blob);
         });

@@ -10,6 +10,7 @@
     <script type="text/javascript" src="scripts/classes/themeLoader.js"></script>
     <script type="text/javascript" src="scripts/dungeons/dungeon.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/homebrew.js"></script>
+    <script type="text/javascript" src="scripts/dungeons/generators/simple.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/layout.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/maze.js"></script>
     <script type="text/javascript" src="scripts/dungeons/generators/cave.js"></script>
@@ -113,7 +114,7 @@
 
 
             function delete_false_properties(test, recurse) {
-                for (var i in test) {
+                for (let i in test) {
                     if (test[i] === false) {
                         delete test[i];
                     } else if (recurse && typeof test[i] === 'object') {

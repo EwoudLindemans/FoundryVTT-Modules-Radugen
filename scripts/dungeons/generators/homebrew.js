@@ -1,7 +1,11 @@
 window.radugen = window.radugen || {};
 radugen.generators = radugen.generators || {};
 radugen.generators.dungeons = radugen.generators.dungeons || {};
+radugen.debug = radugen.debug || {};
+radugen.debug.generators = {
+    showCommonWalls: false,
 
+}
 radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = class extends radugen.generators.dungeon {
     constructor() {
         super('default');
@@ -47,12 +51,12 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                 return;
             } 
 
-            if(rasterizedGrid[y][x].type == TileType.Void){
-                let tile = new Tile(x + offsetX, y + offsetY, TileType.Corridor);
-                tile.debug = `rgba(${254 - countDracula * 30},${countDracula * 30},0, 1)`;
-                tile.debugInfo = countDracula;
-                this._grid.push(tile)
-            }
+            // if(rasterizedGrid[y][x].type == TileType.Void){
+            //     let tile = new Tile(x + offsetX, y + offsetY, TileType.Corridor);
+            //     tile.debug = `rgba(${254 - countDracula * 30},${countDracula * 30},0, 1)`;
+            //     tile.debugInfo = countDracula;
+            //     this._grid.push(tile)
+            // }
 
             grid[y][x] = countDracula;
             const diagonal = false;
@@ -72,8 +76,6 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                 iterateStack.push(() => dracula(x + xx, y + yy, grid, countDracula + 1));
             }
         }
-
-        
 
         //Start dracula
         for (let startPoint of startPoints){ dracula(startPoint.x - offsetX, startPoint.y - offsetY, vladzerizedGrid, 0); };
@@ -156,7 +158,6 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
     
     findCommonWalls(room1, room2, invertAxis){
         const rnd = radugen.helper.getRndFromArr;
-        let debug = false;
         let found = false;
         let room1Info = this.getSize(room1.tiles);
         let room2Info = this.getSize(room2.tiles);
@@ -180,7 +181,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                     let room1Tile = room1.tiles.find(tile => tile.x == room1Info.left && tile.y == randomShared);
                     let room2Tile = room2.tiles.find(tile => tile.x == room2Info.right && tile.y == randomShared)
 
-                    if (debug) {
+                    if (radugen.debug.generators.showCommonWalls) {
                         room2Tile.debug = 'green';
                         room1Tile.debug = 'purple';
                     }
@@ -195,9 +196,9 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                     let room1Tile = room1.tiles.find(tile => tile.x == room1Info.right && tile.y == randomShared);
                     let room2Tile = room2.tiles.find(tile => tile.x == room2Info.left && tile.y == randomShared)
 
-                    if (debug) {
-                        room2Tile.debug = 'orange';
-                        room1Tile.debug = 'blue';
+                    if (radugen.debug.generators.showCommonWalls) {
+                        room2Tile.debug = 'red';
+                        room1Tile.debug = 'purple';
                     }
                     if (!found) {
                         room1Tile.wall.right = false;
@@ -228,7 +229,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                     let room1Tile = room1.tiles.find(tile => tile.x == randomShared && tile.y == room1Info.bottom);
                     let room2Tile = room2.tiles.find(tile => tile.x == randomShared && tile.y == room2Info.top);
 
-                    if (debug) {
+                    if (radugen.debug.generators.showCommonWalls) {
                         room2Tile.debug = 'blue';
                         room1Tile.debug = 'orange';
                     }
@@ -243,9 +244,9 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                     let room1Tile = room1.tiles.find(tile => tile.x == randomShared && tile.y == room1Info.top);
                     let room2Tile = room2.tiles.find(tile => tile.x == randomShared && tile.y == room2Info.bottom);
 
-                    if (debug) {
-                        room2Tile.debug = 'blue';
-                        room1Tile.debug = 'orange';
+                    if (radugen.debug.generators.showCommonWalls) {
+                        room2Tile.debug = 'red';
+                        room1Tile.debug = 'green';
                     }
                     if (!found) {
                         room1Tile.wall.bottom = false;
@@ -278,7 +279,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                 if (tile.x == x1 && tile.y == y1) {
                     if (invertAxis) {
                         tile.room.connections += 1;
-                        tile.debug = 'red';
+                        // tile.debug = 'red';
                         tile.disallowObjectPlacement = true;
                         tile.wall.top = false;
                         tile.passage.top = true;
@@ -286,7 +287,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                     }
                     else {
                         tile.room.connections += 1;
-                        tile.debug = 'orange';
+                        // tile.debug = 'orange';
                         tile.disallowObjectPlacement = true;
                         tile.wall.left = false;
                         tile.passage.left = true;
@@ -297,7 +298,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
             for (let tile of room1.tiles) {
                 if (tile.x == x2 && tile.y == y2 - 1) {
                     tile.room.connections += 1;
-                    tile.debug = 'blue';
+                    // tile.debug = 'blue';
                     tile.disallowObjectPlacement = true;
                     tile.wall.bottom = false;
                     tile.passage.bottom = true;
@@ -305,7 +306,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
                 }
                 if (tile.x == x2 - 1 && tile.y == y2) {
                     tile.room.connections += 1;
-                    tile.debug = 'green';
+                    // tile.debug = 'green';
                     tile.disallowObjectPlacement = true;
                     tile.wall.right = false;
                     tile.passage.right = true;
@@ -489,5 +490,3 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         this.generateRooms();
     }
 };
-
-
