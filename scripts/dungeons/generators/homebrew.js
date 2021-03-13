@@ -77,8 +77,6 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
             }
         }
 
-        
-
         //Start dracula
         for (let startPoint of startPoints){ dracula(startPoint.x - offsetX, startPoint.y - offsetY, vladzerizedGrid, 0); };
         for(let i = 0; i < iterateStack.length; i++){ if(iterateStack[i]() == true){ break; } }
