@@ -39,7 +39,7 @@ class Cell {
         this.init();
     }
     init() {
-        for (var i = 0, len = this.width * this.height; i < len; i++) {
+        for (let i = 0, len = this.width * this.height; i < len; i++) {
             this.cells.push(new Cell());
         }
     }
@@ -50,7 +50,7 @@ class Cell {
       * @return Cell
       */
     getCell(x, y) {
-        var i = y * this.width + x;
+        const i = y * this.width + x;
         return this.cells[i];
     }
 
@@ -73,25 +73,25 @@ class Cell {
       * @param {number} wall
       */
     clearWall(x, y, wall) {
-        var i = y * this.width + x;
+        const i = y * this.width + x;
         this.cells[i].walls ^= wall;
     }
     generate() {
-        var stack = [];
-        var self = this;
-        var keys = ['up', 'down', 'left', 'right'];
+        let stack = [];
+        let self = this;
+        let keys = ['up', 'down', 'left', 'right'];
 
         function shuffle(arr) {
-            for (var j, x, i = arr.length; i; j = Math.floor(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
+            for (let j, x, i = arr.length; i; j = Math.floor(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
             return arr;
         };
 
-        var carveTo = function (x, y) {
-            var cell = self.getCell(x, y);
+        let carveTo = function (x, y) {
+            let cell = self.getCell(x, y);
 
             if (cell.init) {
                 stack.pop();
-                var next = stack.pop();
+                let next = stack.pop();
                 self.getCell(next.x, next.y).init = false;
 
                 if (stack.length > 0) {
@@ -104,10 +104,10 @@ class Cell {
             cell.init = true;
             stack.push({ x: x, y: y });
 
-            var neig = self.getNeighbors(x, y);
+            let neig = self.getNeighbors(x, y);
             keys = shuffle(keys);
-            var check = 0;
-            var rand = 0;
+            let check = 0;
+            let rand = 0;
 
             while (check++ < keys.length) {
                 rand = keys[check - 1];
@@ -173,8 +173,8 @@ class Cell {
     renderToGrid(){
         let grid = [];
         const [Tile, TileType] = [radugen.classes.tiles.Tile, radugen.classes.tiles.TileType];
-        var cells = this.cells;
-        for (var i = 0, len = cells.length; i < len; i++) {
+        let cells = this.cells;
+        for (let i = 0, len = cells.length; i < len; i++) {
             let pos = this.getPos(i);
    
             let tile = new Tile(pos.x, pos.y, TileType.Room)

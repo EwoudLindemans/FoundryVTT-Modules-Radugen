@@ -9,7 +9,8 @@ radugen.generators.dungeonGenerator = Object.freeze({
     'LayoutV1 (experimental)': 4,
     Cave: 5,
     randomRoomShape: 6,
-    Preview: -1
+    Preview: -1,
+    Simple: 8
 });
 
 // Define the dungeon sizes
