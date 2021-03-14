@@ -77,6 +77,72 @@ radugen.classes.tiles.TileGrid = class {
         }
     }
 
+    /**
+     * @param {iterateNodesCallback} callback
+     */
+    iterateNodes(callback) {
+        for (let x = 0; x <= this._width; x++) {
+            for (let y = 0; y <= this._height; y++) {
+                const node = {
+                    x: x,
+                    y: y,
+                    connections: {
+                        top: false,
+                        right: false,
+                        bottom: false,
+                        left: false
+                    }
+                };
+
+                //start check topleft
+                if(x != 0 && y != 0){
+                    let tile = this.topLeft(x, y);
+                    if(tile.wall.right){
+                        node.connections.top = true;
+                    }
+                    if(tile.wall.bottom){
+                        node.connections.left = true;
+                    }
+                }
+
+                //start check topRight
+                if(x != this._width && y != 0){
+                    let tile = this.top(x, y);
+                    if(tile.wall.left){
+                        node.connections.top = true;
+                    }
+                    if(tile.wall.bottom){
+                        node.connections.right = true;
+                    }
+                }
+
+                //start check bottomRight
+                if(x != this._width && y != this._height){
+                    let tile = this._grid[y][x];
+                    if(tile.wall.top){
+                        node.connections.right = true;
+                    }
+                    if(tile.wall.left){
+                        node.connections.bottom = true;
+                    }
+                }
+
+                //start check bottomLeft
+                if(x != 0 && y != this._height){
+                    let tile = this.left(x, y);
+                    if(tile.wall.right){
+                        node.connections.bottom = true;
+                    }
+                    if(tile.wall.top){
+                        node.connections.left = true;
+                    }
+                }
+
+                callback(x, y, node);
+            }
+        }
+    }
+
     filter(condition) {
         const results = [];
         for (let x = 0; x < this._width; x++) {

@@ -290,50 +290,21 @@ radugen.renderer.Image = class {
     }
 
 
-    getTileCoordinate(x, y, direction) {
+    getTilePos(x, y, direction) {
+        if (direction.indexOf('-') != -1) {
+            const output = [];
+            for (let d of direction.split('-')) {
+                output.push(this.getTilePos(x, y, d));
+            }
+            return output;
+        }
+
         switch (direction) {
             case 'top': return this._tileResolution * y;
             case 'right': return this._tileResolution * (x + 1);
             case 'bottom': return this._tileResolution * (y + 1);
             case 'left': return this._tileResolution * x;
-            default:
-        }
-    }
-
-    /**
-     * @returns {Array} [x0,y0,x1,y1]
-     */
-    getWallForSide(x, y, direction) {
-        switch (direction) {
-            case 'top':
-                return [
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'top'),
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'top')
-                ];
-            case 'right':
-                return [
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'top'),
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'bottom')
-                ];
-            case 'bottom':
-                return [
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'bottom'),
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'bottom')
-                ];
-            case 'left':
-                return [
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'bottom'),
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'top')
-                ];
-            default:
+            default: throw `direction ${direction} undefined`;
         }
     }
 
@@ -348,162 +319,183 @@ radugen.renderer.Image = class {
                 pillarTextureImages.push(img);
             }
         }
-        
 
+        //Mirror walls on tiles, so the new calculations are easy
         this._grid.iterate((tile, x, y, adjecent) => {
-            if(tile.wall.top){
-                let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
+            if(tile.wall.top){ adjecent.top.wall.bottom = true; }
+            if(tile.wall.right){ adjecent.right.wall.left = true; }
+            if(tile.wall.bottom){ adjecent.bottom.wall.top = true; }
+            if(tile.wall.left){ adjecent.left.wall.right = true; }
+        });
+
+        //Walls
+        this._grid.iterate((tile, x, y, adjecent) => {
+            if (tile.wall.top || (tile.type != 0 && adjecent.top.type == 0)) {
+                this.drawWall(ctx, this.getTilePos(x, y,'left-top'), this.getTilePos(x, y,'right-top'), wallTextureImg);
             }
-            if (tile.wall.bottom) {
-                let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
+            if (tile.wall.right || (tile.type != 0 && adjecent.right.type == 0)) {
+                this.drawWall(ctx, this.getTilePos(x, y,'right-top'), this.getTilePos(x, y,'right-bottom'), wallTextureImg);
             }
-            if(tile.wall.left){
-                let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
+            if (tile.wall.bottom || (tile.type != 0 && adjecent.bottom.type == 0)) {
+                this.drawWall(ctx, this.getTilePos(x, y,'right-bottom'), this.getTilePos(x, y,'left-bottom'), wallTextureImg);
             }
-            if(tile.wall.right){
-                let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
+            if (tile.wall.left || (tile.type != 0 && adjecent.left.type == 0)) {
+                this.drawWall(ctx, this.getTilePos(x, y,'left-bottom'), this.getTilePos(x, y,'left-top'), wallTextureImg);
             }
         });
 
-        this._grid.iterate((tile, x, y, adjecent) => {
-            if (tile.type != 0) {
-                if (adjecent.top.type == 0) {
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                    this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
-                }
-
-                if (adjecent.bottom.type == 0) {
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                    this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
-                }
-
-                if(adjecent.left.type == 0){
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                    this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
-                }
-
-                if(adjecent.right.type == 0){
-                    let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                    this.drawWall(ctx, x0, x1, y0, y1, wallTextureImg);
-                }
-            }
-        });
-
-    
-        if(pillarTextureImages.length){
+        //Draw nodes
+        if (pillarTextureImages.length) {
             let pillarTextureImage = pillarTextureImages[0];
-
-            this._grid.iterate((tile, x, y, adjecent) => {
+            this._grid.iterateNodes((x, y, node) => {
                 //Grab a new image
                 if(this._theme.settings.pillar.mode == 'multiple'){
                     pillarTextureImage = radugen.helper.getRndFromArr(pillarTextureImages);
                 }
-                if (tile.type != 0) {
-                    if (adjecent.top.type == 0) { 
-                        if(adjecent.left.type == 0){ //Draw square
-                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                        }
 
-                        if(adjecent.right.type == 0){ //Draw square
-                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                        }
-                    }
-
-                    //check bottom
-                    if (adjecent.bottom.type == 0) {
-                        if(adjecent.left.type == 0){ //Draw square
-                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                        }
-                        if(adjecent.right.type == 0){ //Draw square
-                            let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                            this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                        }
-                    }
-
-                    //Cross checks
-                    if(adjecent.topRight.type == 0 && adjecent.top.type != 0 && adjecent.right.type != 0){
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                    }
-                    //Cross checks
-                    if(adjecent.bottomRight.type == 0 && adjecent.bottom.type != 0 && adjecent.right.type != 0){
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                    }
-                    //Cross checks
-                    if(adjecent.bottomLeft.type == 0 && adjecent.left.type != 0 && adjecent.bottom.type != 0){
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                    }
-                    //Cross checks
-                    if(adjecent.topLeft.type == 0 && adjecent.top.type != 0 && adjecent.left.type != 0){
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                        this.drawWallCorner(ctx, x0, x1, pillarTextureImage);
-                    }
-
-                    //Middle walls
-                    if (adjecent.top.type != 0 && adjecent.left.type == 0 && adjecent.topLeft.type == 0) {
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'top');
-                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
-                    }
-                    if (adjecent.right.type != 0 && adjecent.top.type == 0 && adjecent.topRight.type == 0) {
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'right');
-                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
-                    }
-                    if (adjecent.bottom.type != 0 && adjecent.right.type == 0 && adjecent.bottomRight.type == 0) {
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'bottom');
-                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
-                    }
-                    if (adjecent.left != 0 && adjecent.bottom.type == 0 && adjecent.bottomLeft.type == 0) {
-                        let [x0, x1, y0, y1] = this.getWallForSide(x, y, 'left');
-                        this.drawWallMiddle(ctx, x0, x1, pillarTextureImage);
-                    }
+                let connectionCount = 0;
+                if(node.connections.top){connectionCount++;}
+                if(node.connections.right){connectionCount++;}
+                if(node.connections.bottom){connectionCount++;}
+                if(node.connections.left){connectionCount++;}
+                
+                switch (connectionCount) {
+                    case 0:
+                        return;
+                    default: 
+                        this.drawWalnoot(ctx, [x * this._tileResolution, y * this._tileResolution], pillarTextureImage);
+                        return;
                 }
             });
         }
+
+        //Wallnut (wall-node)
+        // let wallnuts = [];
+        // const addWallNut = ([wallnut, size]) => {
+        //     if (wallnuts.indexOf(wallnut) != -1) return;
+        //     wallnuts.push(wallnut);
+        // };
+
+        // if (pillarTextureImages.length) {
+        //     let pillarTextureImage = pillarTextureImages[0];
+        //     this._grid.iterate((tile, x, y, adjecent) => {
+                
+
+
+        //         //Corner points
+        //         if (tile.wall.top || (tile.type != 0 && adjecent.top.type == 0)) { 
+        //             if(tile.wall.left || (tile.type != 0 && adjecent.left.type == 0)){ //Draw square
+        //                 // this.drawCorner(ctx, this.getTilePos(x, y, 'left-top'), pillarTextureImage);
+        //                 wallnuts.push([this.getTilePos(x, y, 'left-top'), 1])
+        //             }
+        //             if(tile.wall.right || (tile.type != 0 && adjecent.right.type == 0)){ //Draw square
+        //                 // this.drawCorner(ctx, this.getTilePos(x, y, 'right-top'), pillarTextureImage);
+        //             }
+        //         }
+        //         if (tile.wall.bottom || (tile.type != 0 && adjecent.bottom.type == 0)) {
+        //             if(tile.wall.left || (tile.type != 0 && adjecent.left.type == 0)){ //Draw square
+        //                 // this.drawCorner(ctx, this.getTilePos(x, y, 'left-bottom'), pillarTextureImage);
+        //             }
+        //             if(tile.wall.right || (tile.type != 0 && adjecent.right.type == 0)){ //Draw square
+        //                 // this.drawCorner(ctx, this.getTilePos(x, y, 'right-bottom'), pillarTextureImage);
+        //             }
+        //         }
+
+
+        //         if (tile.wall.top) {
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'left-top'), wallTextureImg);
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'right-top'), wallTextureImg);
+        //         }
+        //         if (tile.wall.right) {
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'right-top'), wallTextureImg);
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'right-bottom'), wallTextureImg);
+        //         }
+        //         if (tile.wall.bottom) {
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'right-bottom'), wallTextureImg);
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'left-bottom'), wallTextureImg);
+        //         }
+        //         if (tile.wall.left) {
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'left-bottom'), wallTextureImg);
+        //             this.drawWalnoot(ctx, this.getTilePos(x, y,'left-top'), wallTextureImg);
+        //         }
+
+
+        //         //Grab a new image
+        //         if(this._theme.settings.pillar.mode == 'multiple'){
+        //             pillarTextureImage = radugen.helper.getRndFromArr(pillarTextureImages);
+        //         }
+
+                
+
+        //         if(tile.type != 0 ){
+        //             //Cross checks
+        //             if (adjecent.topRight.type == 0 && adjecent.top.type != 0 && adjecent.right.type != 0) {
+        //                 this.drawCorner(ctx, this.getTilePos(x, y, 'right-top'), pillarTextureImage);
+        //             }
+        //             //Cross checks
+        //             if (adjecent.bottomRight.type == 0 && adjecent.bottom.type != 0 && adjecent.right.type != 0) {
+        //                 this.drawCorner(ctx, this.getTilePos(x, y, 'right-bottom'), pillarTextureImage);
+        //             }
+        //             //Cross checks
+        //             if (adjecent.bottomLeft.type == 0 && adjecent.left.type != 0 && adjecent.bottom.type != 0) {
+        //                 this.drawCorner(ctx, this.getTilePos(x, y, 'left-bottom'), pillarTextureImage);
+        //             }
+        //             //Cross checks
+        //             if (adjecent.topLeft.type == 0 && adjecent.top.type != 0 && adjecent.left.type != 0) {
+        //                 this.drawCorner(ctx, this.getTilePos(x, y, 'left-top'), pillarTextureImage);
+        //             }
+
+        //             //Middle walls
+        //             if (adjecent.top.type != 0 && adjecent.left.type == 0 && adjecent.topLeft.type == 0) {
+        //                 this.drawWalnoot(ctx, this.getTilePos(x, y, 'left-top'), pillarTextureImage);
+        //             }
+        //             if (adjecent.right.type != 0 && adjecent.top.type == 0 && adjecent.topRight.type == 0) {
+        //                 this.drawWalnoot(ctx, this.getTilePos(x, y, 'right-top'), pillarTextureImage);
+        //             }
+        //             if (adjecent.bottom.type != 0 && adjecent.right.type == 0 && adjecent.bottomRight.type == 0) {
+        //                 this.drawWalnoot(ctx, this.getTilePos(x, y, 'right-bottom'), pillarTextureImage);
+        //             }
+        //             if (adjecent.left != 0 && adjecent.bottom.type == 0 && adjecent.bottomLeft.type == 0) {
+        //                 this.drawWalnoot(ctx, this.getTilePos(x, y, 'left-bottom'), pillarTextureImage);
+        //             }
+        //         }
+        //     });
+        // }
     }
 
-
-    drawWallMiddle(ctx, centerX, centerY, img) {
+    drawWalnoot(ctx, pos, img) {
         let size = this._tileResolution / 4;
         size = size % 2 == 1 ? size + 1 : size;
-        ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+        ctx.drawImage(img, 0, 0, img.width, img.height, pos[0] - size / 2, pos[1] - size / 2, size, size);
     }
-    drawWallCorner(ctx, centerX, centerY, img){
+    drawCorner(ctx, pos, img){
         let size = this._tileResolution / 3;
-        ctx.drawImage(img, 0, 0, img.width, img.height, centerX - size / 2, centerY - size / 2, size, size);
+        ctx.drawImage(img, 0, 0, img.width, img.height, pos[0] - size / 2, pos[1] - size / 2, size, size);
     }
 
-    drawWall(ctx, x0, y0, x1, y1, wallTextureImg) {
+    drawWall(ctx, startPos, endPos, wallTextureImg) {
         if(wallTextureImg){
             let size = Math.round(this._tileResolution / 6);
             let wallThickness = size % 2 == 1 ? size + 1 : size;
             let rnd = radugen.helper.getRndFromNum;
 
             let xstart, xend, ystart, yend;
-            if(x0 < x1){
-                xstart = x0;
-                xend = x1;
+            if(startPos[0] < endPos[0]){
+                xstart = startPos[0];
+                xend = endPos[0];
             }
             else{
-                xstart = x1;
-                xend = x0;
+                xstart = endPos[0];
+                xend = startPos[0];
             }
 
-            if(y0 < y1){
-                ystart = y0;
-                yend = y1;
+            if(startPos[1] < endPos[1]){
+                ystart = startPos[1];
+                yend = endPos[1];
             }
             else{
-                ystart = y1;
-                yend = y0;
+                ystart = endPos[1];
+                yend = startPos[1];
             }
 
             let width = xend - xstart;
@@ -524,7 +516,7 @@ radugen.renderer.Image = class {
                 ctx.translate(width / 2, wallThickness / 2);
                 ctx.rotate(90 * Math.PI / 180);
                 ctx.translate(-width / 2, -wallThickness / 2);
-                ctx.drawImage(wallTextureImg, rndxStart, rndyStart, width, wallThickness, 0, 0, wallThickness, width);
+                ctx.drawImage(wallTextureImg, rndxStart, rndyStart, wallThickness, width, 0, 0, wallThickness, width);
                 ctx.restore();
             }
         }

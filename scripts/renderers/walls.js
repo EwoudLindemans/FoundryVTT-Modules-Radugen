@@ -20,52 +20,32 @@ radugen.renderer.Walls = class {
         return this.renderWalls();
     }
 
-    getTileCoordinate(x, y, direction) {
+
+    getTilePos(x, y, direction) {
+        if (direction.indexOf('-') != -1) {
+            const output = [];
+            for (let d of direction.split('-')) {
+                output.push(this.getTilePos(x, y, d));
+            }
+            return output;
+        }
+
         switch (direction) {
-            case 'top':
-                return this._tileResolution * y;
-            case 'right':
-                return this._tileResolution * (x + 1);
-            case 'bottom':
-                return this._tileResolution * (y + 1);
-            case 'left':
-                return this._tileResolution * x;
-            default:
+            case 'top': return this._tileResolution * y;
+            case 'right': return this._tileResolution * (x + 1);
+            case 'bottom': return this._tileResolution * (y + 1);
+            case 'left': return this._tileResolution * x;
+            default: throw `direction ${direction} undefined`;
         }
     }
 
     getWallForSide(x, y, direction) {
-        //[x0,y0,x1,y1]
         switch (direction) {
-            case 'top':
-                return [
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'top'),
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'top')
-                ];
-            case 'right':
-                return [
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'top'),
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'bottom')
-                ];
-            case 'bottom':
-                return [
-                    this.getTileCoordinate(x, y, 'right'),
-                    this.getTileCoordinate(x, y, 'bottom'),
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'bottom')
-                ];
-            case 'left':
-                return [
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'bottom'),
-                    this.getTileCoordinate(x, y, 'left'),
-                    this.getTileCoordinate(x, y, 'top')
-                ];
-            default:
+            case 'top': return this.getTilePos(x, y, 'left-top-right-top');
+            case 'right': return this.getTilePos(x, y, 'right-top-right-bottom');
+            case 'bottom': return this.getTilePos(x, y, 'right-bottom-left-bottom');
+            case 'left': return this.getTilePos(x, y, 'left-bottom-left-top');
+            default: throw `wall ${direction} undefined`;
         }
     }
 
@@ -122,18 +102,18 @@ radugen.renderer.Walls = class {
         const walls = [];
         this._grid.iterate((tile, x, y) => {
             //New wall mode
-            // if (tile.wall.top) {
-            //     walls.push(this.getWall(x, y, 'top'));
-            // }
-            // if (tile.wall.left) {
-            //     walls.push(this.getWall(x, y, 'left'));
-            // }
-            // if (tile.wall.right) {
-            //     walls.push(this.getWall(x, y, 'right'));
-            // }
-            // if (tile.wall.bottom) {
-            //     walls.push(this.getWall(x, y, 'bottom'));
-            // }
+            if (tile.wall.top) {
+                walls.push(this.getWall(x, y, 'top'));
+            }
+            if (tile.wall.left) {
+                walls.push(this.getWall(x, y, 'left'));
+            }
+            if (tile.wall.right) {
+                walls.push(this.getWall(x, y, 'right'));
+            }
+            if (tile.wall.bottom) {
+                walls.push(this.getWall(x, y, 'bottom'));
+            }
 
             //Old wall mode
             if (tile.type == 0) {
