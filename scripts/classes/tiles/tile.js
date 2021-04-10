@@ -30,6 +30,7 @@ radugen.classes.tiles.Tile = class {
             left: false,
         }
         this.room = null;
+        this.adjecent = null;
     }
 
     /**
@@ -49,5 +50,4 @@ radugen.classes.tiles.Tile = class {
     get hasDoor() {
         return this._hasDoor;
     }
-
 }

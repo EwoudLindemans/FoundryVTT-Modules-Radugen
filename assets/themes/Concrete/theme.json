@@ -1,16 +1,16 @@
 {
 	"pillar": {
 		"mode": "single",
-        "hue": "none",
         "gradient": "none",
         "rotate": "global",
         "flip": "global"
 	},
     "floor": {
         "mode": "multiple",
-        "hue": "none",
-        "gradient": "none",
+        "gradient": {"h": [0, 360], "s":[0,15], "l":[30,40], "a":[0.6, 0.8]},
         "rotate": "random",
-        "flip": "random"
+        "flip": "random",
+		"pattern": "random",
+		"patternOpacity": 0.4
     }
 }
