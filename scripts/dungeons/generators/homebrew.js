@@ -477,7 +477,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
 
         // for (var corridor of corridors) { 
         //     this._grid.push(corridor); 
-        // }
+        // }d
 
         this._rooms = rooms;
         this._corridors = corridors;
