@@ -1,5 +1,14 @@
+![image](https://github.com/EwoudLindemans/FoundryVTT-Modules-Radugen/blob/0.0.4/media/cover.png?raw=true)
+
 # FoundryVTT-Modules-Radugen
-An all in solution for random FoundryVTT dungeons
+We create randomly generated high resolution dungeon maps. 
+We add a small button on the bottom of the scene directory that triggers a menu from which you can generate a random scene.
+
+Basicly we make you a image with a dungeon on it and put it onto a scene.
+
+We aim to help dungeon masters to set-up their games more easily.
+Feel free to engage in the development of this package. Your feedback is much appreciated.
+
 
 ![image](https://user-images.githubusercontent.com/14161771/107837177-1174e300-6da0-11eb-843a-ad34bba0627a.png)
 
