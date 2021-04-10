@@ -4,13 +4,12 @@ radugen.generators.dungeons = radugen.generators.dungeons || {};
 
 // Define the dungeon generator algorithms
 radugen.generators.dungeonGenerator = Object.freeze({
-    Homebrew: 7,
-    Maze: 3,
-    'LayoutV1 (experimental)': 4,
-    Cave: 5,
-    randomRoomShape: 6,
+    Simple: 1,
+    Homebrew: 2,
+    Cave: 3,
+    Maze: 4,
     Preview: -1,
-    Simple: 8
+    randomRoomShape: -2,
 });
 
 // Define the dungeon sizes

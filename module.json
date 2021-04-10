@@ -59,5 +59,11 @@
     "./scripts/helpers/dialog.js",
     "./scripts/renderers/image.js",
     "./scripts/renderers/walls.js"
+  ],
+  "media": [
+    {
+      "type": "cover",
+      "url": "https://raw.githubusercontent.com/EwoudLindemans/FoundryVTT-Modules-Radugen/main/media/cover.png"
+    }
   ]
 }

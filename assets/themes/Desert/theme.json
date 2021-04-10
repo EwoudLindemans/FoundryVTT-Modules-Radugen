@@ -8,9 +8,10 @@
 	},
     "floor": {
         "mode": "multiple",
-        "hue": "none",
-        "gradient": "none",
+        "gradient": {"h": [34, 60], "s":[20,50], "l":[20,40], "a":[0.3, 0.5]},
         "rotate": "random",
-        "flip": "random"
+        "flip": "random",
+		"pattern": "random",
+		"patternOpacity": 0.4
     }
 }

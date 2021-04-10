@@ -84,59 +84,22 @@ radugen.helpers.DialogClass = class {
             ctx.stroke();
         };
 
-        const dungeons = this.getKeyValueFromObject(radugen.generators.dungeonGenerator, this._selectedFields.dungeonGenerator);
-        console.log(dungeons);
-        for (let dungeon of dungeons) {
-            const grid = radugen.generators.dungeon
-                .generate(dungeon.value, radugen.generators.dungeonSize.Small)
-                .rasterize();
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = grid.width * tileSize;
-            canvas.height = grid.height * tileSize;
-
-            grid.iterate((tile, x, y) => {
-                ctx.fillStyle = tile.type == 0 ? "white" : tile.type == 99 ? "red" : tile.type == 98 ? "blue" : "black";
-                ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-            });
-            grid.iterate((tile, x, y) => {
-                if(tile.wall.top){
-                    let [x0, x1, y0, y1] = getWallForSide(x, y, 'top');
-                    drawWall(ctx, x0, x1, y0, y1);
-                }
-                if (tile.wall.bottom) {
-                    let [x0, x1, y0, y1] = getWallForSide(x, y, 'bottom');
-                    drawWall(ctx, x0, x1, y0, y1);
-                }
-                if(tile.wall.left){
-                    let [x0, x1, y0, y1] = getWallForSide(x, y, 'left');
-                    drawWall(ctx, x0, x1, y0, y1);
-                }
-                if(tile.wall.right){
-                    let [x0, x1, y0, y1] = getWallForSide(x, y, 'right');
-                    drawWall(ctx, x0, x1, y0, y1);
-                }
-            });
-
-            const blob = await new Promise(async (resolve, reject) => {
-                canvas.toBlob(imageBlob => {
-                    resolve(imageBlob);
-                }, "image/webp", 0.80);
-            });
-
-            dungeon.name = dungeon.key;
-            dungeon.img = await this.blobToDataURL(blob);
-        }
-
-
         const themes = this.getKeyValueFromObject(await this._themeLoader.loadThemesObject(), this._selectedFields.dungeonTheme);
         for(let theme of themes){
-            const dungeon = radugen.generators.dungeon.generate(radugen.generators.dungeonGenerator.Preview, radugen.generators.dungeonSize.Tiny);
-            const grid = dungeon.rasterize();
-            const imageRenderer = new radugen.renderer.Image(grid, 16, theme.value);
-            const blob = await imageRenderer.render();
             theme.name = decodeURIComponent(theme.value.split('/').pop());
-            theme.img = await this.blobToDataURL(blob);
+
+            //Save to local storage
+            let previewImage = window.localStorage.getItem(`preview-${theme.name}`);
+            if(!previewImage){
+                const dungeon = radugen.generators.dungeon.generate(radugen.generators.dungeonGenerator.Preview, radugen.generators.dungeonSize.Tiny);
+                const grid = dungeon.rasterize();
+                const imageRenderer = new radugen.renderer.Image(grid, 16, theme.value);
+                const blob = await imageRenderer.render();
+                previewImage = await this.blobToDataURL(blob);
+                window.localStorage.setItem(`preview-${theme.name}`, previewImage);
+            }
+
+            theme.img = previewImage;
         }
 
         const html = await renderTemplate(`modules/Radugen/templates/dialog.html`, {
@@ -144,7 +107,7 @@ radugen.helpers.DialogClass = class {
                 {
                     label: game.i18n.localize('Radugen.dungeonGenerator'),
                     name: 'dungeonGenerator',
-                    radio: dungeons
+                    select: this.getKeyValueFromObject(radugen.generators.dungeonGenerator, this._selectedFields.dungeonGenerator)
                 },
                 {
                     label: game.i18n.localize('Radugen.dungeonSize'),

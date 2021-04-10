@@ -1,8 +1,7 @@
 {
   "floor": {
     "mode": "multiple",
-    "hue": "none",
-    "gradient": "none",
+    "gradient": {"h": [0, 360], "s":[0,20], "l":[30,40], "a":[0.0, 0.5]},
     "rotate": "random",
     "flip": "random"
   }
