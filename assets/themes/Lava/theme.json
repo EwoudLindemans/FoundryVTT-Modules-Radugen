@@ -5,8 +5,10 @@
     "floor": {
         "mode": "multiple",
         "hue": "none",
-        "gradient": "none",
+        "gradient": {"h": [0, 50], "s":[0,100], "l":[0,30], "a":[0.2, 0.8]},
         "rotate": "random",
-        "flip": "random"
+        "flip": "random",
+		"pattern": "random",
+		"patternOpacity": 0.4
     }
 }

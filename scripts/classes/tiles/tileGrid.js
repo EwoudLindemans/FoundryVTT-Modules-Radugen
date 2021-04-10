@@ -15,63 +15,78 @@ radugen.classes.tiles.TileGrid = class {
     get height(){
         return this._height;
     }
+
     topLeft(x, y) {
         if (y != 0 && x != 0) {
-            return this._grid[y - 1][x - 1];
+            return this.getTile(x - 1, y - 1);
         }
     }
     topRight(x, y) {
         if (y != 0 && x != this._width - 1) {
-            return this._grid[y - 1][x + 1];
+            return this.getTile(x + 1, y - 1);
         }
     }
     bottomLeft(x, y) {
         if (y != this._height - 1 && x != 0) {
-            return this._grid[y + 1][x - 1];
+            return this.getTile(x - 1, y + 1);
         }
     }
     bottomRight(x, y) {
         if (y != this._height - 1 && x != this._width - 1) {
-            return this._grid[y + 1][x + 1];
+            return this.getTile(x + 1, y + 1);
         }
     }
     top(x, y) {
         if (y != 0) {
-            return this._grid[y - 1][x];
+            return this.getTile(x, y - 1);
         }
     }
     left(x, y) {
         if (x != 0) {
-            return this._grid[y][x - 1];
+            return this.getTile(x - 1, y);
         }
     }
     right(x, y) {
         if (x != this._width - 1) {
-            return this._grid[y][x + 1];
+            return this.getTile(x + 1, y);
         }
     }
     bottom(x, y) {
         if (y != this._height - 1) {
-            return this._grid[y + 1][x];
+            return this.getTile(x, y + 1);
         }
+    }
+
+    getTile(x, y) {
+        let tile = this._grid[y][x];
+        if (tile == null) return null;
+        
+        //Map adjecent tile's to tile
+        if (tile.adjecent == null) {
+            tile.adjecent = {};
+            tile.adjecent.top = this.top(x, y) || null;
+            tile.adjecent.topRight = this.topRight(x, y) || null;
+            tile.adjecent.right = this.right(x, y) || null;
+            tile.adjecent.bottomRight = this.bottomRight(x, y) || null;
+            tile.adjecent.bottom = this.bottom(x, y) || null;
+            tile.adjecent.bottomLeft = this.bottomLeft(x, y) || null;
+            tile.adjecent.left = this.left(x, y) || null;
+            tile.adjecent.topLeft = this.topLeft(x, y) || null;
+        }
+
+        //Mirror walls on tiles, so the new calculations are easy
+        if(tile.wall.top && tile.adjecent.top){ tile.adjecent.top.wall.bottom = true; }
+        if(tile.wall.right && tile.adjecent.right){ tile.adjecent.right.wall.left = true; }
+        if(tile.wall.bottom && tile.adjecent.bottom){ tile.adjecent.bottom.wall.top = true; }
+        if(tile.wall.left && tile.adjecent.left){ tile.adjecent.left.wall.right = true; }
+
+        return tile;
     }
 
     iterate(callback) {
         for (let x = 0; x < this._width; x++) {
             for (let y = 0; y < this._height; y++) {
-                let tile = this._grid[y][x];
-                tile.adjecent = {
-                    top: this.top(x, y) || {},
-                    topRight:this.topRight(x, y) || {},
-                    right:this.right(x, y) || {},
-                    bottomRight:this.bottomRight(x, y) || {},
-                    bottom:this.bottom(x, y) || {},
-                    bottomLeft:this.bottomLeft(x, y) || {},
-                    left:this.left(x, y) || {},
-                    topLeft:this.topLeft(x, y) || {}
-                }
-
-                //Assign navigation to grid item
+                let tile = this.getTile(x, y);
                 callback(tile, x, y, tile.adjecent);
             }
         }
@@ -93,6 +108,8 @@ radugen.classes.tiles.TileGrid = class {
                         left: false
                     }
                 };
+
+               
 
                 //start check topleft
                 if(x != 0 && y != 0){
@@ -116,9 +133,15 @@ radugen.classes.tiles.TileGrid = class {
                     }
                 }
 
+                
                 //start check bottomRight
                 if(x != this._width && y != this._height){
-                    let tile = this._grid[y][x];
+                    let tile = this.getTile(x, y);
+                    // if(tile.adjecent.top && tile.adjecent.right && tile.adjecent.left && tile.adjecent.bottom && 
+                    //     tile.type != 0 && tile.adjecent.top.type == 0 && tile.adjecent.right.type != 0 && tile.adjecent.bottom.type !=0 && tile.adjecent.left.type == 0){
+                    //     debugger;
+                    // }
+
                     if(tile.wall.top){
                         node.connections.right = true;
                     }

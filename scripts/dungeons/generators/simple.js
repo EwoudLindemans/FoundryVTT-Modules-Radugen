@@ -22,10 +22,6 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Simple] = class 
         let xDiff = Math.abs(x1 - x2);
         let yDiff = Math.abs(y1 - y2);
 
-        if ((xDiff == 1 || yDiff == 1) && (x1 > 0 && y1 > 0) && (x2 > 0 && y2 > 0)) {
-            console.error('yaha');
-        }
-
         let split = invertAxis ? rnd(yDiff) - 1 + Math.min(y1, y2) : rnd(xDiff) - 1 + Math.min(x1, x2);
         let stopAxis = invertAxis ? Math.max(y1, y2) : Math.max(x1, x2);
         for (let axis = invertAxis ? Math.min(y1, y2) : Math.min(x1, x2); axis < stopAxis; axis++) {

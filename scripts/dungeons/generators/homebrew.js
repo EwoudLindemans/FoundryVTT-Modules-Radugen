@@ -92,7 +92,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
             if(countAlucard == 0){return true;}
             if(countAlucard == grid[y][x]){
                 if (start != grid[y][x]) {
-                    let tile = new Tile(x + offsetX, y + offsetY, TileType.Corridor)
+                    let tile = new Tile(x + offsetX, y + offsetY, TileType.Corridor);
                     tile.debug = `rgba(${countAlucard * 30},200,254, 1)`;
                     tile.debugInfo = countAlucard;
                     this._grid.push(tile);
@@ -126,7 +126,6 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
 
         //Start alucard
         for(let i = 0; i < winners.length; i++){ //Check if we have a winning condition
-            console.log(winners);
             alucard(winners[i][0], winners[i][1], vladzerizedGrid, winners[i][2], winners[i][2]);
         }
         for(let i = 0; i < iterateStack.length; i++){ //Iterate the grid
@@ -151,9 +150,7 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
             return;
         }
         
-        this.vladVille(startPoints, endPoints, function(tile){
-            return tile.type != TileType.Room;
-        });
+        this.vladVille(startPoints, endPoints);
     }
     
     findCommonWalls(room1, room2, invertAxis){
@@ -344,20 +341,20 @@ radugen.generators.dungeons[radugen.generators.dungeonGenerator.Homebrew] = clas
         let tiles = [];
 
         let lavasquares = [];
-        if (rnd(100) < this.liquidChance) {
-            room.liquid = true;
-            let [xstart, ystart, width, height] = this.getRandomSquareWithinSquare(ox, oy, w, h);
-            //TODO: perhaps add some logic, if width or height == 1 // bias it to the side of the room
-            //Would make for more natural feeling
-            for (let x = xstart; x < xstart + width; x++) {
-                for (let y = ystart; y < ystart + height; y++) {
-                    lavasquares.push(`${x},${y}`);
-                }
-            }
-        }
-        else {
-            room.liquid = false;
-        }
+        // if (rnd(100) < this.liquidChance) {
+        //     room.liquid = true;
+        //     let [xstart, ystart, width, height] = this.getRandomSquareWithinSquare(ox, oy, w, h);
+        //     //TODO: perhaps add some logic, if width or height == 1 // bias it to the side of the room
+        //     //Would make for more natural feeling
+        //     for (let x = xstart; x < xstart + width; x++) {
+        //         for (let y = ystart; y < ystart + height; y++) {
+        //             lavasquares.push(`${x},${y}`);
+        //         }
+        //     }
+        // }
+        // else {
+        room.liquid = false;
+        // }
 
         for (let x = ox; x < ox + w; x++) {
             for (let y = oy; y < oy + h; y++) {

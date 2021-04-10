@@ -1,4 +1,5 @@
 window.radugen = window.radugen || {};
+radugen.seed = 231;
 radugen.helper = {
     uuidv4: () => {
         return 'xxxxxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -6,14 +7,22 @@ radugen.helper = {
             return v.toString(16);
         });
     },
+    mathRnd: () => {
+        // radugen.seed += 0.69;
+        // return (radugen.seed) % 1;
+        return Math.random();
+    },
     getRndFromArr: (arr) => {
-        return arr[Math.floor(Math.random() * arr.length)];
+        return arr[Math.floor(radugen.helper.mathRnd() * arr.length)];
+    },
+    randomIntBetween(min, max) { // min and max included 
+        return Math.floor(Math.random() * (max - min + 1) + min);
     },
     /**
      * Because we can
      */
     getRndFromNum: (num) => {
-        return Math.floor(Math.random() * num) + 1;
+        return Math.floor(radugen.helper.mathRnd() * num) + 1;
         return radugen.helper.getRndFromArr([...Array(num).keys()]) + 1;
     },
     directions: Object.freeze({ North: 1, West: 2, South: 3, East: 4 }),

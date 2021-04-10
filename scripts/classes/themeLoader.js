@@ -33,6 +33,11 @@ radugen.classes.ThemeLoader = class {
         return themes;
     }
 
+    static async loadPatterns(){
+        let patternData = await FilePicker.browse("data", `modules/Radugen/assets/patterns/`);
+        return patternData.files;
+    }
+
     static async loadTheme(themeFolder){
         let themeFolderStructure = await FilePicker.browse("data", themeFolder);
         let themeFolders = themeFolderStructure.dirs;
@@ -41,11 +46,12 @@ radugen.classes.ThemeLoader = class {
         let theme = {settings : {}}
         for(let layer of layers){
             theme.settings[layer] = {
-                mode: 'single', //single|multiple
-                hue: 'none', //none|random
+                mode: 'single', //single|multiple|global
                 gradient: 'none', //none|random
                 rotate: 'global', //none|global|random
-                flip: 'global' //none|global|random
+                flip: 'global', //none|global|random
+                pattern: 'none', //none|random,
+                patternOpacity: 0.5
             }
 
             theme[layer] = [];
@@ -60,7 +66,7 @@ radugen.classes.ThemeLoader = class {
             let name = subFolder.substring(subFolder.lastIndexOf("/") + 1, subFolder.length);
             theme[name] = (await FilePicker.browse("data",subFolder)).files;
         }
-
+        
         return theme;
     }
 }

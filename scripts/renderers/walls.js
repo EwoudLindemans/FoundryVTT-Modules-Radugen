@@ -124,25 +124,25 @@ radugen.renderer.Walls = class {
                 let drawCount = 0;
 
                 //check top
-                if (tile.adjecent.top.type != 0) {
+                if (tile.adjecent.top && tile.adjecent.top.type != 0) {
                     drawTop = true;
                     drawCount++;
                 }
 
                 //check left
-                if (tile.adjecent.left.type != 0) {
+                if (tile.adjecent.left && tile.adjecent.left.type != 0) {
                     drawLeft = true;
                     drawCount++;
                 }
 
                 //check right
-                if (tile.adjecent.right.type != 0) {
+                if (tile.adjecent.right && tile.adjecent.right.type != 0) {
                     drawRight = true;
                     drawCount++;
                 }
 
                 //check bottom
-                if (tile.adjecent.bottom.type != 0) {
+                if (tile.adjecent.bottom && tile.adjecent.bottom.type != 0) {
                     drawBottom = true;
                     drawCount++;
                 }
@@ -184,26 +184,26 @@ radugen.renderer.Walls = class {
                     if (drawCount == 0) {
                         //check top left
 
-                        if (tile.adjecent.topLeft.type != 0) {
+                        if (tile.adjecent.topLeft && tile.adjecent.topLeft.type != 0) {
                             walls.push(this.getWall(x, y, 'right'));
                             walls.push(this.getWall(x, y, 'bottom'));
                         }
 
                         //check top right
 
-                        if (tile.adjecent.topRight.type != 0) {
+                        if (tile.adjecent.topRight && tile.adjecent.topRight.type != 0) {
                             walls.push(this.getWall(x, y, 'left'));
                             walls.push(this.getWall(x, y, 'bottom'));
                         }
 
                         //check bottom left
-                        if (tile.adjecent.bottomLeft.type != 0) {
+                        if (tile.adjecent.bottomLeft && tile.adjecent.bottomLeft.type != 0) {
                             walls.push(this.getWall(x, y, 'right'));
                             walls.push(this.getWall(x, y, 'top'));
                         }
 
                         //check bottom right
-                        if (tile.adjecent.bottomRight.type != 0) {
+                        if (tile.adjecent.bottomRight && tile.adjecent.bottomRight.type != 0) {
                             walls.push(this.getWall(x, y, 'left'));
                             walls.push(this.getWall(x, y, 'top'));
                         }
