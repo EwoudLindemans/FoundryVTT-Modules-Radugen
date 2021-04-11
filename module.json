@@ -33,7 +33,7 @@
       "path": "lang/es.json"
     }
   ],
-  "version": "0.0.2",
+  "version": "0.0.4",
   "download": "https://github.com/EwoudLindemans/FoundryVTT-Modules-Radugen/releases/latest/download/module.zip",
   "minimumCoreVersion": "0.7.8",
   "compatibleCoreVersion": "0.7.9",
