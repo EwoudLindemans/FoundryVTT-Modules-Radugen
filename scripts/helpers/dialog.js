@@ -66,23 +66,6 @@ radugen.helpers.DialogClass = class {
                 default:
             }
         };
-        const getWallForSide = (x, y, direction) => {
-            switch (direction) {
-                case 'top':return [getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'top'),getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'top')];
-                case 'right':return [getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'top'),getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'bottom')];
-                case 'bottom':return [getTileCoordinate(x, y, 'right'),getTileCoordinate(x, y, 'bottom'),getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'bottom')];
-                case 'left':return [getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'bottom'),getTileCoordinate(x, y, 'left'),getTileCoordinate(x, y, 'top')];
-                default:
-            }
-        };
-        const drawWall = (ctx, sx, sy, ex, ey) => {
-            ctx.beginPath();
-            ctx.moveTo(sx, sy);
-            ctx.lineTo(ex, ey);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'brown';
-            ctx.stroke();
-        };
 
         const themes = this.getKeyValueFromObject(await this._themeLoader.loadThemesObject(), this._selectedFields.dungeonTheme);
         for(let theme of themes){
