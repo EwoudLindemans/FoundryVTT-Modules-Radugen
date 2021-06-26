@@ -23,7 +23,7 @@ class RadugenInit {
             });
 
             if (radugen.compendium.scene == null) {
-                let pack = Compendium.create({ entity: "Scene", label: radugen.name }).then(function () {
+                CompendiumCollection.createCompendium({ entity: "Scene", label: radugen.name }).then(function (pack) {
                     radugen.compendium.scene = pack;
                 });
             }
@@ -99,7 +99,7 @@ class RadugenInit {
         }
 
         const scene = new radugen.RadugenScene(grid.width, grid.height, settings.resolution, walls);
-
+        
         const imageRenderer = new radugen.renderer.Image(grid, settings.resolution, settings.dungeonTheme);
         const blob = await imageRenderer.render();
 
@@ -108,10 +108,23 @@ class RadugenInit {
 
         let upload = await FilePicker.upload("data", `${game.settings.get("Radugen", "dungeonUploadPath")}/`, file);
 
+       
+
         //Save scene
-        await radugen.compendium.scene.importEntity(scene).then((scene) => {
-            game.scenes.importFromCollection("world.radugen", scene.id, {}, { renderSheet: false });
+        await radugen.compendium.scene.importDocument(scene).then((importedScene) => {
+            importedScene.createThumbnail().then((data) => {
+                importedScene.update({thumb:data.thumb}, {diff: false});
+            });
+
+            game.scenes.importFromCompendium(radugen.compendium.scene, importedScene.data._id, {}, { renderSheet: false }).then((compendiumScene) => {
+                compendiumScene.createThumbnail().then((data) => {
+                    compendiumScene.update({thumb:data.thumb}, {diff: false});
+                });
+            });
         });
+
+        
+
     }
 }
 
