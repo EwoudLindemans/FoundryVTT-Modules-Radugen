@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<canvas id="myCanvas" width="1200" height="700" style="border:1px solid #d3d3d3;">Your browser does not support the HTML5 canvas tag.</canvas>
+	<script>
+		var roadCanvas = document.createElement('canvas');
+			roadCanvas.width = 1200;
+			roadCanvas.height = 700;
+		var roadCtx = roadCanvas.getContext("2d");
+		roadCtx.filter = "blur(0px)";  // "feather"
+		
+		function gradient(a, b) {
+		
+			return (b.y-a.y)/(b.x-a.x);
+		}
+
+		function bzCurve(points, f, t) {
+			//f = 0, will be straight line
+			//t suppose to be 1, but changing the value can control the smoothness too
+			if (typeof(f) == 'undefined') f = 0.3;
+			if (typeof(t) == 'undefined') t = 0.6;
+
+			roadCtx.beginPath();
+			roadCtx.moveTo(points[0].x, points[0].y);
+
+			var m = 0;
+			var dx1 = 0;
+			var dy1 = 0;
+
+			var preP = points[0];
+			for (var i = 1; i < points.length; i++) {
+				var curP = points[i];
+				nexP = points[i + 1];
+				if (nexP) {
+					m = gradient(preP, nexP);
+					dx2 = (nexP.x - curP.x) * -f;
+					dy2 = dx2 * m * t;
+				} else {
+					dx2 = 0;
+					dy2 = 0;
+				}
+				roadCtx.bezierCurveTo(preP.x - dx1, preP.y - dy1, curP.x + dx2, curP.y + dy2, curP.x, curP.y);
+				dx1 = dx2;
+				dy1 = dy2;
+				preP = curP;
+			}
+			roadCtx.stroke();
+		}
+		
+		var cv = document.getElementById("myCanvas");
+		var ctx = cv.getContext("2d");
+		
+		var grassimage = new Image();                                          
+		
+		
+				
+		grassimage.onload=function(){
+			// create a pattern object
+			var pattern = ctx.createPattern(grassimage,'repeat');
+			// set the fillstyle to that pattern
+			ctx.fillStyle=pattern;
+			// fill a rectangle with the pattern
+			ctx.fillRect(0,0,cv.width,cv.height);
+			// demo only, stroke the rect for clarity
+			ctx.strokeRect(0,0,cv.width,cv.height);
+			
+			
+			// Generate random data
+			var lines = [];
+			var X = -10;
+			var t = 150; //to control width of X
+			for (var i = 0; i < 10; i++ ) {
+				Y = Math.floor((Math.random() * 100) + Math.random() * 600);
+				p = { x: X, y: Y };
+				lines.push(p);
+				X = X + t;
+			}
+	
+			
+
+			roadCtx.setLineDash([0]);
+			roadCtx.lineWidth = 100;
+			roadCtx.strokeStyle = "black";
+			bzCurve(lines, 0.3, 1);
+			
+			
+			var dirtimage = new Image();                                          
+			dirtimage.src = "https://img.itch.zone/aW1hZ2UvMzcyMzg5LzE4NjY5NzIucG5n/original/i%2FP2zh.png";                         
+			dirtimage.width = 10;                                           
+			dirtimage.height = 10; 
+			roadCtx.globalCompositeOperation="source-in";
+			dirtimage.onload=function(){
+			
+				var pattern2 = ctx.createPattern(dirtimage,'repeat');
+				// set the fillstyle to that pattern
+				roadCtx.fillStyle=pattern2;
+				// fill a rectangle with the pattern
+				roadCtx.fillRect(0,0,cv.width,cv.height);
+			
+				ctx.drawImage(roadCanvas, 0, 0);
+			}
+			
+			
+			
+			
+		}
+		grassimage.width = 256;                                           
+		grassimage.height = 256; 
+		grassimage.src = "https://i.pinimg.com/originals/a4/22/9a/a4229a483cf76e0b5458450c2e591ff3.png";                         
+		
+
+		
+
+		
+
+		
+		
+	</script>
+</body>
+</html>

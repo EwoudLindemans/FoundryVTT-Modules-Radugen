@@ -25,7 +25,8 @@ window.radugen.settings = class extends FormApplication {
             hint: "This is where we will store the generated dungeons",
             scope: "world",     // This specifies a client-stored setting
             config: true,        // This specifies that the setting appears in the configuration view
-            type: window.Azzu.SettingsTypes.DirectoryPicker,
+            type: String,
+            filePicker: true,
             default: "modules/Radugen/uploads/scenes",        // The default value for the setting
             restricted: true
         });
