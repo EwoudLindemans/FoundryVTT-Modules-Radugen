@@ -8,6 +8,7 @@ radugen.generators.dungeonGenerator = Object.freeze({
     Homebrew: 2,
     Cave: 3,
     Maze: 4,
+    Room: 5,
     Preview: -1,
     randomRoomShape: -2,
 });
@@ -38,12 +39,12 @@ radugen.generators.dungeon = class {
      * @param {radugen.generators.dungeonSize} dungeonSize
      * @returns {radugen.generators.dungeon}
      */
-    static generate(dungeonType, dungeonSize){
+    static async generate(dungeonType, dungeonSize){
         const generatorClass = (dungeonType in radugen.generators.dungeons) ? radugen.generators.dungeons[dungeonType] : radugen.generators.dungeon;
         const generator = new generatorClass(dungeonSize);
         generator._type = parseInt(dungeonType);
         generator._size = parseInt(dungeonSize);
-        generator.generate();
+        await generator.generate();
         return generator;
     }
     
